@@ -16,29 +16,41 @@ const KonvaEquipmentImage = ({
   const [image, status] = useImage(equipment.dataUrl);
   const shapeRef = useRef();
   const trRef = useRef();
-  const [isReady, setIsReady] = useState(false);
 
-  // Initialize dimensions with a reasonable default
-  const [dimensions, setDimensions] = useState({
-    width: equipment.width || 50,
-    height: equipment.height || 50,
-  });
+  // Use local state for width and height, initialized from equipment prop
+  // These will be updated by the transformer and also by parent prop changes
+  const [currentWidth, setCurrentWidth] = useState(equipment.width);
+  const [currentHeight, setCurrentHeight] = useState(equipment.height);
 
+  // Effect to set initial dimensions when the image loads
+  // and if they haven't been set by the parent (e.g., for a new drop)
   useEffect(() => {
     if (status === "loaded" && image) {
-      // Calculate proper dimensions when image loads
-      const aspectRatio = image.width / image.height;
-      const baseSize = 50;
-      const width = aspectRatio > 1 ? baseSize : baseSize * aspectRatio;
-      const height = aspectRatio > 1 ? baseSize / aspectRatio : baseSize;
-
-      setDimensions({ width, height });
-      setIsReady(true);
+      if (currentWidth === undefined || currentHeight === undefined) {
+        const aspectRatio = image.width / image.height;
+        const baseSize = 50; // Initial size
+        const width = aspectRatio > 1 ? baseSize : baseSize * aspectRatio;
+        const height = aspectRatio > 1 ? baseSize / aspectRatio : baseSize;
+        setCurrentWidth(width);
+        setCurrentHeight(height);
+      }
     }
-  }, [status, image]);
+  }, [status, image, currentWidth, currentHeight]); // Depend on current dimensions to avoid re-calculating if already set
+
+  // Effect to synchronize local state with parent's equipment prop
+  // This is crucial when the parent's `droppedEquipment` state updates after `onTransformEnd`
+  useEffect(() => {
+    if (equipment.width !== undefined && equipment.width !== currentWidth) {
+      setCurrentWidth(equipment.width);
+    }
+    if (equipment.height !== undefined && equipment.height !== currentHeight) {
+      setCurrentHeight(equipment.height);
+    }
+  }, [equipment.width, equipment.height]); // Only re-run when equipment dimensions from parent change
+
 
   useEffect(() => {
-    if (isReady && isSelected && shapeRef.current && trRef.current) {
+    if (isSelected && shapeRef.current && trRef.current) {
       // Attach transformer with a small delay to ensure everything is ready
       const timer = setTimeout(() => {
         if (shapeRef.current && trRef.current) {
@@ -49,9 +61,10 @@ const KonvaEquipmentImage = ({
 
       return () => clearTimeout(timer);
     }
-  }, [isSelected, isReady]);
+  }, [isSelected, currentWidth, currentHeight]); // Re-attach if selection or dimensions change
 
-  if (status !== "loaded" || !isReady) {
+  // Only render if image is loaded and dimensions are defined
+  if (status !== "loaded" || currentWidth === undefined || currentHeight === undefined) {
     return null;
   }
 
@@ -61,8 +74,8 @@ const KonvaEquipmentImage = ({
         image={image}
         x={equipment.x}
         y={equipment.y}
-        width={dimensions.width}
-        height={dimensions.height}
+        width={currentWidth} // Use local state for width
+        height={currentHeight} // Use local state for height
         rotation={equipment.rotation || 0}
         draggable
         onDragEnd={onDragEnd}
@@ -70,8 +83,8 @@ const KonvaEquipmentImage = ({
         onTap={onSelect}
         ref={shapeRef}
         // Important for transformer positioning:
-        offsetX={dimensions.width / 2}
-        offsetY={dimensions.height / 2}
+        offsetX={currentWidth / 2}
+        offsetY={currentHeight / 2}
       />
       {isSelected && (
         <Transformer
@@ -101,17 +114,15 @@ const KonvaEquipmentImage = ({
             const newWidth = Math.max(20, node.width() * scaleX);
             const newHeight = Math.max(20, node.height() * scaleY);
 
-            // Reset scale
+            // Reset scale of the Konva node after transformation
             node.scaleX(1);
             node.scaleY(1);
 
-            // Update dimensions
-            setDimensions({
-              width: newWidth,
-              height: newHeight,
-            });
+            // Update local state immediately
+            setCurrentWidth(newWidth);
+            setCurrentHeight(newHeight);
 
-            // Notify parent of transform
+            // Notify parent of transform with new dimensions
             onTransform({
               x: node.x(),
               y: node.y(),
@@ -146,8 +157,6 @@ const Home = () => {
   useEffect(() => {
     const updateDimensions = () => {
       if (containerRef.current) {
-        // Adjust for potential padding or margins if necessary
-        // In this setup, the containerRef.current.offsetWidth/Height should be accurate
         setContainerDimensions({
           width: containerRef.current.offsetWidth,
           height: containerRef.current.offsetHeight,
@@ -181,7 +190,6 @@ const Home = () => {
   };
 
   const handleDrop = (e) => {
-    // Removed 'async' as createSvgDataUrl is no longer async
     e.preventDefault();
 
     if (!draggedEquipmentSrc || !stageRef.current || !containerRef.current)
@@ -198,8 +206,8 @@ const Home = () => {
     const dataUrl = createSvgDataUrl(draggedEquipmentSrc.content);
 
     const newEquipmentId = Date.now().toString(); // Generate ID once
-    setDroppedEquipment([
-      ...droppedEquipment,
+    setDroppedEquipment((prevEquipment) => [
+      ...prevEquipment,
       {
         src: draggedEquipmentSrc.src, // Keep original src for reference
         dataUrl: dataUrl, // Use the modified data URL for Konva
@@ -208,9 +216,8 @@ const Home = () => {
         id: newEquipmentId,
         bgColor: draggedEquipmentSrc.bgColor,
         lineColor: draggedEquipmentSrc.lineColor,
-        // Initial width/height/rotation will be set by KonvaEquipmentImage's internal logic
-        // when it first renders, then updated by transformer.
-        width: undefined, // Let KonvaEquipmentImage calculate initial width/height
+        // Initial width/height will be set by KonvaEquipmentImage's internal logic
+        width: undefined,
         height: undefined,
         rotation: 0,
       },
@@ -239,31 +246,27 @@ const Home = () => {
   };
 
   const handleEquipmentTransform = (id, newAttrs) => {
-    const newDroppedEquipment = droppedEquipment.map((equipment) => {
-      if (equipment.id === id) {
-        return {
-          ...equipment,
-          ...newAttrs, // Apply new x, y, width, height, rotation
-        };
-      }
-      return equipment;
-    });
-    setDroppedEquipment(newDroppedEquipment);
+    setDroppedEquipment((prevEquipment) =>
+      prevEquipment.map((equipment) => {
+        if (equipment.id === id) {
+          return {
+            ...equipment,
+            ...newAttrs, // Apply new x, y, width, height, rotation
+          };
+        }
+        return equipment;
+      })
+    );
   };
 
   const checkDeselect = (e) => {
     // deselect when clicked on empty area of the stage
     const clickedOnEmpty = e.target === e.target.getStage();
-    // Also deselect if clicking on a transformer handle, but we don't handle multi-select.
-    // For single select, if not clicking on the selected shape itself, deselect.
-    if (
-      clickedOnEmpty ||
-      (e.target.getParent && e.target.getParent().className === "Transformer")
-    ) {
+    if (clickedOnEmpty) {
       selectShape(null); // Deselect
     } else if (e.target.attrs && e.target.attrs.id) {
-      // If clicking on an equipment image
-      selectShape(e.target.attrs.id); // Select it
+      // If clicking on an equipment image, select it
+      selectShape(e.target.attrs.id);
     }
   };
 
@@ -320,7 +323,7 @@ const Home = () => {
             left: 0,
             zIndex: 10,
             // Temporary background for debugging:
-            backgroundColor: "rgba(0, 100, 255, 0.1)",
+            // backgroundColor: "rgba(0, 100, 255, 0.1)",
           }}
         >
           <Layer>
@@ -336,7 +339,7 @@ const Home = () => {
                 }
               />
             ))}
-          </Layer>
+          </Layer> 
         </Stage>
       </div>
 
