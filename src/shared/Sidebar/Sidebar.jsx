@@ -5,48 +5,96 @@ import PitchMenu from "../../components/ui/PitchMenu";
 import EquipmentMenu from "../../components/ui/EquipmentMenu";
 import ShapeMenu from "../../components/ui/ShapeMenu";
 import IdeaBox from "../../components/ui/IdeaBox";
-import { GiSoccerField, IoFootballOutline, LuShapes, TiArrowMoveOutline, IoClose } from "../../components/icons";
+import {
+  GiSoccerField,
+  IoFootballOutline,
+  LuShapes,
+  TiArrowMoveOutline,
+  IoClose,
+} from "../../components/icons";
+import { getModifiedSvgString, createSvgDataUrl } from "../../utils/svgUtils"; // Import utils
 
 const Sidebar = () => {
   const {
+    selectedSvg,
     setSelectedSvg,
-    svgBgColor, setSvgBgColor,
+    svgBgColor,
+    setSvgBgColor,
+    svgLineColor,
     setSvgLineColor,
     setEquipmentBgColor,
     setEquipmentLineColor,
     setDraggedEquipmentSrc,
+    setPitch, // Get setPitch from context
   } = useSvg();
 
   const [activeMenu, setActiveMenu] = useState(null);
   const [activePitchColorIndex, setActivePitchColorIndex] = useState(0);
-  const [activeEquipmentColorIndex, setActiveEquipmentColorIndex] = useState(0);
+  const [activeEquipmentColorIndex, setActiveEquipmentColorIndex] =
+    useState(0);
 
-  const pitchColorCombinations = useMemo(() => [
+  const pitchColorCombinations = useMemo(
+    () => [
       { bg: "#00A859", line: "#FFFFFF" },
       { bg: "#FFFFFF", line: "#0055A4" },
       { bg: "#FFFFFF", line: "#000000" },
       { bg: "#0055A4", line: "#FF0000" },
-    ], []);
+    ],
+    []
+  );
 
-  const equipmentColorCombinations = useMemo(() => [
+  const equipmentColorCombinations = useMemo(
+    () => [
       { bg: "#D4DA65", line: "#D4DA65" },
       { bg: "#22274A", line: "#22274A" },
       { bg: "#DC052D", line: "#DC052D" },
       { bg: "#6CABDD", line: "#6CABDD" },
       { bg: "#FDE100", line: "#FDE100" },
-    ], []);
+    ],
+    []
+  );
 
-  const handleMenuClick = (menu) => setActiveMenu(activeMenu === menu ? null : menu);
+  const handleMenuClick = (menu) =>
+    setActiveMenu(activeMenu === menu ? null : menu);
 
-  const handlePitchSelect = (svg) => {
+  const handlePitchSelect = async (svg) => {
     setSelectedSvg({ component: svg.component, id: svg.id });
+
+    // New logic for Konva
+    const modifiedSvgString = await getModifiedSvgString(
+      svg.component,
+      svgBgColor,
+      svgLineColor
+    );
+    const dataUrl = createSvgDataUrl(modifiedSvgString);
+    setPitch({
+      id: `pitch-${svg.id}`,
+      dataUrl,
+      x: 0,
+      y: 0,
+    });
   };
 
-  const handlePitchColorSelect = (index) => {
+  const handlePitchColorSelect = async (index) => {
     setActivePitchColorIndex(index);
     const { bg, line } = pitchColorCombinations[index];
     setSvgBgColor(bg);
     setSvgLineColor(line);
+
+    if (selectedSvg) {
+      const modifiedSvgString = await getModifiedSvgString(
+        selectedSvg.component,
+        bg,
+        line
+      );
+      const dataUrl = createSvgDataUrl(modifiedSvgString);
+      setPitch({
+        id: `pitch-${selectedSvg.id}`,
+        dataUrl,
+        x: 0,
+        y: 0,
+      });
+    }
   };
 
   const handleEquipmentColorSelect = (index) => {
@@ -56,12 +104,15 @@ const Sidebar = () => {
     setEquipmentLineColor(line);
   };
 
-  const handleDragStart = useCallback((src, modifiedSvgContent) => {
-    setDraggedEquipmentSrc({
-      src: src,
-      content: modifiedSvgContent,
-    });
-  }, [setDraggedEquipmentSrc]);
+  const handleDragStart = useCallback(
+    (src, modifiedSvgContent) => {
+      setDraggedEquipmentSrc({
+        src: src,
+        content: modifiedSvgContent,
+      });
+    },
+    [setDraggedEquipmentSrc]
+  );
 
   const menuItems = [
     { name: "pitch", icon: GiSoccerField, label: "Pitch" },
@@ -86,7 +137,10 @@ const Sidebar = () => {
 
       {activeMenu && (
         <div className="absolute top-0 right-[-260px] w-[250px] h-full bg-[#E6E6F4] rounded-lg shadow-lg p-3 overflow-y-auto z-50">
-          <button onClick={() => setActiveMenu(null)} className="absolute top-2 right-2 text-black">
+          <button
+            onClick={() => setActiveMenu(null)}
+            className="absolute top-2 right-2 text-black"
+          >
             <IoClose className="text-xl" />
           </button>
 
@@ -111,10 +165,10 @@ const Sidebar = () => {
 
           {activeMenu === "shape" && (
             <ShapeMenu
-               colors={equipmentColorCombinations}
-               activeColorIndex={activeEquipmentColorIndex}
-               onColorSelect={handleEquipmentColorSelect}
-               onDragStart={handleDragStart}
+              colors={equipmentColorCombinations}
+              activeColorIndex={activeEquipmentColorIndex}
+              onColorSelect={handleEquipmentColorSelect}
+              onDragStart={handleDragStart}
             />
           )}
 

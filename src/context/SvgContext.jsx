@@ -7,7 +7,6 @@ const SvgContext = createContext();
 // SvgProvider component to wrap the application and provide SVG context
 export const SvgProvider = ({ children }) => {
   // State to hold the currently selected SVG object (for pitch)
-  // It will include component, id, bgColor, and lineColor
   const [selectedSvg, setSelectedSvg] = useState(null);
 
   // State for the SVG background color, initialized to green as per requirement
@@ -17,7 +16,6 @@ export const SvgProvider = ({ children }) => {
   const [svgLineColor, setSvgLineColor] = useState("#FFFFFF"); // Default: White Line
 
   // NEW: State for currently selected equipment SVG (for drag and drop)
-  // This state might be less directly used now that we're passing content via draggedEquipmentSrc
   const [selectedEquipmentSvg, setSelectedEquipmentSvg] = useState(null);
   // NEW: State for equipment background color
   const [equipmentBgColor, setEquipmentBgColor] = useState("#D4DA65"); // Default equipment color
@@ -26,6 +24,9 @@ export const SvgProvider = ({ children }) => {
 
   // NEW: State to hold the SVG source being dragged (original src and modified content)
   const [draggedEquipmentSrc, setDraggedEquipmentSrc] = useState(null);
+
+  // **** NEW: State for the pitch on the Konva Stage ****
+  const [pitch, setPitch] = useState(null);
 
   return (
     // Provide the context values to its children
@@ -46,6 +47,9 @@ export const SvgProvider = ({ children }) => {
         setEquipmentLineColor,
         draggedEquipmentSrc, // Expose the dragged SVG source and its content
         setDraggedEquipmentSrc, // Expose setter for dragged SVG source
+        // **** NEW: Pitch context values ****
+        pitch,
+        setPitch,
       }}
     >
       {children}
