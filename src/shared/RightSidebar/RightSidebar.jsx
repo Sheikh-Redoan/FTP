@@ -1,122 +1,73 @@
 import { useState } from "react";
-import {
-  FaChevronDown,
-} from "react-icons/fa";
-
-import { FaBold } from "react-icons/fa";
-import { FaUnderline } from "react-icons/fa";
-import { FaItalic } from "react-icons/fa6";
+import { FaChevronDown, FaBold, FaUnderline, FaItalic } from "react-icons/fa";
 import { VscThreeBars } from "react-icons/vsc";
 import { HiArrowPath } from "react-icons/hi2";
 import { BsFiletypePdf } from "react-icons/bs";
 import { PiShareFat } from "react-icons/pi";
 
-
-
-
-
-
+const ToolbarButton = ({ onClick, active, children }) => (
+  <button
+    onClick={onClick}
+    className={`w-14 h-14 rounded-lg flex items-center justify-center border ${
+      active ? "bg-blue-100 border-2 border-blue-900" : "border-blue-900"
+    }`}
+  >
+    {children}
+  </button>
+);
 
 const RightSidebar = () => {
   const [coachingPoints, setCoachingPoints] = useState("");
-  const [activeTool, setActiveTool] = useState("pen");
+  const [activeTool, setActiveTool] = useState("bold");
 
   return (
-    <div className="w-[570px] min-h-[1190px] p-6 bg-white">
-      {/* Header with Save options */}
+    <div className="w-[570px] min-h-screen p-6 bg-white">
+      {/* Save Section */}
       <div className="flex justify-between items-start mb-10">
-        {/* Save as button */}
-
-        {/* Left sidebar */}
         <div className="flex flex-col gap-6">
-          <button className="w-60 h-12 px-6 py-2.5 rounded-full border border-blue-900 flex items-center gap-2 hover:bg-blue-50 transition-colors">
-            <HiArrowPath className="text-blue-900 w-5 h-5" />
-            <span className="text-blue-900 text-lg font-medium">Save as</span>
+          <button className="w-60 h-12 px-6 py-2.5 rounded-full border border-blue-900 flex items-center gap-2 hover:bg-blue-50">
+            <HiArrowPath className="w-5 h-5" />
+            <span className="text-lg font-medium">Save as</span>
           </button>
-          {/* Drill dropdown */}
           <div className="w-56 h-16 bg-slate-200 rounded-2xl border border-blue-900 flex items-center justify-between px-4">
-            <span className="text-blue-900 text-lg font-medium">Drill</span>
-            <FaChevronDown className="text-blue-900" />
+            <span className="text-lg font-medium">Drill</span>
+            <FaChevronDown />
           </div>
         </div>
-
-        {/* Save options */}
         <div className="flex flex-col gap-4">
-          <button className="flex flex-col justify-center items-center p-[2px] w-[130px] h-[100px] shadow rounded-lg hover:bg-gray-100 cursor-pointer">
-            <div className="">
-              <BsFiletypePdf className="text-blue-900 text-[30px]" />
-            </div>
-            <span className="text-blue-900 text-lg font-medium">
-              Save as PDF
-            </span>
+          <button className="flex flex-col justify-center items-center p-1 w-[130px] h-[100px] shadow rounded-lg hover:bg-gray-100">
+            <BsFiletypePdf className="text-3xl mb-1" />
+            <span className="text-lg font-medium">Save as PDF</span>
           </button>
-
-          <button className="flex flex-col justify-center items-center p-[2px] w-[130px] h-[100px] shadow rounded-lg hover:bg-gray-100 cursor-pointer">
-            <div className="">
-              <PiShareFat className="text-blue-900  text-[30px]" />
-            </div>
-            <span className="text-blue-900 text-lg font-medium">Share</span>
+          <button className="flex flex-col justify-center items-center p-1 w-[130px] h-[100px] shadow rounded-lg hover:bg-gray-100">
+            <PiShareFat className="text-3xl mb-1" />
+            <span className="text-lg font-medium">Share</span>
           </button>
         </div>
       </div>
 
-      {/* Main content */}
-      <div className="flex gap-6">
-        {/* Main text area */}
-        <div className="flex-1 h-[424px] rounded-2xl border border-indigo-300 p-6">
-          {/* Tools sidebar */}
-          <div className="w-max flex items-center justify-start gap-4 p-2 rounded-lg border border-indigo-300">
-            <button
-              onClick={() => setActiveTool("pen")}
-              className={`w-14 h-14 rounded-lg flex items-center justify-center ${
-                activeTool === "pen"
-                  ? "bg-blue-100 border-2 border-blue-900"
-                  : "border border-blue-900"
-              }`}
-            >
-              <FaBold className="text-blue-900 text-xl" />
-            </button>
-
-            <button
-              onClick={() => setActiveTool("highlighter")}
-              className={`w-14 h-14 rounded-lg flex items-center justify-center ${
-                activeTool === "highlighter"
-                  ? "bg-blue-100 border-2 border-blue-900"
-                  : "border border-blue-900"
-              }`}
-            >
-              <FaItalic className="text-blue-900 text-xl" />
-            </button>
-
-            <button
-              onClick={() => setActiveTool("shapes")}
-              className={`w-14 h-14 rounded-lg flex items-center justify-center ${
-                activeTool === "shapes"
-                  ? "bg-blue-100 border-2 border-blue-900"
-                  : "border border-blue-900"
-              }`}
-            >
-              <FaUnderline className="text-blue-900 text-xl" />
-            </button>
-
-            <button
-              onClick={() => setActiveTool("note")}
-              className={`w-14 h-14 rounded-lg flex items-center justify-center ${
-                activeTool === "note"
-                  ? "bg-blue-100 border-2 border-blue-900"
-                  : "border border-blue-900"
-              }`}
-            >
-              <VscThreeBars className="text-blue-900 text-xl" />
-            </button>
-          </div>
-          <textarea
-            className="w-full h-full p-4 text-lg font-medium text-slate-900 focus:outline-none resize-none"
-            placeholder="Type here coaching points /VAR"
-            value={coachingPoints}
-            onChange={(e) => setCoachingPoints(e.target.value)}
-          />
+      {/* Coaching Notes Section */}
+      <div className="h-[424px] rounded-2xl border border-indigo-300 p-6">
+        <div className="flex items-center gap-4 p-2 rounded-lg border border-indigo-300 mb-4">
+          <ToolbarButton onClick={() => setActiveTool("bold")} active={activeTool === "bold"}>
+            <FaBold className="text-xl" />
+          </ToolbarButton>
+          <ToolbarButton onClick={() => setActiveTool("italic")} active={activeTool === "italic"}>
+            <FaItalic className="text-xl" />
+          </ToolbarButton>
+          <ToolbarButton onClick={() => setActiveTool("underline")} active={activeTool === "underline"}>
+            <FaUnderline className="text-xl" />
+          </ToolbarButton>
+          <ToolbarButton onClick={() => setActiveTool("list")} active={activeTool === "list"}>
+            <VscThreeBars className="text-xl" />
+          </ToolbarButton>
         </div>
+        <textarea
+          className="w-full h-full p-4 text-lg font-medium focus:outline-none resize-none"
+          placeholder="Type here coaching points / VAR..."
+          value={coachingPoints}
+          onChange={(e) => setCoachingPoints(e.target.value)}
+        />
       </div>
     </div>
   );
