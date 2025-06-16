@@ -6,8 +6,6 @@ import KonvaEquipmentImage from "../../components/common/KonvaEquipmentImage";
 import KonvaPitchImage from "../../components/Common/KonvaPitchImage"; // Import the new component
 import { createSvgDataUrl } from "../../utils/svgUtils";
 
-
-
 const Home = () => {
   const { pitch, draggedEquipmentSrc, setDraggedEquipmentSrc } = useSvg();
   const containerRef = useRef(null);

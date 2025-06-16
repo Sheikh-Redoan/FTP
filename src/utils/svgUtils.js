@@ -1,4 +1,4 @@
-export async function getModifiedSvgString(svgUrl, bgColor, lineColor) {
+export async function getModifiedSvgString(svgUrl, _bgColor, lineColor) {
   try {
     const response = await fetch(svgUrl);
     let svgText = await response.text();
@@ -7,19 +7,22 @@ export async function getModifiedSvgString(svgUrl, bgColor, lineColor) {
     const svgDoc = parser.parseFromString(svgText, "image/svg+xml");
     const svgElement = svgDoc.documentElement;
 
-    const elements = svgElement.querySelectorAll(
-      "path, line, polyline, polygon, rect, circle"
-    );
-    elements.forEach((element) => {
-      if (
-        bgColor &&
-        element.tagName !== "line" &&
-        element.tagName !== "polyline" &&
-        element.tagName !== "path"
-      ) {
-        element.setAttribute("fill", bgColor);
+    // Find the first <rect> element (the background) and make it transparent.
+    const backgroundRect = svgElement.querySelector('rect');
+    if (backgroundRect) {
+      backgroundRect.setAttribute('fill', 'transparent');
+    }
+
+    // Find all line-like elements and set their stroke color.
+    const lineElements = svgElement.querySelectorAll("path, line, polyline, circle");
+    lineElements.forEach(element => {
+      if (lineColor) {
+        element.setAttribute("stroke", lineColor);
+        // Ensure paths that are lines are not filled by the browser's default.
+        if (element.getAttribute('fill') !== 'none') {
+            element.setAttribute('fill', 'transparent');
+        }
       }
-      element.setAttribute("stroke", lineColor);
     });
 
     const serializer = new XMLSerializer();
