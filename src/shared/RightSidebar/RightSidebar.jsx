@@ -65,7 +65,7 @@ const RightSidebar = () => {
       {/* Main content */}
       <div className="flex gap-6">
         {/* Main text area */}
-        <div className="flex-1 h-[524px] rounded-2xl border border-indigo-300 p-6">
+        <div className="flex-1 h-[424px] rounded-2xl border border-indigo-300 p-6">
           {/* Tools sidebar */}
           <div className="w-max flex items-center justify-start gap-4 p-2 rounded-lg border border-indigo-300">
             <button
