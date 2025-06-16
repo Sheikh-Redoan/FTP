@@ -12,7 +12,12 @@ import { FaSquareFull, FaCircle } from "react-icons/fa";
 import { GiSquare, GiCircle } from "react-icons/gi";
 import { MdHexagon, MdOutlineHexagon } from "react-icons/md";
 import { BsHexagonFill } from "react-icons/bs"; // For Filled Polygon as specified
-import { PiHexagonThin, PiDiamondFill, PiDiamondThin, PiTriangleThin } from "react-icons/pi";
+import {
+  PiHexagonThin,
+  PiDiamondFill,
+  PiDiamondThin,
+  PiTriangleThin,
+} from "react-icons/pi";
 import { IoTriangleSharp } from "react-icons/io5";
 
 // Pitch SVGs
@@ -53,10 +58,17 @@ async function getModifiedSvgString(svgUrl, bgColor, lineColor) {
     const svgDoc = parser.parseFromString(svgText, "image/svg+xml");
     const svgElement = svgDoc.documentElement;
 
-    const elements = svgElement.querySelectorAll("path, line, polyline, polygon, rect, circle");
+    const elements = svgElement.querySelectorAll(
+      "path, line, polyline, polygon, rect, circle"
+    );
     elements.forEach((element) => {
       // Only set fill if a bgColor is provided and it's not a line-only element
-      if (bgColor && element.tagName !== "line" && element.tagName !== "polyline" && element.tagName !== "path") {
+      if (
+        bgColor &&
+        element.tagName !== "line" &&
+        element.tagName !== "polyline" &&
+        element.tagName !== "path"
+      ) {
         element.setAttribute("fill", bgColor);
       }
       element.setAttribute("stroke", lineColor);
@@ -73,80 +85,128 @@ async function getModifiedSvgString(svgUrl, bgColor, lineColor) {
 
 // NEW: Helper function to generate SVG string for basic shapes
 const getShapeSvgString = (type, bgColor, lineColor) => {
-  let svgContent = '';
+  let svgContent = "";
   const size = 100; // Standard size for generating SVG
   const strokeWidth = 5; // Standard stroke width
   const stroke = lineColor;
   const fill = bgColor;
 
   switch (type) {
-    case 'filledRectangle':
-      svgContent = `<rect x="${strokeWidth/2}" y="${strokeWidth/2}" width="${size-strokeWidth}" height="${size-strokeWidth}" fill="${fill}" stroke="${stroke}" stroke-width="${strokeWidth}"/>`;
+    case "filledRectangle":
+      svgContent = `<rect x="${strokeWidth / 2}" y="${
+        strokeWidth / 2
+      }" width="${size - strokeWidth}" height="${
+        size - strokeWidth
+      }" fill="${fill}" stroke="${stroke}" stroke-width="${strokeWidth}"/>`;
       break;
-    case 'rectangle':
-      svgContent = `<rect x="${strokeWidth/2}" y="${strokeWidth/2}" width="${size-strokeWidth}" height="${size-strokeWidth}" fill="none" stroke="${stroke}" stroke-width="${strokeWidth}"/>`;
+    case "rectangle":
+      svgContent = `<rect x="${strokeWidth / 2}" y="${
+        strokeWidth / 2
+      }" width="${size - strokeWidth}" height="${
+        size - strokeWidth
+      }" fill="none" stroke="${stroke}" stroke-width="${strokeWidth}"/>`;
       break;
-    case 'filledHexagon':
+    case "filledHexagon":
       const h = size / 2;
       const r = size / 2 - strokeWidth / 2; // Adjust radius for stroke
       const xCenter = size / 2;
       const yCenter = size / 2;
       const angle = Math.PI / 3;
-      let points = '';
+      let points = "";
       for (let i = 0; i < 6; i++) {
-        points += `${xCenter + r * Math.cos(i * angle)} ${yCenter + r * Math.sin(i * angle)} `;
+        points += `${xCenter + r * Math.cos(i * angle)} ${
+          yCenter + r * Math.sin(i * angle)
+        } `;
       }
       svgContent = `<polygon points="${points.trim()}" fill="${fill}" stroke="${stroke}" stroke-width="${strokeWidth}"/>`;
       break;
-    case 'hexagon':
+    case "hexagon":
       const h_outline = size / 2;
       const r_outline = size / 2 - strokeWidth / 2; // Adjust radius for stroke
       const xCenter_outline = size / 2;
       const yCenter_outline = size / 2;
       const angle_outline = Math.PI / 3;
-      let points_outline = '';
+      let points_outline = "";
       for (let i = 0; i < 6; i++) {
-        points_outline += `${xCenter_outline + r_outline * Math.cos(i * angle_outline)} ${yCenter_outline + r_outline * Math.sin(i * angle_outline)} `;
+        points_outline += `${
+          xCenter_outline + r_outline * Math.cos(i * angle_outline)
+        } ${yCenter_outline + r_outline * Math.sin(i * angle_outline)} `;
       }
       svgContent = `<polygon points="${points_outline.trim()}" fill="none" stroke="${stroke}" stroke-width="${strokeWidth}"/>`;
       break;
-    case 'filledPolygon': // Using a pentagon for generic polygon
+    case "filledPolygon": // Using a pentagon for generic polygon
       const numSides = 5;
       const pR = size / 2 - strokeWidth / 2;
       const pCenter = size / 2;
-      let pPoints = '';
+      let pPoints = "";
       for (let i = 0; i < numSides; i++) {
-        pPoints += `${pCenter + pR * Math.cos(2 * Math.PI * i / numSides - Math.PI / 2)} ${pCenter + pR * Math.sin(2 * Math.PI * i / numSides - Math.PI / 2)} `;
+        pPoints += `${
+          pCenter + pR * Math.cos((2 * Math.PI * i) / numSides - Math.PI / 2)
+        } ${
+          pCenter + pR * Math.sin((2 * Math.PI * i) / numSides - Math.PI / 2)
+        } `;
       }
       svgContent = `<polygon points="${pPoints.trim()}" fill="${fill}" stroke="${stroke}" stroke-width="${strokeWidth}"/>`;
       break;
-    case 'polygon': // Outline polygon
+    case "polygon": // Outline polygon
       const numSides_outline = 5;
       const pR_outline = size / 2 - strokeWidth / 2;
       const pCenter_outline = size / 2;
-      let pPoints_outline = '';
+      let pPoints_outline = "";
       for (let i = 0; i < numSides_outline; i++) {
-        pPoints_outline += `${pCenter_outline + pR_outline * Math.cos(2 * Math.PI * i / numSides_outline - Math.PI / 2)} ${pCenter_outline + pR_outline * Math.sin(2 * Math.PI * i / numSides_outline - Math.PI / 2)} `;
+        pPoints_outline += `${
+          pCenter_outline +
+          pR_outline *
+            Math.cos((2 * Math.PI * i) / numSides_outline - Math.PI / 2)
+        } ${
+          pCenter_outline +
+          pR_outline *
+            Math.sin((2 * Math.PI * i) / numSides_outline - Math.PI / 2)
+        } `;
       }
       svgContent = `<polygon points="${pPoints_outline.trim()}" fill="none" stroke="${stroke}" stroke-width="${strokeWidth}"/>`;
       break;
-    case 'filledCircle':
-      svgContent = `<circle cx="${size/2}" cy="${size/2}" r="${size/2 - strokeWidth}" fill="${fill}" stroke="${stroke}" stroke-width="${strokeWidth}"/>`;
+    case "filledCircle":
+      svgContent = `<circle cx="${size / 2}" cy="${size / 2}" r="${
+        size / 2 - strokeWidth
+      }" fill="${fill}" stroke="${stroke}" stroke-width="${strokeWidth}"/>`;
       break;
-    case 'circle':
-      svgContent = `<circle cx="${size/2}" cy="${size/2}" r="${size/2 - strokeWidth}" fill="none" stroke="${stroke}" stroke-width="${strokeWidth}"/>`;
+    case "circle":
+      svgContent = `<circle cx="${size / 2}" cy="${size / 2}" r="${
+        size / 2 - strokeWidth
+      }" fill="none" stroke="${stroke}" stroke-width="${strokeWidth}"/>`;
       break;
-    case 'filledDiamond':
-      svgContent = `<polygon points="${size/2},${strokeWidth} ${size - strokeWidth},${size/2} ${size/2},${size - strokeWidth} ${strokeWidth},${size/2}" fill="${fill}" stroke="${stroke}" stroke-width="${strokeWidth}"/>`;
+    case "filledDiamond":
+      svgContent = `<polygon points="${size / 2},${strokeWidth} ${
+        size - strokeWidth
+      },${size / 2} ${size / 2},${size - strokeWidth} ${strokeWidth},${
+        size / 2
+      }" fill="${fill}" stroke="${stroke}" stroke-width="${strokeWidth}"/>`;
       break;
-    case 'diamond':
-      svgContent = `<polygon points="${size/2},${strokeWidth} ${size - strokeWidth},${size/2} ${size/2},${size - strokeWidth} ${strokeWidth},${size/2}" fill="none" stroke="${stroke}" stroke-width="${strokeWidth}"/>`;
+    case "diamond":
+      svgContent = `<polygon points="${size / 2},${strokeWidth} ${
+        size - strokeWidth
+      },${size / 2} ${size / 2},${size - strokeWidth} ${strokeWidth},${
+        size / 2
+      }" fill="none" stroke="${stroke}" stroke-width="${strokeWidth}"/>`;
       break;
-    case 'filledTriangle':
-      svgContent = `<polygon points="${size/2},${strokeWidth} ${strokeWidth},${size-strokeWidth} ${size-strokeWidth},${size-strokeWidth}" fill="${fill}" stroke="${stroke}" stroke-width="${strokeWidth}"/>`;
+    case "filledTriangle":
+      svgContent = `<polygon points="${
+        size / 2
+      },${strokeWidth} ${strokeWidth},${size - strokeWidth} ${
+        size - strokeWidth
+      },${
+        size - strokeWidth
+      }" fill="${fill}" stroke="${stroke}" stroke-width="${strokeWidth}"/>`;
       break;
-    case 'triangle':
-      svgContent = `<polygon points="${size/2},${strokeWidth} ${strokeWidth},${size-strokeWidth} ${size-strokeWidth},${size-strokeWidth}" fill="none" stroke="${stroke}" stroke-width="${strokeWidth}"/>`;
+    case "triangle":
+      svgContent = `<polygon points="${
+        size / 2
+      },${strokeWidth} ${strokeWidth},${size - strokeWidth} ${
+        size - strokeWidth
+      },${
+        size - strokeWidth
+      }" fill="none" stroke="${stroke}" stroke-width="${strokeWidth}"/>`;
       break;
     default:
       svgContent = `<rect width="${size}" height="${size}" fill="none" stroke="red"/>`; // Fallback
@@ -154,12 +214,20 @@ const getShapeSvgString = (type, bgColor, lineColor) => {
   return `<svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}" xmlns="http://www.w3.org/2000/svg">${svgContent}</svg>`;
 };
 
-
-const DragItem = ({ src, name, onDragStart, beforeInjection, displaySvgContent, IconComponent }) => {
+const DragItem = ({
+  src,
+  name,
+  onDragStart,
+  beforeInjection,
+  displaySvgContent,
+  IconComponent,
+}) => {
   // Create a dummy SVG data URL for ReactSVG if it's an IconComponent,
   // as ReactSVG still needs a src, but it won't be used for the visual
   // representation when IconComponent is present.
-  const dummySvgSrc = IconComponent ? `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"></svg>` : src;
+  const dummySvgSrc = IconComponent
+    ? `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"></svg>`
+    : src;
 
   return (
     <div
@@ -210,7 +278,6 @@ const Sidebar = () => {
   const [equipmentSvgContents, setEquipmentSvgContents] = useState({});
   const [shapeSvgContents, setShapeSvgContents] = useState({});
 
-
   const pitchColorCombinations = useMemo(
     () => [
       { bg: "#00A859", line: "#FFFFFF" },
@@ -238,52 +305,94 @@ const Sidebar = () => {
 
   const equipmentNames = useMemo(
     () => [
-      "Player", "Football", "Opponent with Perspective", "Player with Perspective",
-      "Player 2", "Player 3", "Cone", "Ladder", "Dummy", "Ring",
-      "Goal Small", "Goal Middle", "Goal Big", "Flag",
+      "Player",
+      "Football",
+      "Opponent with Perspective",
+      "Player with Perspective",
+      "Player 2",
+      "Player 3",
+      "Cone",
+      "Ladder",
+      "Dummy",
+      "Ring",
+      "Goal Small",
+      "Goal Middle",
+      "Goal Big",
+      "Flag",
     ],
     []
   );
 
-  const equipmentSvgComponents = useMemo(() => [
-    { id: 100, component: Player },
-    { id: 101, component: Football },
-    { id: 102, component: OpponentWithPerspective },
-    { id: 103, component: PlayerWithPerspective },
-    { id: 104, component: Player2 },
-    { id: 105, component: Player3 },
-    { id: 106, component: Cone },
-    { id: 107, component: Ladder },
-    { id: 108, component: Dummy },
-    { id: 109, component: Ring },
-    { id: 110, component: GoalSmall },
-    { id: 111, component: GoalMiddle },
-    { id: 112, component: GoalBig },
-    { id: 113, component: Flag },
-  ], []);
+  const equipmentSvgComponents = useMemo(
+    () => [
+      { id: 100, component: Player },
+      { id: 101, component: Football },
+      { id: 102, component: OpponentWithPerspective },
+      { id: 103, component: PlayerWithPerspective },
+      { id: 104, component: Player2 },
+      { id: 105, component: Player3 },
+      { id: 106, component: Cone },
+      { id: 107, component: Ladder },
+      { id: 108, component: Dummy },
+      { id: 109, component: Ring },
+      { id: 110, component: GoalSmall },
+      { id: 111, component: GoalMiddle },
+      { id: 112, component: GoalBig },
+      { id: 113, component: Flag },
+    ],
+    []
+  );
 
   // NEW: Shape components and their icons
-  const shapeComponents = useMemo(() => [
-    { id: 200, type: 'filledRectangle', icon: FaSquareFull, name: 'Filled Rectangle' },
-    { id: 201, type: 'rectangle', icon: GiSquare, name: 'Rectangle' },
-    { id: 202, type: 'filledHexagon', icon: MdHexagon, name: 'Filled Hexagon' },
-    { id: 203, type: 'hexagon', icon: MdOutlineHexagon, name: 'Hexagon' },
-    { id: 204, type: 'filledPolygon', icon: BsHexagonFill, name: 'Filled Polygon' },
-    { id: 205, type: 'polygon', icon: PiHexagonThin, name: 'Polygon' },
-    { id: 206, type: 'filledCircle', icon: FaCircle, name: 'Filled Circle' },
-    { id: 207, type: 'circle', icon: GiCircle, name: 'Circle' },
-    { id: 208, type: 'filledDiamond', icon: PiDiamondFill, name: 'Filled Diamond' },
-    { id: 209, type: 'diamond', icon: PiDiamondThin, name: 'Diamond' },
-    { id: 210, type: 'filledTriangle', icon: IoTriangleSharp, name: 'Filled Triangle' },
-    { id: 211, type: 'triangle', icon: PiTriangleThin, name: 'Triangle' },
-  ], []);
-
+  const shapeComponents = useMemo(
+    () => [
+      {
+        id: 200,
+        type: "filledRectangle",
+        icon: FaSquareFull,
+        name: "Filled Rectangle",
+      },
+      { id: 201, type: "rectangle", icon: GiSquare, name: "Rectangle" },
+      {
+        id: 202,
+        type: "filledHexagon",
+        icon: MdHexagon,
+        name: "Filled Hexagon",
+      },
+      { id: 203, type: "hexagon", icon: MdOutlineHexagon, name: "Hexagon" },
+      {
+        id: 204,
+        type: "filledPolygon",
+        icon: BsHexagonFill,
+        name: "Filled Polygon",
+      },
+      { id: 205, type: "polygon", icon: PiHexagonThin, name: "Polygon" },
+      { id: 206, type: "filledCircle", icon: FaCircle, name: "Filled Circle" },
+      { id: 207, type: "circle", icon: GiCircle, name: "Circle" },
+      {
+        id: 208,
+        type: "filledDiamond",
+        icon: PiDiamondFill,
+        name: "Filled Diamond",
+      },
+      { id: 209, type: "diamond", icon: PiDiamondThin, name: "Diamond" },
+      {
+        id: 210,
+        type: "filledTriangle",
+        icon: IoTriangleSharp,
+        name: "Filled Triangle",
+      },
+      { id: 211, type: "triangle", icon: PiTriangleThin, name: "Triangle" },
+    ],
+    []
+  );
 
   // Pre-fetch and process SVG content when equipment colors change or component mounts
   useEffect(() => {
     const loadEquipmentSvgContents = async () => {
       const newContents = {};
-      const { bg, line } = equipmentColorCombinations[activeEquipmentColorIndex];
+      const { bg, line } =
+        equipmentColorCombinations[activeEquipmentColorIndex];
 
       for (const eq of equipmentSvgComponents) {
         // Use the actual URL of the imported SVG (e.g., /assets/Player-a1b2c3d4.svg)
@@ -293,13 +402,18 @@ const Sidebar = () => {
       setEquipmentSvgContents(newContents);
     };
     loadEquipmentSvgContents();
-  }, [activeEquipmentColorIndex, equipmentColorCombinations, equipmentSvgComponents]);
+  }, [
+    activeEquipmentColorIndex,
+    equipmentColorCombinations,
+    equipmentSvgComponents,
+  ]);
 
   // NEW: Pre-generate SVG content for shapes when equipment colors change or component mounts
   useEffect(() => {
     const loadShapeSvgContents = () => {
       const newContents = {};
-      const { bg, line } = equipmentColorCombinations[activeEquipmentColorIndex]; // Shapes use same color picker as equipment
+      const { bg, line } =
+        equipmentColorCombinations[activeEquipmentColorIndex]; // Shapes use same color picker as equipment
 
       for (const shape of shapeComponents) {
         const svgString = getShapeSvgString(shape.type, bg, line);
@@ -309,7 +423,6 @@ const Sidebar = () => {
     };
     loadShapeSvgContents();
   }, [activeEquipmentColorIndex, equipmentColorCombinations, shapeComponents]);
-
 
   const handleMenuClick = (menu) => {
     setActiveMenu(activeMenu === menu ? null : menu);
@@ -346,10 +459,14 @@ const Sidebar = () => {
   };
 
   const pitchSvgComponents = [
-    { id: 1, component: Frame }, { id: 2, component: Frame1 },
-    { id: 3, component: Frame2 }, { id: 4, component: Frame3 },
-    { id: 5, component: Frame4 }, { id: 6, component: Frame5 },
-    { id: 7, component: Frame6 }, { id: 8, component: Frame7 },
+    { id: 1, component: Frame },
+    { id: 2, component: Frame1 },
+    { id: 3, component: Frame2 },
+    { id: 4, component: Frame3 },
+    { id: 5, component: Frame4 },
+    { id: 6, component: Frame5 },
+    { id: 7, component: Frame6 },
+    { id: 8, component: Frame7 },
   ];
 
   const beforePitchSvgInjection = (svg) => {
@@ -362,17 +479,21 @@ const Sidebar = () => {
     });
   };
 
-  const beforeEquipmentSvgInjection = useCallback((svg) => {
-    const lineColor = equipmentColorCombinations[activeEquipmentColorIndex].line;
-    const bgColor = equipmentColorCombinations[activeEquipmentColorIndex].bg;
-    const elements = svg.querySelectorAll(
-      "path, line, polyline, polygon, rect, circle"
-    );
-    elements.forEach((element) => {
-      element.setAttribute("stroke", lineColor);
-      element.setAttribute("fill", bgColor);
-    });
-  }, [activeEquipmentColorIndex, equipmentColorCombinations]);
+  const beforeEquipmentSvgInjection = useCallback(
+    (svg) => {
+      const lineColor =
+        equipmentColorCombinations[activeEquipmentColorIndex].line;
+      const bgColor = equipmentColorCombinations[activeEquipmentColorIndex].bg;
+      const elements = svg.querySelectorAll(
+        "path, line, polyline, polygon, rect, circle"
+      );
+      elements.forEach((element) => {
+        element.setAttribute("stroke", lineColor);
+        element.setAttribute("fill", bgColor);
+      });
+    },
+    [activeEquipmentColorIndex, equipmentColorCombinations]
+  );
 
   // Handler for when an equipment or shape SVG starts being dragged
   const handleEquipmentDragStart = (src, modifiedSvgContent) => {
@@ -546,10 +667,12 @@ const Sidebar = () => {
             </div>
           )}
 
-
           {/* Placeholder menus */}
           {activeMenu === "move" && (
-            <div><h3 className="text-lg font-bold mb-4">Move Tools</h3><p>Movement controls will appear here</p></div>
+            <div>
+              <h3 className="text-lg font-bold mb-4">Move Tools</h3>
+              <p>Movement controls will appear here</p>
+            </div>
           )}
         </div>
       )}
@@ -561,7 +684,9 @@ const Sidebar = () => {
           <p className="text-lg font-medium font-roboto">Tips</p>
         </div>
         <div className="absolute bottom-full left-0 mb-2 w-64 p-4 bg-white shadow-lg rounded-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300">
-          <h3 className="font-bold text-blue-900 mb-2">Website Configuration Tips</h3>
+          <h3 className="font-bold text-blue-900 mb-2">
+            Website Configuration Tips
+          </h3>
           <ul className="text-sm space-y-2">
             <li>• Click on any menu to see available options</li>
             <li>• Drag and drop elements to position them</li>

@@ -195,7 +195,7 @@ const Home = () => {
     if (!draggedEquipmentSrc || !stageRef.current || !containerRef.current)
       return;
 
-    const stage = stageRef.current;
+    // const stage = stageRef.current;
     const containerRect = containerRef.current.getBoundingClientRect();
 
     // Calculate drop position relative to the stage
