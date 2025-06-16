@@ -1,7 +1,8 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
 import ColorPicker from "./ColorPicker";
 import DragItem from "../common/DragItem";
-import { getModifiedSvgString } from "../../utils/svgUtils";
+// MODIFIED: Import the correct function for coloring equipment
+import { getColoredSvgString } from "../../utils/svgUtils";
 
 // Import Equipment SVGs
 import Player from "../../assets/Equipment/Player.svg";
@@ -19,10 +20,16 @@ import GoalMiddle from "../../assets/Equipment/GoalMiddle.svg";
 import GoalBig from "../../assets/Equipment/GoalBig.svg";
 import Flag from "../../assets/Equipment/Flag.svg";
 
-const EquipmentMenu = ({ colors, activeColorIndex, onColorSelect, onDragStart }) => {
+const EquipmentMenu = ({
+  colors,
+  activeColorIndex,
+  onColorSelect,
+  onDragStart,
+}) => {
   const [svgContents, setSvgContents] = useState({});
 
-  const equipmentAssets = useMemo(() => [
+  const equipmentAssets = useMemo(
+    () => [
       { id: 100, component: Player, name: "Player" },
       { id: 101, component: Football, name: "Football" },
       { id: 102, component: OpponentWithPerspective, name: "Opponent" },
@@ -37,32 +44,44 @@ const EquipmentMenu = ({ colors, activeColorIndex, onColorSelect, onDragStart })
       { id: 111, component: GoalMiddle, name: "Goal Middle" },
       { id: 112, component: GoalBig, name: "Goal Big" },
       { id: 113, component: Flag, name: "Flag" },
-    ], []);
+    ],
+    []
+  );
 
   useEffect(() => {
     const loadSvgContents = async () => {
       const newContents = {};
       const { bg, line } = colors[activeColorIndex];
       for (const eq of equipmentAssets) {
-        newContents[eq.id] = await getModifiedSvgString(eq.component, bg, line);
+        // MODIFIED: Use the new function to ensure equipment is colored correctly
+        newContents[eq.id] = await getColoredSvgString(eq.component, bg, line);
       }
       setSvgContents(newContents);
     };
     loadSvgContents();
   }, [activeColorIndex, colors, equipmentAssets]);
 
-  const beforeEquipmentSvgInjection = useCallback((svg) => {
+  const beforeEquipmentSvgInjection = useCallback(
+    (svg) => {
       const { bg, line } = colors[activeColorIndex];
-      const elements = svg.querySelectorAll("path, line, polyline, polygon, rect, circle");
+      const elements = svg.querySelectorAll(
+        "path, line, polyline, polygon, rect, circle"
+      );
       elements.forEach((el) => {
         el.setAttribute("stroke", line);
         el.setAttribute("fill", bg);
       });
-    }, [activeColorIndex, colors]);
+    },
+    [activeColorIndex, colors]
+  );
 
   return (
     <div className="p-2">
-      <ColorPicker colors={colors} activeIndex={activeColorIndex} onSelect={onColorSelect} />
+      <ColorPicker
+        colors={colors}
+        activeIndex={activeColorIndex}
+        onSelect={onColorSelect}
+      />
       <div className="flex flex-col items-center gap-2">
         {equipmentAssets.map((eq) => (
           <DragItem
