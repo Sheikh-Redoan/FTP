@@ -1,7 +1,5 @@
 import { useState } from "react";
 import {
-  FaSave,
-  FaShare,
   FaChevronDown,
 } from "react-icons/fa";
 
@@ -44,7 +42,7 @@ const RightSidebar = () => {
 
         {/* Save options */}
         <div className="flex flex-col gap-4">
-          <button className="w-44 h-36 bg-white rounded-2xl border border-gray-200 flex flex-col items-center justify-center gap-4 hover:bg-gray-50">
+          <button className="flex flex-col justify-center items-center p-[2px] w-[130px] h-[100px] shadow rounded-lg hover:bg-gray-100 cursor-pointer">
             <div className="">
               <BsFiletypePdf className="text-blue-900 text-[30px]" />
             </div>
@@ -53,7 +51,7 @@ const RightSidebar = () => {
             </span>
           </button>
 
-          <button className="w-44 h-36 bg-white rounded-2xl border border-gray-200 flex flex-col items-center justify-center gap-4 hover:bg-gray-50">
+          <button className="flex flex-col justify-center items-center p-[2px] w-[130px] h-[100px] shadow rounded-lg hover:bg-gray-100 cursor-pointer">
             <div className="">
               <PiShareFat className="text-blue-900  text-[30px]" />
             </div>

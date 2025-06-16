@@ -284,7 +284,7 @@ const Home = () => {
           style={{
             backgroundColor: svgBgColor,
             maxWidth: "calc(100% - 200px)", // Adjusted for sidebar width if needed
-            maxHeight: "calc(100% - 100px)", // Adjusted for any header/footer
+            maxHeight: "calc(100%)", // Adjusted for any header/footer
             width: "auto",
             height: "auto",
             display: "flex",
