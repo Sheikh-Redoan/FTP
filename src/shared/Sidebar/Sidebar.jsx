@@ -29,6 +29,7 @@ import Frame4 from "../../assets/Fields/Frame4.svg";
 import Frame5 from "../../assets/Fields/Frame5.svg";
 import Frame6 from "../../assets/Fields/Frame6.svg";
 import Frame7 from "../../assets/Fields/Frame7.svg";
+import Frame8 from "../../assets/Fields/Frame8.svg";
 
 // Equipment SVGs
 import Player from "../../assets/Equipment/Player.svg";
@@ -467,6 +468,7 @@ const Sidebar = () => {
     { id: 6, component: Frame5 },
     { id: 7, component: Frame6 },
     { id: 8, component: Frame7 },
+    { id: 9, component: Frame8 },
   ];
 
   const beforePitchSvgInjection = (svg) => {
