@@ -1,5 +1,6 @@
 // src/context/SvgContext.jsx
 import { createContext, useContext, useState } from "react";
+import { useQuickAccess } from "../hooks/useQuickAccess"; // Import the hook
 
 const SvgContext = createContext();
 
@@ -14,11 +15,12 @@ export const SvgProvider = ({ children }) => {
   const [draggedEquipmentSrc, setDraggedEquipmentSrc] = useState(null);
   const [pitch, setPitch] = useState(null);
   const [lineColor, setLineColor] = useState("#FDE100");
-
-  // ADDED: State to hold the function that adds equipment to the stage
   const [addEquipment, setAddEquipment] = useState(() => () => {
     console.error("addEquipment function not yet implemented");
   });
+
+  // ADDED: Integrate useQuickAccess hook
+  const [quickAccessItems, addQuickAccessItem] = useQuickAccess();
 
   return (
     <SvgContext.Provider
@@ -43,9 +45,11 @@ export const SvgProvider = ({ children }) => {
         setPitch,
         lineColor,
         setLineColor,
-        // ADDED: Expose addEquipment function and its setter
         addEquipment,
         setAddEquipment,
+        // ADDED: Expose quick access items and the function to add to them
+        quickAccessItems,
+        addQuickAccessItem,
       }}
     >
       {children}

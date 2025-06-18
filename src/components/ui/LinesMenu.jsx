@@ -19,16 +19,16 @@ const LinesMenu = ({ colors, activeColorIndex, onColorSelect, onLineAdd }) => {
   const { lineColor } = useSvg();
 
   const lineItems = [
-    { id: 1, name: "Fieldmarker", svg: Fieldmarker },
-    { id: 2, name: "Fieldmarker dotted", svg: FieldmarkerDotted },
-    { id: 3, name: "Fieldmarker curved", svg: FieldmarkerCurved },
-    { id: 4, name: "Passing or finishing", svg: Passing },
-    { id: 5, name: "Run", svg: Run },
-    { id: 6, name: "Dribbling", svg: Dribbling },
-    { id: 7, name: "Dribbling Curved", svg: DribblingCurved },
-    { id: 8, name: "Square", svg: Square },
-    { id: 9, name: "Circle", svg: Circle },
-    { id: 10, name: "Triangle", svg: Triangle },
+    { id: 1, name: "Fieldmarker", svg: Fieldmarker, type: 'line' },
+    { id: 2, name: "Fieldmarker dotted", svg: FieldmarkerDotted, type: 'line' },
+    { id: 3, name: "Fieldmarker curved", svg: FieldmarkerCurved, type: 'line' },
+    { id: 4, name: "Passing or finishing", svg: Passing, type: 'line' },
+    { id: 5, name: "Run", svg: Run, type: 'line' },
+    { id: 6, name: "Dribbling", svg: Dribbling, type: 'line' },
+    { id: 7, name: "Dribbling Curved", svg: DribblingCurved, type: 'line' },
+    { id: 8, name: "Square", svg: Square, type: 'square' },
+    { id: 9, name: "Circle", svg: Circle, type: 'circle' },
+    { id: 10, name: "Triangle", svg: Triangle, type: 'triangle' },
   ];
 
   const beforeInjection = (svg) => {
@@ -53,7 +53,7 @@ const LinesMenu = ({ colors, activeColorIndex, onColorSelect, onLineAdd }) => {
           <div
             key={item.id}
             className="flex flex-col items-center gap-1 w-full p-2 border rounded-lg hover:bg-gray-100 cursor-pointer"
-            onClick={() => onLineAdd(item.svg)}
+            onClick={() => onLineAdd(item)}
             title={item.name}
           >
             <ReactSVG

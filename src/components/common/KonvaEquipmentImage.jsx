@@ -16,6 +16,21 @@ const KonvaEquipmentImage = ({ equipment, isSelected, onSelect, onTransform }) =
     }
   }, [isSelected, equipment.locked]);
 
+  // ADDED: Logic to determine which resize anchors to use
+  const getEnabledAnchors = () => {
+    const { type } = equipment;
+    if (type === 'line') {
+      // For lines, only allow horizontal resizing
+      return ['middle-left', 'middle-right'];
+    }
+    if (['rectangle', 'square', 'circle', 'triangle'].includes(type)) {
+      // For specific shapes, allow resizing from all 8 anchors
+      return ['top-left', 'top-center', 'top-right', 'middle-right', 'bottom-right', 'bottom-center', 'bottom-left', 'middle-left'];
+    }
+    // Default for other equipment
+    return ['top-left', 'top-right', 'bottom-left', 'bottom-right'];
+  };
+
   return (
     <>
       <Image
@@ -46,8 +61,8 @@ const KonvaEquipmentImage = ({ equipment, isSelected, onSelect, onTransform }) =
       {isSelected && !equipment.locked && ( // Only render transformer if selected and not locked
         <Transformer
           ref={trRef}
-          enabledAnchors={['top-left', 'top-right', 'bottom-left', 'bottom-right']}
-          keepRatio={true}
+          enabledAnchors={getEnabledAnchors()}
+          keepRatio={equipment.type !== 'line'}
           boundBoxFunc={(oldBox, newBox) => {
             if (newBox.width < 5 || newBox.height < 5) {
               return oldBox;

@@ -34,7 +34,13 @@ const PlayersMenu = ({
               const text = `Player ${p}`;
               const svgContent = `<svg width="100" height="100" xmlns="http://www.w3.org/2000/svg"><circle cx="50" cy="50" r="40" fill="${playerColor}" stroke="${colors[activeColorIndex].line}" stroke-width="2"/><text x="50" y="55" text-anchor="middle" fill="${colors[activeColorIndex].line}" font-size="30">${p}</text></svg>`;
               e.dataTransfer.setData("text/plain", text);
-              onDragStart({ name: text, type: "player", text: p }, svgContent);
+              const dragData = {
+                name: text,
+                type: "player",
+                text: p,
+                content: svgContent,
+              };
+              onDragStart(dragData);
             }}
           >
             {p}

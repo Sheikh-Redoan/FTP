@@ -227,19 +227,18 @@ const Home = () => {
         </Layer>
       </Stage>
 
-      {selectedId && (
-        <KonvaToolbar
-          selectedEquipment={selectedEquipment}
-          onUndo={handleUndo}
-          onRedo={handleRedo}
-          onDuplicate={handleDuplicate}
-          onDelete={handleDelete}
-          onLockUnlock={handleLockUnlock}
-          onRotate={handleRotate}
-          canUndo={historyStep > 0}
-          canRedo={historyStep < history.length - 1}
-        />
-      )}
+      {/* MODIFIED: Always render the toolbar */}
+      <KonvaToolbar
+        selectedEquipment={selectedEquipment}
+        onUndo={handleUndo}
+        onRedo={handleRedo}
+        onDuplicate={handleDuplicate}
+        onDelete={handleDelete}
+        onLockUnlock={handleLockUnlock}
+        onRotate={handleRotate}
+        canUndo={historyStep > 0}
+        canRedo={historyStep < history.length - 1}
+      />
 
       {!pitch && droppedEquipment.length === 0 && (
         <h1 className="text-3xl font-bold text-gray-400">

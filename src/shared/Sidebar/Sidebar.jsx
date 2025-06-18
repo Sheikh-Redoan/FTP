@@ -40,7 +40,8 @@ const Sidebar = () => {
     setPitch,
     setLineColor,
     lineColor,
-    addEquipment, // Get the addEquipment function from context
+    addEquipment,
+    addQuickAccessItem, // Get the function from context
   } = useSvg();
 
   const [activeMenu, setActiveMenu] = useState(null);
@@ -167,20 +168,23 @@ const Sidebar = () => {
   };
 
   const handleDragStart = useCallback(
-    (dragData, modifiedSvgContent) => {
-      setDraggedEquipmentSrc({
-        ...dragData,
-        content: modifiedSvgContent,
-      });
+    (dragData) => {
+      setDraggedEquipmentSrc(dragData);
+      addQuickAccessItem(dragData);
     },
-    [setDraggedEquipmentSrc]
+    [setDraggedEquipmentSrc, addQuickAccessItem]
   );
   
-  // UPDATED: Handler to add a line to the stage via context function
-  const handleaddLine = async (svgPath) => {
-    // Color the line SVG with the currently selected line color
-    const coloredSvg = await getColoredSvgString(svgPath, 'transparent', lineColor);
-    addEquipment(coloredSvg, 'line');
+  // UPDATED: Handler to add a line or shape to the stage
+  const handleaddLine = async (item) => {
+    const coloredSvg = await getColoredSvgString(item.svg, 'transparent', lineColor);
+    addEquipment(coloredSvg, item.type);
+    addQuickAccessItem({
+      src: item.svg,
+      name: item.name,
+      type: item.type,
+      content: coloredSvg,
+    });
   };
 
   const menuItems = [
@@ -236,9 +240,7 @@ const Sidebar = () => {
             colors={playerColorCombinations}
             activeColorIndex={activePlayerColorIndex}
             onColorSelect={handlePlayerColorSelect}
-            onDragStart={(dragData, svgContent) =>
-              handleDragStart(dragData, svgContent)
-            }
+            onDragStart={handleDragStart}
           />
         );
       case "lines":

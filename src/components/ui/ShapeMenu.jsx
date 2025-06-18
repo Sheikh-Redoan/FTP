@@ -1,3 +1,4 @@
+// src/components/ui/ShapeMenu.jsx
 import { useState, useEffect, useMemo } from "react";
 import ColorPicker from "./ColorPicker";
 import DragItem from "../common/DragItem";
@@ -19,7 +20,6 @@ const ShapeMenu = ({
 }) => {
   const [shapeSvgContents, setShapeSvgContents] = useState({});
 
-  // MODIFIED: Simplified the list to only have one of each shape type.
   const shapeComponents = useMemo(
     () => [
       { id: 200, type: "rectangle", icon: FaSquareFull, name: "Rectangle (FaSquareFull)" },
@@ -66,6 +66,7 @@ const ShapeMenu = ({
             name={shape.name}
             onDragStart={onDragStart}
             IconComponent={shape.icon}
+            type={shape.type}
             displaySvgContent={shapeSvgContents[shape.id]}
           />
         ))}
