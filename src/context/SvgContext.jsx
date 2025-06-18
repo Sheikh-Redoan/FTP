@@ -22,6 +22,9 @@ export const SvgProvider = ({ children }) => {
   // NEW: State for equipment line color
   const [equipmentLineColor, setEquipmentLineColor] = useState("#D4DA65"); // Default equipment line color
 
+  // NEW: State for player color
+  const [playerColor, setPlayerColor] = useState("#FDE100");
+
   // NEW: State to hold the SVG source being dragged (original src and modified content)
   const [draggedEquipmentSrc, setDraggedEquipmentSrc] = useState(null);
 
@@ -45,6 +48,8 @@ export const SvgProvider = ({ children }) => {
         setEquipmentBgColor,
         equipmentLineColor,
         setEquipmentLineColor,
+        playerColor,
+        setPlayerColor,
         draggedEquipmentSrc, // Expose the dragged SVG source and its content
         setDraggedEquipmentSrc, // Expose setter for dragged SVG source
         // **** NEW: Pitch context values ****

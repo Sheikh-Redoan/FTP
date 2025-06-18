@@ -1,3 +1,4 @@
+// src/pages/Home/Home.jsx
 import { useRef, useState, useEffect } from "react";
 import { Stage, Layer } from "react-konva";
 import { useSvg } from "../../context/SvgContext";
@@ -8,7 +9,8 @@ import KonvaToolbar from "../../components/common/KonvaToolbar"; // Import Konva
 import { createSvgDataUrl } from "../../utils/svgUtils";
 
 const Home = () => {
-  const { pitch, draggedEquipmentSrc, setDraggedEquipmentSrc } = useSvg();
+  const { pitch, draggedEquipmentSrc, setDraggedEquipmentSrc, playerColor } =
+    useSvg();
   const containerRef = useRef(null);
   const stageRef = useRef(null);
   const { width, height } = useDimensions(containerRef);
@@ -22,7 +24,9 @@ const Home = () => {
 
   useEffect(() => {
     // When droppedEquipment changes, save it to history
-    if (JSON.stringify(history[historyStep]) !== JSON.stringify(droppedEquipment)) {
+    if (
+      JSON.stringify(history[historyStep]) !== JSON.stringify(droppedEquipment)
+    ) {
       const newHistory = history.slice(0, historyStep + 1);
       setHistory([...newHistory, droppedEquipment]);
       setHistoryStep(newHistory.length);
@@ -47,6 +51,8 @@ const Home = () => {
       height: 100,
       rotation: 0, // Initial rotation
       locked: false, // Initial lock state
+      type: draggedEquipmentSrc.type,
+      text: draggedEquipmentSrc.text,
     };
 
     setDroppedEquipment((prev) => [...prev, newEquipment]);
@@ -57,7 +63,8 @@ const Home = () => {
   const checkDeselect = (e) => {
     // deselect when clicked on empty area of the stage
     const clickedOnEmpty = e.target === e.target.getStage();
-    const clickedOnTransformer = e.target.getParent && e.target.getParent().className === 'Transformer';
+    const clickedOnTransformer =
+      e.target.getParent && e.target.getParent().className === "Transformer";
     if (clickedOnEmpty || clickedOnTransformer) {
       setSelectedId(null);
     }
@@ -65,16 +72,37 @@ const Home = () => {
 
   const handleTransformEnd = (newAttrs) => {
     const items = droppedEquipment.map((item) =>
-      item.id === newAttrs.id ? { ...newAttrs, rotation: newAttrs.rotation || item.rotation, locked: newAttrs.locked || item.locked } : item
+      item.id === newAttrs.id
+        ? {
+            ...newAttrs,
+            rotation: newAttrs.rotation || item.rotation,
+            locked: newAttrs.locked || item.locked,
+          }
+        : item
     );
     setDroppedEquipment(items);
   };
 
   const handleSelectEquipment = (id) => {
     setSelectedId(id);
+    const equipment = droppedEquipment.find((item) => item.id === id);
+    if (equipment && equipment.type === "player" && !equipment.locked) {
+      const newSvgContent = `<svg width="100" height="100" xmlns="http://www.w3.org/2000/svg"><circle cx="50" cy="50" r="40" fill="${playerColor}" stroke="white" stroke-width="2"/><text x="50" y="55" text-anchor="middle" fill="white" font-size="30">${equipment.text}</text></svg>`;
+      const newDataUrl = createSvgDataUrl(newSvgContent);
+
+      const updatedEquipment = droppedEquipment.map((item) => {
+        if (item.id === id) {
+          return { ...item, dataUrl: newDataUrl };
+        }
+        return item;
+      });
+      setDroppedEquipment(updatedEquipment);
+    }
   };
 
-  const selectedEquipment = droppedEquipment.find((item) => item.id === selectedId);
+  const selectedEquipment = droppedEquipment.find(
+    (item) => item.id === selectedId
+  );
 
   const handleUndo = () => {
     if (historyStep > 0) {
@@ -110,7 +138,9 @@ const Home = () => {
 
   const handleDelete = () => {
     if (selectedEquipment && !selectedEquipment.locked) {
-      setDroppedEquipment((prev) => prev.filter((item) => item.id !== selectedId));
+      setDroppedEquipment((prev) =>
+        prev.filter((item) => item.id !== selectedId)
+      );
       setSelectedId(null);
     }
   };
@@ -129,7 +159,9 @@ const Home = () => {
     if (selectedEquipment && !selectedEquipment.locked) {
       setDroppedEquipment((prev) =>
         prev.map((item) =>
-          item.id === selectedId ? { ...item, rotation: (item.rotation + 45) % 360 } : item
+          item.id === selectedId
+            ? { ...item, rotation: (item.rotation + 45) % 360 }
+            : item
         )
       );
     }

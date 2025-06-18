@@ -1,3 +1,4 @@
+// src/shared/Sidebar/Sidebar.jsx
 import { useState, useMemo, useCallback } from "react";
 import { useSvg } from "../../context/SvgContext";
 import MenuButton from "../../components/ui/MenuButton";
@@ -34,6 +35,7 @@ const Sidebar = () => {
     setSvgLineColor,
     setEquipmentBgColor,
     setEquipmentLineColor,
+    setPlayerColor,
     setDraggedEquipmentSrc,
     setPitch,
   } = useSvg();
@@ -41,6 +43,7 @@ const Sidebar = () => {
   const [activeMenu, setActiveMenu] = useState(null);
   const [activePitchColorIndex, setActivePitchColorIndex] = useState(0);
   const [activeEquipmentColorIndex, setActiveEquipmentColorIndex] = useState(0);
+  const [activePlayerColorIndex, setActivePlayerColorIndex] = useState(0);
 
   const pitchColorCombinations = useMemo(
     () => [
@@ -59,6 +62,21 @@ const Sidebar = () => {
       { bg: "#DC052D", line: "#DC052D" },
       { bg: "#6CABDD", line: "#6CABDD" },
       { bg: "#FDE100", line: "#FDE100" },
+    ],
+    []
+  );
+
+  const playerColorCombinations = useMemo(
+    () => [
+      { bg: "#FDE100", line: "#000000" },
+      { bg: "#DC052D", line: "#FFFFFF" },
+      { bg: "#D4DA65", line: "#000000" },
+      { bg: "#A093C2", line: "#FFFFFF" },
+      { bg: "#6CABDD", line: "#FFFFFF" },
+      { bg: "#22274A", line: "#FFFFFF" },
+      { bg: "#1D9053", line: "#FFFFFF" },
+      { bg: "#165349", line: "#FFFFFF" },
+      { bg: "#111425", line: "#FFFFFF" },
     ],
     []
   );
@@ -112,10 +130,16 @@ const Sidebar = () => {
     setEquipmentLineColor(line);
   };
 
+  const handlePlayerColorSelect = (index) => {
+    setActivePlayerColorIndex(index);
+    const { bg } = playerColorCombinations[index];
+    setPlayerColor(bg);
+  };
+
   const handleDragStart = useCallback(
-    (src, modifiedSvgContent) => {
+    (dragData, modifiedSvgContent) => {
       setDraggedEquipmentSrc({
-        src: src,
+        ...dragData,
         content: modifiedSvgContent,
       });
     },
@@ -173,10 +197,12 @@ const Sidebar = () => {
       case "players":
         return (
           <PlayersMenu
-            colors={equipmentColorCombinations}
-            activeColorIndex={activeEquipmentColorIndex}
-            onColorSelect={handleEquipmentColorSelect}
-            onDragStart={handleDragStart}
+            colors={playerColorCombinations}
+            activeColorIndex={activePlayerColorIndex}
+            onColorSelect={handlePlayerColorSelect}
+            onDragStart={(dragData, svgContent) =>
+              handleDragStart(dragData, svgContent)
+            }
           />
         );
       case "lines":
