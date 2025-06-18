@@ -45,11 +45,11 @@ const PitchMenu = ({
         activeIndex={activeColorIndex}
         onSelect={onColorSelect}
       />
-      <div className="grid grid-cols-2 gap-4">
+      <div className="flex flex-wrap justify-center gap-4">
         {pitchSvgComponents.map((svg) => (
           <div
             key={svg.id}
-            className="flex justify-center items-center p-[2px] w-[100px] h-[100px] border rounded-lg hover:bg-gray-100 cursor-pointer svg_size"
+            className="flex flex-wrap justify-center items-center p-[2px] w-[100px] h-[100px] border rounded-lg hover:bg-gray-100 cursor-pointer svg_size"
             style={{ backgroundColor: svgBgColor }}
             onClick={() => onPitchSelect(svg)}
           >

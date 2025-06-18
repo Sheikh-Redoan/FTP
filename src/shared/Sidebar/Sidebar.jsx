@@ -3,26 +3,26 @@ import { useSvg } from "../../context/SvgContext";
 import MenuButton from "../../components/ui/MenuButton";
 import PitchMenu from "../../components/ui/PitchMenu";
 import EquipmentMenu from "../../components/ui/EquipmentMenu";
-import IdeaBox from "../../components/ui/IdeaBox";
-import {
-  GiSoccerField,
-  IoFootballOutline,
-  IoClose,
-  RiVipLine,
-  IoPeopleOutline,
-  BsGraphUp,
-  LuType,
-} from "../../components/icons";
+import { GiSoccerField, IoClose } from "../../components/icons";
 import { getModifiedSvgString, createSvgDataUrl } from "../../utils/svgUtils";
 import QuickAccessMenu from "../../components/ui/QuickAccessMenu";
 import PlayersMenu from "../../components/ui/PlayersMenu";
 import LinesMenu from "../../components/ui/LinesMenu";
 import TextNrMenu from "../../components/ui/TextNrMenu";
+import { ReactSVG } from "react-svg";
+
+// Importing the SVG icons for the menu buttons
+import Pitch from "../../assets/SidebarIcons/Pitch.svg";
 import QuickAccessIcon from "../../assets/SidebarIcons/Quick Access.svg";
 import EquipmentIcon from "../../assets/SidebarIcons/Equipment.svg";
 import PlayersIcon from "../../assets/SidebarIcons/Players.svg";
 import LinesIcon from "../../assets/SidebarIcons/Lines.svg";
 import TextNrIcon from "../../assets/SidebarIcons/Text&Nr.svg";
+
+// Wrapper component to render SVG icons from a path
+const SvgIcon = ({ src, className }) => (
+  <ReactSVG src={src} className={className} wrapper="div" />
+);
 
 const Sidebar = () => {
   const {
@@ -35,13 +35,12 @@ const Sidebar = () => {
     setEquipmentBgColor,
     setEquipmentLineColor,
     setDraggedEquipmentSrc,
-    setPitch, // Get setPitch from context
+    setPitch,
   } = useSvg();
 
   const [activeMenu, setActiveMenu] = useState(null);
   const [activePitchColorIndex, setActivePitchColorIndex] = useState(0);
-  const [activeEquipmentColorIndex, setActiveEquipmentColorIndex] =
-    useState(0);
+  const [activeEquipmentColorIndex, setActiveEquipmentColorIndex] = useState(0);
 
   const pitchColorCombinations = useMemo(
     () => [
@@ -70,7 +69,6 @@ const Sidebar = () => {
   const handlePitchSelect = async (svg) => {
     setSelectedSvg({ component: svg.component, id: svg.id });
 
-    // New logic for Konva
     const modifiedSvgString = await getModifiedSvgString(
       svg.component,
       svgBgColor,
@@ -124,13 +122,38 @@ const Sidebar = () => {
     [setDraggedEquipmentSrc]
   );
 
+  // Updated menuItems to use the correct icons
   const menuItems = [
-    { name: "pitch", icon: GiSoccerField, label: "Pitch" },
-    { name: "quickAccess", icon: RiVipLine, label: "Quick Access" },
-    { name: "players", icon: IoPeopleOutline, label: "Players" },
-    { name: "lines", icon: BsGraphUp, label: "Lines" },
-    { name: "equipment", icon: IoFootballOutline, label: "Equipment" },
-    { name: "textNr", icon: LuType, label: "Text & Nr." },
+    {
+      name: "pitch",
+      icon: (props) => <SvgIcon src={Pitch} {...props} />,
+      label: "Pitch",
+    },
+    {
+      name: "quickAccess",
+      icon: (props) => <SvgIcon src={QuickAccessIcon} {...props} />,
+      label: "Quick Access",
+    },
+    {
+      name: "players",
+      icon: (props) => <SvgIcon src={PlayersIcon} {...props} />,
+      label: "Players",
+    },
+    {
+      name: "lines",
+      icon: (props) => <SvgIcon src={LinesIcon} {...props} />,
+      label: "Lines",
+    },
+    {
+      name: "equipment",
+      icon: (props) => <SvgIcon src={EquipmentIcon} {...props} />,
+      label: "Equipment",
+    },
+    {
+      name: "textNr",
+      icon: (props) => <SvgIcon src={TextNrIcon} {...props} />,
+      label: "Text & Nr.",
+    },
   ];
 
   const renderMenu = () => {
@@ -199,11 +222,10 @@ const Sidebar = () => {
             onClick={() => handleMenuClick(item.name)}
           />
         ))}
-        <IdeaBox />
       </div>
 
       {activeMenu && (
-        <div className="absolute top-0 right-[-260px] w-[250px] h-full bg-[#E6E6F4] rounded-lg shadow-lg p-3 overflow-y-auto z-50">
+        <div className="absolute top-0 right-[-150px] w-[180px] h-full bg-[#E6E6F4] rounded-lg shadow-lg p-3 overflow-y-auto z-50">
           <button
             onClick={() => setActiveMenu(null)}
             className="absolute top-2 right-2 text-black"

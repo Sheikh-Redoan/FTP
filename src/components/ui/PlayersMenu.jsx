@@ -18,7 +18,7 @@ const PlayersMenu = ({
         activeIndex={activeColorIndex}
         onSelect={onColorSelect}
       />
-      <div className="grid grid-cols-4 gap-2">
+      <div className="flex gap-2 flex-wrap justify-center">
         {players.map((p) => (
           <div
             key={p}
