@@ -1,9 +1,10 @@
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import { Stage, Layer } from "react-konva";
 import { useSvg } from "../../context/SvgContext";
 import { useDimensions } from "../../hooks/useDimensions";
 import KonvaEquipmentImage from "../../components/common/KonvaEquipmentImage";
-import KonvaPitchImage from "../../components/Common/KonvaPitchImage"; // Import the new component
+import KonvaPitchImage from "../../components/Common/KonvaPitchImage";
+import KonvaToolbar from "../../components/common/KonvaToolbar"; // Import KonvaToolbar
 import { createSvgDataUrl } from "../../utils/svgUtils";
 
 const Home = () => {
@@ -11,8 +12,22 @@ const Home = () => {
   const containerRef = useRef(null);
   const stageRef = useRef(null);
   const { width, height } = useDimensions(containerRef);
+
   const [droppedEquipment, setDroppedEquipment] = useState([]);
   const [selectedId, setSelectedId] = useState(null);
+
+  // History for undo/redo
+  const [history, setHistory] = useState([[]]);
+  const [historyStep, setHistoryStep] = useState(0);
+
+  useEffect(() => {
+    // When droppedEquipment changes, save it to history
+    if (JSON.stringify(history[historyStep]) !== JSON.stringify(droppedEquipment)) {
+      const newHistory = history.slice(0, historyStep + 1);
+      setHistory([...newHistory, droppedEquipment]);
+      setHistoryStep(newHistory.length);
+    }
+  }, [droppedEquipment]); // Only re-run if droppedEquipment changes
 
   const handleDrop = (e) => {
     e.preventDefault();
@@ -23,23 +38,100 @@ const Home = () => {
     const dataUrl = createSvgDataUrl(draggedEquipmentSrc.content);
     const newId = Date.now().toString();
 
-    setDroppedEquipment((prev) => [
-      ...prev,
-      {
-        id: newId,
-        dataUrl,
-        ...position,
-        width: 100,
-        height: 100,
-      },
-    ]);
+    const newEquipment = {
+      id: newId,
+      dataUrl,
+      x: position.x,
+      y: position.y,
+      width: 100,
+      height: 100,
+      rotation: 0, // Initial rotation
+      locked: false, // Initial lock state
+    };
+
+    setDroppedEquipment((prev) => [...prev, newEquipment]);
     setDraggedEquipmentSrc(null);
     setSelectedId(newId);
   };
 
   const checkDeselect = (e) => {
-    if (e.target === e.target.getStage()) {
+    // deselect when clicked on empty area of the stage
+    const clickedOnEmpty = e.target === e.target.getStage();
+    const clickedOnTransformer = e.target.getParent && e.target.getParent().className === 'Transformer';
+    if (clickedOnEmpty || clickedOnTransformer) {
       setSelectedId(null);
+    }
+  };
+
+  const handleTransformEnd = (newAttrs) => {
+    const items = droppedEquipment.map((item) =>
+      item.id === newAttrs.id ? { ...newAttrs, rotation: newAttrs.rotation || item.rotation, locked: newAttrs.locked || item.locked } : item
+    );
+    setDroppedEquipment(items);
+  };
+
+  const handleSelectEquipment = (id) => {
+    setSelectedId(id);
+  };
+
+  const selectedEquipment = droppedEquipment.find((item) => item.id === selectedId);
+
+  const handleUndo = () => {
+    if (historyStep > 0) {
+      const newHistoryStep = historyStep - 1;
+      setHistoryStep(newHistoryStep);
+      setDroppedEquipment(history[newHistoryStep]);
+      setSelectedId(null); // Deselect on undo
+    }
+  };
+
+  const handleRedo = () => {
+    if (historyStep < history.length - 1) {
+      const newHistoryStep = historyStep + 1;
+      setHistoryStep(newHistoryStep);
+      setDroppedEquipment(history[newHistoryStep]);
+      setSelectedId(null); // Deselect on redo
+    }
+  };
+
+  const handleDuplicate = () => {
+    if (selectedEquipment && !selectedEquipment.locked) {
+      const newId = Date.now().toString();
+      const duplicatedItem = {
+        ...selectedEquipment,
+        id: newId,
+        x: selectedEquipment.x + 20, // Offset duplicated item
+        y: selectedEquipment.y + 20,
+      };
+      setDroppedEquipment((prev) => [...prev, duplicatedItem]);
+      setSelectedId(newId);
+    }
+  };
+
+  const handleDelete = () => {
+    if (selectedEquipment && !selectedEquipment.locked) {
+      setDroppedEquipment((prev) => prev.filter((item) => item.id !== selectedId));
+      setSelectedId(null);
+    }
+  };
+
+  const handleLockUnlock = () => {
+    if (selectedEquipment) {
+      setDroppedEquipment((prev) =>
+        prev.map((item) =>
+          item.id === selectedId ? { ...item, locked: !item.locked } : item
+        )
+      );
+    }
+  };
+
+  const handleRotate = () => {
+    if (selectedEquipment && !selectedEquipment.locked) {
+      setDroppedEquipment((prev) =>
+        prev.map((item) =>
+          item.id === selectedId ? { ...item, rotation: (item.rotation + 45) % 360 } : item
+        )
+      );
     }
   };
 
@@ -67,17 +159,26 @@ const Home = () => {
               key={item.id}
               equipment={item}
               isSelected={item.id === selectedId}
-              onSelect={() => setSelectedId(item.id)}
-              onTransform={(newAttrs) => {
-                const items = droppedEquipment.slice();
-                const index = items.findIndex((i) => i.id === item.id);
-                items[index] = newAttrs;
-                setDroppedEquipment(items);
-              }}
+              onSelect={() => handleSelectEquipment(item.id)}
+              onTransform={handleTransformEnd}
             />
           ))}
         </Layer>
       </Stage>
+
+      {selectedId && (
+        <KonvaToolbar
+          selectedEquipment={selectedEquipment}
+          onUndo={handleUndo}
+          onRedo={handleRedo}
+          onDuplicate={handleDuplicate}
+          onDelete={handleDelete}
+          onLockUnlock={handleLockUnlock}
+          onRotate={handleRotate}
+          canUndo={historyStep > 0}
+          canRedo={historyStep < history.length - 1}
+        />
+      )}
 
       {!pitch && droppedEquipment.length === 0 && (
         <h1 className="text-3xl font-bold text-gray-400">
