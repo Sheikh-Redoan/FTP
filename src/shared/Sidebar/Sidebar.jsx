@@ -3,16 +3,26 @@ import { useSvg } from "../../context/SvgContext";
 import MenuButton from "../../components/ui/MenuButton";
 import PitchMenu from "../../components/ui/PitchMenu";
 import EquipmentMenu from "../../components/ui/EquipmentMenu";
-import ShapeMenu from "../../components/ui/ShapeMenu";
 import IdeaBox from "../../components/ui/IdeaBox";
 import {
   GiSoccerField,
   IoFootballOutline,
-  LuShapes,
-  TiArrowMoveOutline,
   IoClose,
+  RiVipLine,
+  IoPeopleOutline,
+  BsGraphUp,
+  LuType,
 } from "../../components/icons";
-import { getModifiedSvgString, createSvgDataUrl } from "../../utils/svgUtils"; // Import utils
+import { getModifiedSvgString, createSvgDataUrl } from "../../utils/svgUtils";
+import QuickAccessMenu from "../../components/ui/QuickAccessMenu";
+import PlayersMenu from "../../components/ui/PlayersMenu";
+import LinesMenu from "../../components/ui/LinesMenu";
+import TextNrMenu from "../../components/ui/TextNrMenu";
+import QuickAccessIcon from "../../assets/SidebarIcons/Quick Access.svg";
+import EquipmentIcon from "../../assets/SidebarIcons/Equipment.svg";
+import PlayersIcon from "../../assets/SidebarIcons/Players.svg";
+import LinesIcon from "../../assets/SidebarIcons/Lines.svg";
+import TextNrIcon from "../../assets/SidebarIcons/Text&Nr.svg";
 
 const Sidebar = () => {
   const {
@@ -116,10 +126,67 @@ const Sidebar = () => {
 
   const menuItems = [
     { name: "pitch", icon: GiSoccerField, label: "Pitch" },
+    { name: "quickAccess", icon: RiVipLine, label: "Quick Access" },
+    { name: "players", icon: IoPeopleOutline, label: "Players" },
+    { name: "lines", icon: BsGraphUp, label: "Lines" },
     { name: "equipment", icon: IoFootballOutline, label: "Equipment" },
-    { name: "shape", icon: LuShapes, label: "Shape" },
-    { name: "move", icon: TiArrowMoveOutline, label: "Move" },
+    { name: "textNr", icon: LuType, label: "Text & Nr." },
   ];
+
+  const renderMenu = () => {
+    switch (activeMenu) {
+      case "pitch":
+        return (
+          <PitchMenu
+            colors={pitchColorCombinations}
+            activeColorIndex={activePitchColorIndex}
+            onColorSelect={handlePitchColorSelect}
+            onPitchSelect={handlePitchSelect}
+            svgBgColor={svgBgColor}
+          />
+        );
+      case "quickAccess":
+        return <QuickAccessMenu onDragStart={handleDragStart} />;
+      case "players":
+        return (
+          <PlayersMenu
+            colors={equipmentColorCombinations}
+            activeColorIndex={activeEquipmentColorIndex}
+            onColorSelect={handleEquipmentColorSelect}
+            onDragStart={handleDragStart}
+          />
+        );
+      case "lines":
+        return (
+          <LinesMenu
+            colors={equipmentColorCombinations}
+            activeColorIndex={activeEquipmentColorIndex}
+            onColorSelect={handleEquipmentColorSelect}
+            onDragStart={handleDragStart}
+          />
+        );
+      case "equipment":
+        return (
+          <EquipmentMenu
+            colors={equipmentColorCombinations}
+            activeColorIndex={activeEquipmentColorIndex}
+            onColorSelect={handleEquipmentColorSelect}
+            onDragStart={handleDragStart}
+          />
+        );
+      case "textNr":
+        return (
+          <TextNrMenu
+            colors={equipmentColorCombinations}
+            activeColorIndex={activeEquipmentColorIndex}
+            onColorSelect={handleEquipmentColorSelect}
+            onDragStart={handleDragStart}
+          />
+        );
+      default:
+        return null;
+    }
+  };
 
   return (
     <div className="h-screen w-max p-14 relative">
@@ -143,41 +210,7 @@ const Sidebar = () => {
           >
             <IoClose className="text-xl" />
           </button>
-
-          {activeMenu === "pitch" && (
-            <PitchMenu
-              colors={pitchColorCombinations}
-              activeColorIndex={activePitchColorIndex}
-              onColorSelect={handlePitchColorSelect}
-              onPitchSelect={handlePitchSelect}
-              svgBgColor={svgBgColor}
-            />
-          )}
-
-          {activeMenu === "equipment" && (
-            <EquipmentMenu
-              colors={equipmentColorCombinations}
-              activeColorIndex={activeEquipmentColorIndex}
-              onColorSelect={handleEquipmentColorSelect}
-              onDragStart={handleDragStart}
-            />
-          )}
-
-          {activeMenu === "shape" && (
-            <ShapeMenu
-              colors={equipmentColorCombinations}
-              activeColorIndex={activeEquipmentColorIndex}
-              onColorSelect={handleEquipmentColorSelect}
-              onDragStart={handleDragStart}
-            />
-          )}
-
-          {activeMenu === "move" && (
-            <div>
-              <h3 className="text-lg font-bold mb-4">Move Tools</h3>
-              <p>Movement controls will appear here.</p>
-            </div>
-          )}
+          {renderMenu()}
         </div>
       )}
     </div>

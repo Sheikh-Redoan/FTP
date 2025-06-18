@@ -60,3 +60,5 @@ const KonvaToolbar = ({
 };
 
 export default KonvaToolbar;
+
+// here is my code. and i have provided you some images, First i want you to read the code properly then scan the images and after that you have to work of the sidebar, you have to cahnge the sidebar menus in the images there are some fields [Pitch, Quick Access, Players, Lines, Equipment, Text & Nr.] now you have modify this sidebar according to the images and you have to add the functionality of these menus, like when i click on the Pitch it should open the pitch menu and when i click on the Quick Access it should open the quick access menu and so on. And you have to make sure that the sidebar is responsive and looks good on all screen sizes.
