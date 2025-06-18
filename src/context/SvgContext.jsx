@@ -1,38 +1,26 @@
 // src/context/SvgContext.jsx
 import { createContext, useContext, useState } from "react";
 
-// Create a React Context for SVG-related states
 const SvgContext = createContext();
 
-// SvgProvider component to wrap the application and provide SVG context
 export const SvgProvider = ({ children }) => {
-  // State to hold the currently selected SVG object (for pitch)
   const [selectedSvg, setSelectedSvg] = useState(null);
-
-  // State for the SVG background color, initialized to green as per requirement
-  const [svgBgColor, setSvgBgColor] = useState("#00A859"); // Default: Green Background
-
-  // State for the SVG line color, initialized to white as per requirement
-  const [svgLineColor, setSvgLineColor] = useState("#FFFFFF"); // Default: White Line
-
-  // NEW: State for currently selected equipment SVG (for drag and drop)
+  const [svgBgColor, setSvgBgColor] = useState("#00A859");
+  const [svgLineColor, setSvgLineColor] = useState("#FFFFFF");
   const [selectedEquipmentSvg, setSelectedEquipmentSvg] = useState(null);
-  // NEW: State for equipment background color
-  const [equipmentBgColor, setEquipmentBgColor] = useState("#D4DA65"); // Default equipment color
-  // NEW: State for equipment line color
-  const [equipmentLineColor, setEquipmentLineColor] = useState("#D4DA65"); // Default equipment line color
-
-  // NEW: State for player color
+  const [equipmentBgColor, setEquipmentBgColor] = useState("#D4DA65");
+  const [equipmentLineColor, setEquipmentLineColor] = useState("#D4DA65");
   const [playerColor, setPlayerColor] = useState("#FDE100");
-
-  // NEW: State to hold the SVG source being dragged (original src and modified content)
   const [draggedEquipmentSrc, setDraggedEquipmentSrc] = useState(null);
-
-  // **** NEW: State for the pitch on the Konva Stage ****
   const [pitch, setPitch] = useState(null);
+  const [lineColor, setLineColor] = useState("#FDE100");
+
+  // ADDED: State to hold the function that adds equipment to the stage
+  const [addEquipment, setAddEquipment] = useState(() => () => {
+    console.error("addEquipment function not yet implemented");
+  });
 
   return (
-    // Provide the context values to its children
     <SvgContext.Provider
       value={{
         selectedSvg,
@@ -41,7 +29,6 @@ export const SvgProvider = ({ children }) => {
         setSvgBgColor,
         svgLineColor,
         setSvgLineColor,
-        // NEW: Equipment context values
         selectedEquipmentSvg,
         setSelectedEquipmentSvg,
         equipmentBgColor,
@@ -50,11 +37,15 @@ export const SvgProvider = ({ children }) => {
         setEquipmentLineColor,
         playerColor,
         setPlayerColor,
-        draggedEquipmentSrc, // Expose the dragged SVG source and its content
-        setDraggedEquipmentSrc, // Expose setter for dragged SVG source
-        // **** NEW: Pitch context values ****
+        draggedEquipmentSrc,
+        setDraggedEquipmentSrc,
         pitch,
         setPitch,
+        lineColor,
+        setLineColor,
+        // ADDED: Expose addEquipment function and its setter
+        addEquipment,
+        setAddEquipment,
       }}
     >
       {children}
@@ -62,5 +53,4 @@ export const SvgProvider = ({ children }) => {
   );
 };
 
-// Custom hook to easily consume the SvgContext in functional components
 export const useSvg = () => useContext(SvgContext);

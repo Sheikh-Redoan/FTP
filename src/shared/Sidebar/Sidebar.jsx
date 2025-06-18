@@ -4,12 +4,13 @@ import { useSvg } from "../../context/SvgContext";
 import MenuButton from "../../components/ui/MenuButton";
 import PitchMenu from "../../components/ui/PitchMenu";
 import EquipmentMenu from "../../components/ui/EquipmentMenu";
-import { GiSoccerField, IoClose } from "../../components/icons";
-import { getModifiedSvgString, createSvgDataUrl } from "../../utils/svgUtils";
+import { IoClose } from "../../components/icons";
+import { getModifiedSvgString, createSvgDataUrl, getColoredSvgString } from "../../utils/svgUtils";
 import QuickAccessMenu from "../../components/ui/QuickAccessMenu";
 import PlayersMenu from "../../components/ui/PlayersMenu";
 import LinesMenu from "../../components/ui/LinesMenu";
 import TextNrMenu from "../../components/ui/TextNrMenu";
+import ShapeMenu from "../../components/ui/ShapeMenu";
 import { ReactSVG } from "react-svg";
 
 // Importing the SVG icons for the menu buttons
@@ -20,7 +21,6 @@ import PlayersIcon from "../../assets/SidebarIcons/Players.svg";
 import LinesIcon from "../../assets/SidebarIcons/Lines.svg";
 import TextNrIcon from "../../assets/SidebarIcons/Text&Nr.svg";
 
-// Wrapper component to render SVG icons from a path
 const SvgIcon = ({ src, className }) => (
   <ReactSVG src={src} className={className} wrapper="div" />
 );
@@ -38,12 +38,17 @@ const Sidebar = () => {
     setPlayerColor,
     setDraggedEquipmentSrc,
     setPitch,
+    setLineColor,
+    lineColor,
+    addEquipment, // Get the addEquipment function from context
   } = useSvg();
 
   const [activeMenu, setActiveMenu] = useState(null);
   const [activePitchColorIndex, setActivePitchColorIndex] = useState(0);
   const [activeEquipmentColorIndex, setActiveEquipmentColorIndex] = useState(0);
   const [activePlayerColorIndex, setActivePlayerColorIndex] = useState(0);
+  const [activeLineColorIndex, setActiveLineColorIndex] = useState(0);
+  const [activeShapeColorIndex, setActiveShapeColorIndex] = useState(0);
 
   const pitchColorCombinations = useMemo(
     () => [
@@ -62,6 +67,18 @@ const Sidebar = () => {
       { bg: "#DC052D", line: "#DC052D" },
       { bg: "#6CABDD", line: "#6CABDD" },
       { bg: "#FDE100", line: "#FDE100" },
+    ],
+    []
+  );
+
+  const lineColorCombinations = useMemo(
+    () => [
+      { bg: "#FDE100", line: "#FDE100" },
+      { bg: "#F4F4F4", line: "#F4F4F4" },
+      { bg: "#DC052D", line: "#DC052D" },
+      { bg: "#6B7280", line: "#6B7280" },
+      { bg: "#444444", line: "#444444" },
+      { bg: "#22274A", line: "#22274A" },
     ],
     []
   );
@@ -136,6 +153,19 @@ const Sidebar = () => {
     setPlayerColor(bg);
   };
 
+  const handleLineColorSelect = (index) => {
+    setActiveLineColorIndex(index);
+    const { line } = lineColorCombinations[index];
+    setLineColor(line);
+  };
+
+  const handleShapeColorSelect = (index) => {
+    setActiveShapeColorIndex(index);
+    const { bg, line } = equipmentColorCombinations[index];
+    setEquipmentBgColor(bg);
+    setEquipmentLineColor(line);
+  };
+
   const handleDragStart = useCallback(
     (dragData, modifiedSvgContent) => {
       setDraggedEquipmentSrc({
@@ -145,8 +175,14 @@ const Sidebar = () => {
     },
     [setDraggedEquipmentSrc]
   );
+  
+  // UPDATED: Handler to add a line to the stage via context function
+  const handleaddLine = async (svgPath) => {
+    // Color the line SVG with the currently selected line color
+    const coloredSvg = await getColoredSvgString(svgPath, 'transparent', lineColor);
+    addEquipment(coloredSvg, 'line');
+  };
 
-  // Updated menuItems to use the correct icons
   const menuItems = [
     {
       name: "pitch",
@@ -208,10 +244,10 @@ const Sidebar = () => {
       case "lines":
         return (
           <LinesMenu
-            colors={equipmentColorCombinations}
-            activeColorIndex={activeEquipmentColorIndex}
-            onColorSelect={handleEquipmentColorSelect}
-            onDragStart={handleDragStart}
+            colors={lineColorCombinations}
+            activeColorIndex={activeLineColorIndex}
+            onColorSelect={handleLineColorSelect}
+            onLineAdd={handleaddLine}
           />
         );
       case "equipment":
@@ -220,6 +256,15 @@ const Sidebar = () => {
             colors={equipmentColorCombinations}
             activeColorIndex={activeEquipmentColorIndex}
             onColorSelect={handleEquipmentColorSelect}
+            onDragStart={handleDragStart}
+          />
+        );
+      case "shapes":
+        return (
+          <ShapeMenu
+            colors={equipmentColorCombinations}
+            activeColorIndex={activeShapeColorIndex}
+            onColorSelect={handleShapeColorSelect}
             onDragStart={handleDragStart}
           />
         );

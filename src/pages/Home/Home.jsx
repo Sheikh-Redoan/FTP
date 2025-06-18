@@ -1,16 +1,21 @@
 // src/pages/Home/Home.jsx
-import { useRef, useState, useEffect } from "react";
+import { useRef, useState, useEffect, useCallback } from "react";
 import { Stage, Layer } from "react-konva";
 import { useSvg } from "../../context/SvgContext";
 import { useDimensions } from "../../hooks/useDimensions";
 import KonvaEquipmentImage from "../../components/common/KonvaEquipmentImage";
-import KonvaPitchImage from "../../components/Common/KonvaPitchImage";
-import KonvaToolbar from "../../components/common/KonvaToolbar"; // Import KonvaToolbar
+import KonvaPitchImage from "../../components/common/KonvaPitchImage";
+import KonvaToolbar from "../../components/common/KonvaToolbar";
 import { createSvgDataUrl } from "../../utils/svgUtils";
 
 const Home = () => {
-  const { pitch, draggedEquipmentSrc, setDraggedEquipmentSrc, playerColor } =
-    useSvg();
+  const {
+    pitch,
+    draggedEquipmentSrc,
+    setDraggedEquipmentSrc,
+    playerColor,
+    setAddEquipment, // Get the setter function from context
+  } = useSvg();
   const containerRef = useRef(null);
   const stageRef = useRef(null);
   const { width, height } = useDimensions(containerRef);
@@ -18,12 +23,37 @@ const Home = () => {
   const [droppedEquipment, setDroppedEquipment] = useState([]);
   const [selectedId, setSelectedId] = useState(null);
 
-  // History for undo/redo
   const [history, setHistory] = useState([[]]);
   const [historyStep, setHistoryStep] = useState(0);
 
+  // Function to add any equipment (including lines) to the stage
+  const addEquipmentToStage = useCallback((svgContent, type) => {
+    const dataUrl = createSvgDataUrl(svgContent);
+    const newId = Date.now().toString();
+
+    const newEquipment = {
+      id: newId,
+      dataUrl,
+      x: width / 2 - 50, // Center the new item
+      y: height / 2 - 50,
+      width: 100,
+      height: 100,
+      rotation: 0,
+      locked: false,
+      type: type, // 'line', 'shape', etc.
+    };
+
+    setDroppedEquipment((prev) => [...prev, newEquipment]);
+    setSelectedId(newId);
+  }, [width, height]);
+
+  // Provide the implementation of addEquipmentToStage to the context
   useEffect(() => {
-    // When droppedEquipment changes, save it to history
+    setAddEquipment(() => addEquipmentToStage);
+  }, [setAddEquipment, addEquipmentToStage]);
+
+
+  useEffect(() => {
     if (
       JSON.stringify(history[historyStep]) !== JSON.stringify(droppedEquipment)
     ) {
@@ -31,7 +61,7 @@ const Home = () => {
       setHistory([...newHistory, droppedEquipment]);
       setHistoryStep(newHistory.length);
     }
-  }, [droppedEquipment]); // Only re-run if droppedEquipment changes
+  }, [droppedEquipment, history, historyStep]);
 
   const handleDrop = (e) => {
     e.preventDefault();
@@ -49,8 +79,8 @@ const Home = () => {
       y: position.y,
       width: 100,
       height: 100,
-      rotation: 0, // Initial rotation
-      locked: false, // Initial lock state
+      rotation: 0,
+      locked: false,
       type: draggedEquipmentSrc.type,
       text: draggedEquipmentSrc.text,
     };
@@ -61,7 +91,6 @@ const Home = () => {
   };
 
   const checkDeselect = (e) => {
-    // deselect when clicked on empty area of the stage
     const clickedOnEmpty = e.target === e.target.getStage();
     const clickedOnTransformer =
       e.target.getParent && e.target.getParent().className === "Transformer";
@@ -109,7 +138,7 @@ const Home = () => {
       const newHistoryStep = historyStep - 1;
       setHistoryStep(newHistoryStep);
       setDroppedEquipment(history[newHistoryStep]);
-      setSelectedId(null); // Deselect on undo
+      setSelectedId(null);
     }
   };
 
@@ -118,7 +147,7 @@ const Home = () => {
       const newHistoryStep = historyStep + 1;
       setHistoryStep(newHistoryStep);
       setDroppedEquipment(history[newHistoryStep]);
-      setSelectedId(null); // Deselect on redo
+      setSelectedId(null);
     }
   };
 
@@ -128,7 +157,7 @@ const Home = () => {
       const duplicatedItem = {
         ...selectedEquipment,
         id: newId,
-        x: selectedEquipment.x + 20, // Offset duplicated item
+        x: selectedEquipment.x + 20,
         y: selectedEquipment.y + 20,
       };
       setDroppedEquipment((prev) => [...prev, duplicatedItem]);

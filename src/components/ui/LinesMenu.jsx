@@ -1,21 +1,45 @@
+// src/components/ui/LinesMenu.jsx
+import { ReactSVG } from "react-svg";
 import ColorPicker from "./ColorPicker";
-import DragItem from "../common/DragItem";
-import { FaSquareFull } from "../icons";
+import { useSvg } from "../../context/SvgContext";
 
-const LinesMenu = ({
-  colors,
-  activeColorIndex,
-  onColorSelect,
-  onDragStart,
-}) => {
+// Assuming line SVGs are in this path
+import Fieldmarker from "../../assets/Lines/Fieldmarker.svg";
+import FieldmarkerDotted from "../../assets/Lines/Fieldmarkerdotted.svg";
+import FieldmarkerCurved from "../../assets/Lines/Fieldmarkercurved.svg";
+import Passing from "../../assets/Lines/Passingorfinishing.svg";
+import Run from "../../assets/Lines/Run.svg";
+import Dribbling from "../../assets/Lines/Dribbling.svg";
+import DribblingCurved from "../../assets/Lines/Dribbling2.svg";
+import Square from "../../assets/Lines/Square.svg";
+import Circle from "../../assets/Lines/Circle.svg";
+import Triangle from "../../assets/Lines/Triangle.svg";
+
+const LinesMenu = ({ colors, activeColorIndex, onColorSelect, onLineAdd }) => {
+  const { lineColor } = useSvg();
+
   const lineItems = [
-    { id: 400, name: "Fieldmarker" },
-    { id: 401, name: "Fieldmarker dotted" },
-    { id: 402, name: "Fieldmarker curved" },
-    { id: 403, name: "Passing or finishing" },
-    { id: 404, name: "Run" },
-    { id: 405, name: "Dribbling" },
+    { id: 1, name: "Fieldmarker", svg: Fieldmarker },
+    { id: 2, name: "Fieldmarker dotted", svg: FieldmarkerDotted },
+    { id: 3, name: "Fieldmarker curved", svg: FieldmarkerCurved },
+    { id: 4, name: "Passing or finishing", svg: Passing },
+    { id: 5, name: "Run", svg: Run },
+    { id: 6, name: "Dribbling", svg: Dribbling },
+    { id: 7, name: "Dribbling Curved", svg: DribblingCurved },
+    { id: 8, name: "Square", svg: Square },
+    { id: 9, name: "Circle", svg: Circle },
+    { id: 10, name: "Triangle", svg: Triangle },
   ];
+
+  const beforeInjection = (svg) => {
+    const elements = svg.querySelectorAll(
+      "path, line, polyline, polygon, rect, circle"
+    );
+    elements.forEach((el) => {
+      el.setAttribute("stroke", lineColor);
+    });
+  };
+
   return (
     <div>
       <h3 className="text-lg font-bold mb-4">Lines</h3>
@@ -26,14 +50,19 @@ const LinesMenu = ({
       />
       <div className="flex flex-col items-center gap-2">
         {lineItems.map((item) => (
-          <DragItem
+          <div
             key={item.id}
-            src={item.name}
-            name={item.name}
-            onDragStart={onDragStart}
-            IconComponent={FaSquareFull}
-            displaySvgContent={`<svg width="100" height="20" xmlns="http://www.w3.org/2000/svg"><line x1="0" y1="10" x2="100" y2="10" stroke="black" stroke-width="2"/></svg>`}
-          />
+            className="flex flex-col items-center gap-1 w-full p-2 border rounded-lg hover:bg-gray-100 cursor-pointer"
+            onClick={() => onLineAdd(item.svg)}
+            title={item.name}
+          >
+            <ReactSVG
+              src={item.svg}
+              beforeInjection={beforeInjection}
+              className="w-full h-auto line-menu-icon"
+            />
+            <span className="text-sm text-center w-full">{item.name}</span>
+          </div>
         ))}
       </div>
     </div>
