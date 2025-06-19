@@ -8,6 +8,7 @@ const EditableText = ({
   onSelect,
   onChange,
   onTransform,
+  onDragStart,
   onDragMove,
   onDragEnd,
 }) => {
@@ -77,21 +78,10 @@ const EditableText = ({
     }
   }, [isEditing]);
 
-  const handleDragEndInternal = (e) => {
-    const newAttrs = {
-      ...shapeProps,
-      x: e.target.x(),
-      y: e.target.y(),
-    };
-    onChange(newAttrs);
-    if (onDragEnd) {
-      onDragEnd(e);
-    }
-  };
-
   return (
     <>
       <Text
+        id={shapeProps.id}
         ref={shapeRef}
         {...shapeProps}
         draggable={!isEditing && !shapeProps.locked}
@@ -99,8 +89,9 @@ const EditableText = ({
         onTap={onSelect}
         onDblClick={onDoubleClick}
         onDblTap={onDoubleClick}
+        onDragStart={onDragStart}
         onDragMove={onDragMove}
-        onDragEnd={handleDragEndInternal}
+        onDragEnd={onDragEnd}
         onTransformEnd={(e) => {
           const node = shapeRef.current;
           if (node) {

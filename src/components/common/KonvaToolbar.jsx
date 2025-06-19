@@ -33,6 +33,7 @@ const KonvaToolbar = ({
   canRedo,
   onTextColorChange,
   textColors,
+  onTextResize,
 }) => {
   const isSelected = !!selectedEquipment;
   const isLocked = isSelected && selectedEquipment.locked;
@@ -40,7 +41,7 @@ const KonvaToolbar = ({
 
   // Toolbar is now always visible, with buttons disabled based on selection state.
   return (
-    <div className="absolute bottom-[-50px] left-1/2 -translate-x-1/2 w-max rounded-lg flex items-center gap-2 z-50">
+    <div className="absolute bottom-[-50px] left-1/2 -translate-x-1/2 w-max rounded-lg flex items-center gap-2 z-50p-2">
       <ToolbarButton onClick={onUndo} disabled={!canUndo} label="Undo">
         <IoReturnUpBackOutline className="text-xl text-blue-500 group-hover:text-white" />
       </ToolbarButton>
@@ -80,18 +81,32 @@ const KonvaToolbar = ({
         <MdOutlineRotateRight className="text-xl text-blue-500 group-hover:text-white" />
       </ToolbarButton>
 
-      {/* Color picker conditionally appears here without changing the toolbar's base design */}
-      {isText && textColors && (
+      {/* Color picker and resize slider for text */}
+      {isText && (
         <>
           <div className="h-8 w-px bg-gray-400 mx-1" />
-          <ColorPicker
-            colors={textColors}
-            activeIndex={textColors.findIndex(
-              (c) => c.line === selectedEquipment.fill
-            )}
-            onSelect={onTextColorChange}
-            containerClassName="flex items-center gap-1 p-2 rounded-lg"
-          />
+          {textColors && (
+            <ColorPicker
+              colors={textColors}
+              activeIndex={textColors.findIndex(
+                (c) => c.line === selectedEquipment.fill
+              )}
+              onSelect={onTextColorChange}
+              containerClassName="flex items-center gap-1 p-2 rounded-lg"
+            />
+          )}
+          <div className="h-8 w-px bg-gray-400 mx-1" />
+          <div className="flex items-center gap-2 p-2 rounded-lg">
+            <span className="text-xs text-gray-700">Size</span>
+            <input
+              type="range"
+              min="10"
+              max="100"
+              value={selectedEquipment.fontSize}
+              onChange={onTextResize}
+              className="w-24 cursor-pointer"
+            />
+          </div>
         </>
       )}
     </div>

@@ -58,6 +58,19 @@ const Home = () => {
     setDroppedEquipment(items);
   };
 
+  const handleTextResize = (e) => {
+    const newSize = parseInt(e.target.value, 10);
+    if (!selectedId) return;
+
+    const items = droppedEquipment.map((item) => {
+      if (item.id === selectedId && item.type === "text") {
+        return { ...item, fontSize: newSize };
+      }
+      return item;
+    });
+    setDroppedEquipment(items);
+  };
+
   const addEquipmentToStage = useCallback(
     (svgContent, type) => {
       const dataUrl = createSvgDataUrl(svgContent);
@@ -355,6 +368,20 @@ const Home = () => {
     return guides;
   };
 
+  const handleDragStart = (e) => {
+    const id = e.target.id();
+    setDroppedEquipment((prev) => {
+      const items = [...prev];
+      const item = items.find((i) => i.id === id);
+      const index = items.indexOf(item);
+      // remove from the list
+      items.splice(index, 1);
+      // add to the top
+      items.push(item);
+      return items;
+    });
+  };
+
   const handleDragMove = (e) => {
     const target = e.target;
     const lineGuideStops = getLineGuideStops(target);
@@ -382,8 +409,18 @@ const Home = () => {
     }
   };
 
-  const handleDragEnd = () => {
+  const handleDragEnd = (e) => {
     setGuides([]);
+    const newAttrs = {
+      id: e.target.id(),
+      x: e.target.x(),
+      y: e.target.y(),
+    };
+    const items = droppedEquipment.slice();
+    const item = items.find((i) => i.id === newAttrs.id);
+    const index = items.indexOf(item);
+    items[index] = { ...item, ...newAttrs };
+    setDroppedEquipment(items);
   };
 
   return (
@@ -415,6 +452,7 @@ const Home = () => {
                   onSelect={() => handleSelectEquipment(item.id)}
                   onChange={handleItemChange}
                   onTransform={handleItemChange}
+                  onDragStart={handleDragStart}
                   onDragMove={handleDragMove}
                   onDragEnd={handleDragEnd}
                 />
@@ -427,6 +465,7 @@ const Home = () => {
                 isSelected={item.id === selectedId}
                 onSelect={() => handleSelectEquipment(item.id)}
                 onTransform={handleItemChange}
+                onDragStart={handleDragStart}
                 onDragMove={handleDragMove}
                 onDragEnd={handleDragEnd}
               />
@@ -464,6 +503,7 @@ const Home = () => {
         canRedo={historyStep < history.length - 1}
         onTextColorChange={handleTextColorChange}
         textColors={textColors}
+        onTextResize={handleTextResize}
       />
 
       {!pitch && droppedEquipment.length === 0 && (
