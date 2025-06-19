@@ -8,6 +8,8 @@ const KonvaEquipmentImage = ({
   isSelected,
   onSelect,
   onTransform,
+  onDragMove,
+  onDragEnd,
 }) => {
   const [img] = useImage(equipment.dataUrl);
   const shapeRef = useRef();
@@ -67,13 +69,16 @@ const KonvaEquipmentImage = ({
     onTransform(newAttrs);
   };
 
-  const handleDragEnd = (e) => {
+  const handleDragEndInternal = (e) => {
     const newAttrs = {
       ...equipment,
       x: e.target.x(),
       y: e.target.y(),
     };
     onTransform(newAttrs);
+    if (onDragEnd) {
+      onDragEnd(e);
+    }
   };
 
   return (
@@ -85,7 +90,8 @@ const KonvaEquipmentImage = ({
         image={img}
         {...equipment}
         draggable={!equipment.locked}
-        onDragEnd={handleDragEnd}
+        onDragMove={onDragMove}
+        onDragEnd={handleDragEndInternal}
         onTransform={handleTransform}
         onTransformEnd={handleTransformEnd}
       />

@@ -8,6 +8,8 @@ const EditableText = ({
   onSelect,
   onChange,
   onTransform,
+  onDragMove,
+  onDragEnd,
 }) => {
   const shapeRef = useRef(null);
   const trRef = useRef(null);
@@ -75,6 +77,18 @@ const EditableText = ({
     }
   }, [isEditing]);
 
+  const handleDragEndInternal = (e) => {
+    const newAttrs = {
+      ...shapeProps,
+      x: e.target.x(),
+      y: e.target.y(),
+    };
+    onChange(newAttrs);
+    if (onDragEnd) {
+      onDragEnd(e);
+    }
+  };
+
   return (
     <>
       <Text
@@ -85,6 +99,8 @@ const EditableText = ({
         onTap={onSelect}
         onDblClick={onDoubleClick}
         onDblTap={onDoubleClick}
+        onDragMove={onDragMove}
+        onDragEnd={handleDragEndInternal}
         onTransformEnd={(e) => {
           const node = shapeRef.current;
           if (node) {
@@ -123,7 +139,9 @@ const EditableText = ({
               top: `${shapeRef.current.y()}px`,
               left: `${shapeRef.current.x()}px`,
               transformOrigin: "left top",
-              transform: `rotate(${shapeProps.rotation || 0}deg) scale(${shapeRef.current.getAbsoluteScale().x})`,
+              transform: `rotate(${
+                shapeProps.rotation || 0
+              }deg) scale(${shapeRef.current.getAbsoluteScale().x})`,
             },
           }}
         >

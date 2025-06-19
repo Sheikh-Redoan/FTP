@@ -1,6 +1,6 @@
 import { useRef, useState, useEffect, useCallback, useMemo } from "react";
-import { Stage, Layer } from "react-konva";
-import Konva from 'konva'; // Import Konva
+import { Stage, Layer, Line } from "react-konva";
+import Konva from "konva"; // Import Konva
 import { useSvg } from "../../context/SvgContext";
 import { useDimensions } from "../../hooks/useDimensions";
 import KonvaEquipmentImage from "../../components/common/KonvaEquipmentImage";
@@ -10,6 +10,8 @@ import { createSvgDataUrl } from "../../utils/svgUtils";
 import EditableText from "../../components/common/EditableText";
 
 Konva._fixTextRendering = true; // Add this line to fix potential rendering issues
+
+const GUIDELINE_OFFSET = 5;
 
 const Home = () => {
   const {
@@ -29,6 +31,8 @@ const Home = () => {
   const [history, setHistory] = useState([[]]);
   const [historyStep, setHistoryStep] = useState(0);
 
+  const [guides, setGuides] = useState([]);
+
   const textColors = useMemo(
     () => [
       { bg: "#000000", line: "#000000" },
@@ -42,8 +46,10 @@ const Home = () => {
   );
 
   const handleTextColorChange = (colorIndex) => {
-    const selectedItem = droppedEquipment.find(item => item.id === selectedId);
-    if (!selectedItem || selectedItem.type !== 'text') return;
+    const selectedItem = droppedEquipment.find(
+      (item) => item.id === selectedId
+    );
+    if (!selectedItem || selectedItem.type !== "text") return;
 
     const newColor = textColors[colorIndex].line;
     const items = droppedEquipment.map((item) =>
@@ -67,6 +73,7 @@ const Home = () => {
         rotation: 0,
         locked: false,
         type: type,
+        name: "object",
       };
 
       setDroppedEquipment((prev) => [...prev, newEquipment]);
@@ -77,7 +84,7 @@ const Home = () => {
 
   useEffect(() => {
     setAddEquipment(() => (item, type) => {
-      if (type === 'text') {
+      if (type === "text") {
         const newId = Date.now().toString();
         const newText = {
           id: newId,
@@ -85,6 +92,7 @@ const Home = () => {
           y: height / 2 - 50,
           rotation: 0,
           locked: false,
+          name: "object",
           ...item,
         };
         setDroppedEquipment((prev) => [...prev, newText]);
@@ -94,7 +102,6 @@ const Home = () => {
       }
     });
   }, [setAddEquipment, addEquipmentToStage, width, height]);
-
 
   useEffect(() => {
     if (
@@ -126,6 +133,7 @@ const Home = () => {
       locked: false,
       type: draggedEquipmentSrc.type,
       text: draggedEquipmentSrc.text,
+      name: "object",
     };
 
     setDroppedEquipment((prev) => [...prev, newEquipment]);
@@ -231,6 +239,153 @@ const Home = () => {
     }
   };
 
+  // snapping logic
+  const getLineGuideStops = (skipShape) => {
+    const vertical = [0, width / 2, width];
+    const horizontal = [0, height / 2, height];
+
+    stageRef.current.find(".object").forEach((guideItem) => {
+      if (guideItem === skipShape) {
+        return;
+      }
+      const box = guideItem.getClientRect();
+      vertical.push(box.x, box.x + box.width, box.x + box.width / 2);
+      horizontal.push(box.y, box.y + box.height, box.y + box.height / 2);
+    });
+    return {
+      vertical: vertical.flat(),
+      horizontal: horizontal.flat(),
+    };
+  };
+
+  const getObjectSnappingEdges = (node) => {
+    const box = node.getClientRect();
+    const absPos = node.absolutePosition();
+
+    return {
+      vertical: [
+        {
+          guide: Math.round(box.x),
+          offset: Math.round(absPos.x - box.x),
+          snap: "start",
+        },
+        {
+          guide: Math.round(box.x + box.width / 2),
+          offset: Math.round(absPos.x - box.x - box.width / 2),
+          snap: "center",
+        },
+        {
+          guide: Math.round(box.x + box.width),
+          offset: Math.round(absPos.x - box.x - box.width),
+          snap: "end",
+        },
+      ],
+      horizontal: [
+        {
+          guide: Math.round(box.y),
+          offset: Math.round(absPos.y - box.y),
+          snap: "start",
+        },
+        {
+          guide: Math.round(box.y + box.height / 2),
+          offset: Math.round(absPos.y - box.y - box.height / 2),
+          snap: "center",
+        },
+        {
+          guide: Math.round(box.y + box.height),
+          offset: Math.round(absPos.y - box.y - box.height),
+          snap: "end",
+        },
+      ],
+    };
+  };
+
+  const getGuides = (lineGuideStops, itemBounds) => {
+    const resultV = [];
+    const resultH = [];
+
+    lineGuideStops.vertical.forEach((lineGuide) => {
+      itemBounds.vertical.forEach((itemBound) => {
+        const diff = Math.abs(lineGuide - itemBound.guide);
+        if (diff < GUIDELINE_OFFSET) {
+          resultV.push({
+            lineGuide: lineGuide,
+            diff: diff,
+            snap: itemBound.snap,
+            offset: itemBound.offset,
+          });
+        }
+      });
+    });
+
+    lineGuideStops.horizontal.forEach((lineGuide) => {
+      itemBounds.horizontal.forEach((itemBound) => {
+        const diff = Math.abs(lineGuide - itemBound.guide);
+        if (diff < GUIDELINE_OFFSET) {
+          resultH.push({
+            lineGuide: lineGuide,
+            diff: diff,
+            snap: itemBound.snap,
+            offset: itemBound.offset,
+          });
+        }
+      });
+    });
+
+    const guides = [];
+    const minV = resultV.sort((a, b) => a.diff - b.diff)[0];
+    const minH = resultH.sort((a, b) => a.diff - b.diff)[0];
+
+    if (minV) {
+      guides.push({
+        lineGuide: minV.lineGuide,
+        offset: minV.offset,
+        orientation: "V",
+        snap: minV.snap,
+      });
+    }
+    if (minH) {
+      guides.push({
+        lineGuide: minH.lineGuide,
+        offset: minH.offset,
+        orientation: "H",
+        snap: minH.snap,
+      });
+    }
+    return guides;
+  };
+
+  const handleDragMove = (e) => {
+    const target = e.target;
+    const lineGuideStops = getLineGuideStops(target);
+    const itemBounds = getObjectSnappingEdges(target);
+    const newGuides = getGuides(lineGuideStops, itemBounds);
+
+    if (newGuides.length) {
+      const absPos = target.absolutePosition();
+      newGuides.forEach((lg) => {
+        switch (lg.orientation) {
+          case "V": {
+            absPos.x = lg.lineGuide + lg.offset;
+            break;
+          }
+          case "H": {
+            absPos.y = lg.lineGuide + lg.offset;
+            break;
+          }
+          default:
+            break;
+        }
+      });
+      target.absolutePosition(absPos);
+      setGuides(newGuides);
+    }
+  };
+
+  const handleDragEnd = () => {
+    setGuides([]);
+  };
+
   return (
     <div
       className="w-full h-[80vh] flex justify-center items-center bg-white relative"
@@ -260,6 +415,8 @@ const Home = () => {
                   onSelect={() => handleSelectEquipment(item.id)}
                   onChange={handleItemChange}
                   onTransform={handleItemChange}
+                  onDragMove={handleDragMove}
+                  onDragEnd={handleDragEnd}
                 />
               );
             }
@@ -270,9 +427,28 @@ const Home = () => {
                 isSelected={item.id === selectedId}
                 onSelect={() => handleSelectEquipment(item.id)}
                 onTransform={handleItemChange}
+                onDragMove={handleDragMove}
+                onDragEnd={handleDragEnd}
               />
             );
           })}
+        </Layer>
+        <Layer>
+          {guides.map((guide, i) => (
+            <Line
+              key={i}
+              points={
+                guide.orientation === "H"
+                  ? [-6000, 0, 6000, 0]
+                  : [0, -6000, 0, 6000]
+              }
+              stroke="rgb(0, 161, 255)"
+              strokeWidth={1}
+              dash={[4, 6]}
+              x={guide.orientation === "V" ? guide.lineGuide : 0}
+              y={guide.orientation === "H" ? guide.lineGuide : 0}
+            />
+          ))}
         </Layer>
       </Stage>
 
