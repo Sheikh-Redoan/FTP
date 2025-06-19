@@ -1,6 +1,6 @@
 // src/context/SvgContext.jsx
 import { createContext, useContext, useState } from "react";
-import { useQuickAccess } from "../hooks/useQuickAccess"; // Import the hook
+import { useQuickAccess } from "../hooks/useQuickAccess";
 
 const SvgContext = createContext();
 
@@ -18,8 +18,9 @@ export const SvgProvider = ({ children }) => {
   const [addEquipment, setAddEquipment] = useState(() => () => {
     console.error("addEquipment function not yet implemented");
   });
-
-  // ADDED: Integrate useQuickAccess hook
+  const [addText, setAddText] = useState(() => () => {
+    console.error("addText function not yet implemented");
+  });
   const [quickAccessItems, addQuickAccessItem] = useQuickAccess();
 
   return (
@@ -47,7 +48,8 @@ export const SvgProvider = ({ children }) => {
         setLineColor,
         addEquipment,
         setAddEquipment,
-        // ADDED: Expose quick access items and the function to add to them
+        addText,
+        setAddText,
         quickAccessItems,
         addQuickAccessItem,
       }}

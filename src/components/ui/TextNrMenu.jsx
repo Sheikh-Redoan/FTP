@@ -4,7 +4,7 @@ const TextNrMenu = ({
   colors,
   activeColorIndex,
   onColorSelect,
-  onDragStart,
+  onAddText,
 }) => {
   return (
     <div>
@@ -15,34 +15,12 @@ const TextNrMenu = ({
         onSelect={onColorSelect}
       />
       <div className="flex flex-col gap-4">
-        <input
-          type="text"
-          placeholder="Enter text"
-          className="p-2 border rounded"
-          draggable
-          onDragStart={(e) => {
-            const text = e.target.value;
-            e.dataTransfer.setData("text/plain", text);
-            onDragStart(
-              text,
-              `<svg width="200" height="50" xmlns="http://www.w3.org/2000/svg"><text x="10" y="30" font-size="20">${text}</text></svg>`
-            );
-          }}
-        />
-        <input
-          type="number"
-          placeholder="Enter number"
-          className="p-2 border rounded"
-          draggable
-          onDragStart={(e) => {
-            const num = e.target.value;
-            e.dataTransfer.setData("text/plain", num);
-            onDragStart(
-              num,
-              `<svg width="50" height="50" xmlns="http://www.w3.org/2000/svg"><text x="25" y="35" text-anchor="middle" font-size="30">${num}</text></svg>`
-            );
-          }}
-        />
+        <button
+          onClick={onAddText}
+          className="p-2 border rounded bg-blue-500 text-white hover:bg-blue-600"
+        >
+          Add Text
+        </button>
       </div>
     </div>
   );

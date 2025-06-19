@@ -7,6 +7,7 @@ import KonvaEquipmentImage from "../../components/common/KonvaEquipmentImage";
 import KonvaPitchImage from "../../components/common/KonvaPitchImage";
 import KonvaToolbar from "../../components/common/KonvaToolbar";
 import { createSvgDataUrl } from "../../utils/svgUtils";
+import EditableText from "../../components/common/EditableText"; // Import the new component
 
 const Home = () => {
   const {
@@ -26,6 +27,7 @@ const Home = () => {
   const [history, setHistory] = useState([[]]);
   const [historyStep, setHistoryStep] = useState(0);
 
+  // This function is for SVG-based equipment
   const addEquipmentToStage = useCallback(
     (svgContent, type) => {
       const dataUrl = createSvgDataUrl(svgContent);
@@ -49,9 +51,28 @@ const Home = () => {
     [width, height]
   );
 
+  // We are re-purposing the `addEquipment` from the context to add our text.
+  // A more robust solution might involve a dedicated `addText` function in the context.
   useEffect(() => {
-    setAddEquipment(() => addEquipmentToStage);
-  }, [setAddEquipment, addEquipmentToStage]);
+    setAddEquipment(() => (item, type) => {
+      if (type === 'text') {
+        const newId = Date.now().toString();
+        const newText = {
+          id: newId,
+          x: width / 2 - 100,
+          y: height / 2 - 50,
+          rotation: 0,
+          locked: false,
+          ...item,
+        };
+        setDroppedEquipment((prev) => [...prev, newText]);
+        setSelectedId(newId);
+      } else {
+        addEquipmentToStage(item, type);
+      }
+    });
+  }, [setAddEquipment, addEquipmentToStage, width, height]);
+
 
   useEffect(() => {
     if (
@@ -207,15 +228,28 @@ const Home = () => {
           {pitch && (
             <KonvaPitchImage pitch={pitch} width={width} height={height} />
           )}
-          {droppedEquipment.map((item) => (
-            <KonvaEquipmentImage
-              key={item.id}
-              equipment={item}
-              isSelected={item.id === selectedId}
-              onSelect={() => handleSelectEquipment(item.id)}
-              onTransform={handleItemChange}
-            />
-          ))}
+          {droppedEquipment.map((item) => {
+            if (item.type === "text") {
+              return (
+                <EditableText
+                  key={item.id}
+                  shapeProps={item}
+                  isSelected={item.id === selectedId}
+                  onSelect={() => handleSelectEquipment(item.id)}
+                  onChange={handleItemChange}
+                />
+              );
+            }
+            return (
+              <KonvaEquipmentImage
+                key={item.id}
+                equipment={item}
+                isSelected={item.id === selectedId}
+                onSelect={() => handleSelectEquipment(item.id)}
+                onTransform={handleItemChange}
+              />
+            );
+          })}
         </Layer>
       </Stage>
 

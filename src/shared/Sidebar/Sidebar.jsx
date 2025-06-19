@@ -5,7 +5,11 @@ import MenuButton from "../../components/ui/MenuButton";
 import PitchMenu from "../../components/ui/PitchMenu";
 import EquipmentMenu from "../../components/ui/EquipmentMenu";
 import { IoClose } from "../../components/icons";
-import { getModifiedSvgString, createSvgDataUrl, getColoredSvgString } from "../../utils/svgUtils";
+import {
+  getModifiedSvgString,
+  createSvgDataUrl,
+  getColoredSvgString,
+} from "../../utils/svgUtils";
 import QuickAccessMenu from "../../components/ui/QuickAccessMenu";
 import PlayersMenu from "../../components/ui/PlayersMenu";
 import LinesMenu from "../../components/ui/LinesMenu";
@@ -41,7 +45,8 @@ const Sidebar = () => {
     setLineColor,
     lineColor,
     addEquipment,
-    addQuickAccessItem, // Get the function from context
+    addText, // Get the new function from context
+    addQuickAccessItem,
   } = useSvg();
 
   const [activeMenu, setActiveMenu] = useState(null);
@@ -170,17 +175,19 @@ const Sidebar = () => {
   const handleDragStart = useCallback(
     (dragData) => {
       setDraggedEquipmentSrc(dragData);
-      // Do not add players to the quick access menu
-      if (dragData.type !== 'player') {
+      if (dragData.type !== "player") {
         addQuickAccessItem(dragData);
       }
     },
     [setDraggedEquipmentSrc, addQuickAccessItem]
   );
-  
-  // UPDATED: Handler to add a line or shape to the stage
-  const handleaddLine = async (item) => {
-    const coloredSvg = await getColoredSvgString(item.svg, 'transparent', lineColor);
+
+  const handleAddLine = async (item) => {
+    const coloredSvg = await getColoredSvgString(
+      item.svg,
+      "transparent",
+      lineColor
+    );
     addEquipment(coloredSvg, item.type);
     addQuickAccessItem({
       src: item.svg,
@@ -188,6 +195,23 @@ const Sidebar = () => {
       type: item.type,
       content: coloredSvg,
     });
+  };
+
+  const handleAddText = () => {
+    const { bg } = equipmentColorCombinations[activeEquipmentColorIndex];
+    const newTextProps = {
+      type: "text",
+      text: "Double click to edit",
+      fontSize: 20,
+      fill: bg,
+      width: 200,
+      height: 25,
+      padding: 5,
+      align: "left",
+      fontFamily: "sans-serif",
+      lineHeight: 1.2,
+    };
+    addText(newTextProps);
   };
 
   const menuItems = [
@@ -252,7 +276,7 @@ const Sidebar = () => {
             colors={lineColorCombinations}
             activeColorIndex={activeLineColorIndex}
             onColorSelect={handleLineColorSelect}
-            onLineAdd={handleaddLine}
+            onLineAdd={handleAddLine}
           />
         );
       case "equipment":
@@ -279,7 +303,7 @@ const Sidebar = () => {
             colors={equipmentColorCombinations}
             activeColorIndex={activeEquipmentColorIndex}
             onColorSelect={handleEquipmentColorSelect}
-            onDragStart={handleDragStart}
+            onAddText={handleAddText}
           />
         );
       default:
