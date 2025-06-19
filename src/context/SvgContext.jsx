@@ -19,6 +19,15 @@ export const SvgProvider = ({ children }) => {
   });
   const [quickAccessItems, addQuickAccessItem] = useQuickAccess();
 
+  const [exportFunctions, setExportFunctions] = useState({
+    png: () => console.log("Export to PNG not implemented"),
+    jpg: () => console.log("Export to JPG not implemented"),
+    pdf: () => console.log("Export to PDF not implemented"),
+  });
+
+  // Changed to get notes as Delta object for editable text in PDF
+  const [getNotesDeltaFunc, setGetNotesDeltaFunc] = useState(null);
+
   return (
     <SvgContext.Provider
       value={{
@@ -46,6 +55,10 @@ export const SvgProvider = ({ children }) => {
         setAddEquipment,
         quickAccessItems,
         addQuickAccessItem,
+        exportFunctions,
+        setExportFunctions,
+        getNotesDeltaFunc,
+        setGetNotesDeltaFunc,
       }}
     >
       {children}

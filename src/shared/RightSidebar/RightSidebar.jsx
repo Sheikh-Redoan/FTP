@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import { useSvg } from "../../context/SvgContext";
 import { FaChevronDown, FaBold, FaUnderline, FaItalic } from "react-icons/fa";
 import { VscThreeBars } from "react-icons/vsc";
 import { FaListUl } from "react-icons/fa6";
@@ -44,32 +45,40 @@ const loadCSS = (href) => {
 };
 
 const RightSidebar = () => {
+  const { exportFunctions, setGetNotesDeltaFunc } = useSvg();
   const [activeTool, setActiveTool] = useState(null);
   const editorRef = useRef(null);
   const quillRef = useRef(null);
   const [isFontSizeDropdownOpen, setIsFontSizeDropdownOpen] = useState(false);
   const [isListStyleDropdownOpen, setIsListStyleDropdownOpen] = useState(false);
+  const [isSaveAsDropdownOpen, setIsSaveAsDropdownOpen] = useState(false);
 
   const fontSizes = ["10px", "12px", "14px", "18px", "24px", "32px"];
   const listStyles = ["disc", "decimal"];
+
+  const getNotesDelta = () => {
+    return quillRef.current ? quillRef.current.getContents() : null;
+  };
 
   useEffect(() => {
     const initializeQuill = async () => {
       await Promise.all([
         loadScript("https://cdn.quilljs.com/1.3.6/quill.js"),
         loadScript("https://html2canvas.hertzen.com/dist/html2canvas.min.js"),
+        loadScript(
+          "https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"
+        ),
       ]);
       loadCSS("https://cdn.quilljs.com/1.3.6/quill.snow.css");
 
       if (editorRef.current && !quillRef.current && window.Quill) {
-        // Whitelist font sizes
         const Size = window.Quill.import("attributors/style/size");
         Size.whitelist = fontSizes;
         window.Quill.register(Size, true);
 
         const quill = new window.Quill(editorRef.current, {
           modules: {
-            toolbar: false, // disable default toolbar
+            toolbar: false,
           },
           placeholder: "Type here coaching points / VAR...",
           theme: "snow",
@@ -84,42 +93,26 @@ const RightSidebar = () => {
     };
 
     initializeQuill();
-  }, []);
+
+    if (setGetNotesDeltaFunc) {
+      setGetNotesDeltaFunc(() => getNotesDelta);
+    }
+  }, [setGetNotesDeltaFunc]);
 
   const handleFormat = (format) => {
     if (!quillRef.current) return;
-
     const currentFormat = quillRef.current.getFormat();
     const newValue = !currentFormat[format];
-    
-    if (newValue) setActiveTool(format);
-    else setActiveTool(null);
-
+    setActiveTool(newValue ? format : null);
     quillRef.current.format(format, newValue);
   };
-  
+
   const handleListFormat = (style) => {
-      if (!quillRef.current) return;
-  
-      if (['disc', 'circle', 'square'].includes(style)) {
-          quillRef.current.format('list', 'bullet');
-      } else if (['decimal', 'lower-roman'].includes(style)) {
-          quillRef.current.format('list', 'ordered');
-      }
-  
-      const selection = quillRef.current.getSelection();
-      if (selection) {
-          const [line] = quillRef.current.getLine(selection.index);
-          if (line && line.parent && line.parent.domNode.tagName === 'LI') {
-              const listContainer = line.parent.parent.domNode;
-              if(listContainer) {
-                listContainer.style.listStyleType = style;
-              }
-          }
-      }
-  
-      setIsListStyleDropdownOpen(false);
-      setActiveTool('list');
+    if (!quillRef.current) return;
+    const listType = style === "decimal" ? "ordered" : "bullet";
+    quillRef.current.format("list", listType);
+    setIsListStyleDropdownOpen(false);
+    setActiveTool("list");
   };
 
   const handleFontSize = (size) => {
@@ -128,28 +121,50 @@ const RightSidebar = () => {
     setIsFontSizeDropdownOpen(false);
   };
 
-  const getRichTextImage = () => {
-    if (window.html2canvas && editorRef.current) {
-      const editorContent = editorRef.current.querySelector(".ql-editor");
-      return window.html2canvas(editorContent, {
-        backgroundColor: "rgba(0,0,0,0)",
-      }).then((canvas) => {
-        const imgData = canvas.toDataURL("image/png");
-        return imgData;
-      });
-    }
-    return Promise.resolve(null);
-  };
-
   return (
     <div className="w-[570px] min-h-screen p-6 bg-white">
-      {/* Save Section */}
       <div className="flex justify-between items-start mb-10">
         <div className="flex flex-col gap-6">
-          <button className="w-60 h-12 px-6 py-2.5 rounded-full border border-blue-900 flex items-center gap-2 hover:bg-blue-50">
-            <HiArrowPath className="w-5 h-5" />
-            <span className="text-lg font-medium">Save as</span>
-          </button>
+          <div className="relative">
+            <button
+              onClick={() => setIsSaveAsDropdownOpen(!isSaveAsDropdownOpen)}
+              className="w-60 h-12 px-6 py-2.5 rounded-full border border-blue-900 flex items-center gap-2 hover:bg-blue-50"
+            >
+              <HiArrowPath className="w-5 h-5" />
+              <span className="text-lg font-medium">Save as</span>
+            </button>
+            {isSaveAsDropdownOpen && (
+              <div className="absolute top-full mt-2 w-60 bg-white border rounded shadow-lg z-10">
+                <button
+                  onClick={() => {
+                    exportFunctions.png();
+                    setIsSaveAsDropdownOpen(false);
+                  }}
+                  className="block w-full text-left px-4 py-2 hover:bg-gray-100"
+                >
+                  Save as PNG
+                </button>
+                <button
+                  onClick={() => {
+                    exportFunctions.jpg();
+                    setIsSaveAsDropdownOpen(false);
+                  }}
+                  className="block w-full text-left px-4 py-2 hover:bg-gray-100"
+                >
+                  Save as JPG
+                </button>
+                <button
+                  onClick={() => {
+                    exportFunctions.pdf();
+                    setIsSaveAsDropdownOpen(false);
+                  }}
+                  className="block w-full text-left px-4 py-2 hover:bg-gray-100"
+                >
+                  Save as PDF
+                </button>
+              </div>
+            )}
+          </div>
           <div className="w-56 h-16 bg-slate-200 rounded-2xl border border-blue-900 flex items-center justify-between px-4">
             <span className="text-lg font-medium">Drill</span>
             <FaChevronDown />
@@ -158,7 +173,7 @@ const RightSidebar = () => {
         <div className="flex flex-col gap-4">
           <button
             className="flex flex-col justify-center items-center p-1 w-[130px] h-[100px] shadow rounded-lg hover:bg-gray-100"
-            onClick={getRichTextImage}
+            onClick={exportFunctions.pdf}
           >
             <BsFiletypePdf className="text-3xl mb-1" />
             <span className="text-lg font-medium">Save as PDF</span>
@@ -169,8 +184,6 @@ const RightSidebar = () => {
           </button>
         </div>
       </div>
-
-      {/* Coaching Notes Section */}
       <div className="h-[424px] rounded-2xl border border-indigo-300 p-6 flex flex-col">
         <div className="flex items-center gap-4 p-2 rounded-lg border border-indigo-300 mb-4 relative">
           <ToolbarButton
@@ -191,8 +204,6 @@ const RightSidebar = () => {
           >
             <FaUnderline className="text-xl" />
           </ToolbarButton>
-
-          {/* Font Size Button & Dropdown */}
           <div className="relative">
             <ToolbarButton
               onClick={() => setIsFontSizeDropdownOpen(!isFontSizeDropdownOpen)}
@@ -213,11 +224,11 @@ const RightSidebar = () => {
               </div>
             )}
           </div>
-
-          {/* List Style Button & Dropdown */}
           <div className="relative">
             <ToolbarButton
-              onClick={() => setIsListStyleDropdownOpen(!isListStyleDropdownOpen)}
+              onClick={() =>
+                setIsListStyleDropdownOpen(!isListStyleDropdownOpen)
+              }
               active={activeTool === "list"}
             >
               <FaListUl className="text-xl" />
@@ -237,7 +248,10 @@ const RightSidebar = () => {
             )}
           </div>
         </div>
-        <div className="flex-grow overflow-y-scroll" style={{ position: "relative" }}>
+        <div
+          className="flex-grow overflow-y-scroll"
+          style={{ position: "relative" }}
+        >
           <div ref={editorRef} style={{ height: "100%", border: "none" }}></div>
         </div>
       </div>

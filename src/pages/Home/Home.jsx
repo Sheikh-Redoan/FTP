@@ -9,7 +9,7 @@ import KonvaToolbar from "../../components/common/KonvaToolbar";
 import { createSvgDataUrl } from "../../utils/svgUtils";
 import EditableText from "../../components/common/EditableText";
 
-Konva._fixTextRendering = true; // Add this line to fix potential rendering issues
+Konva._fixTextRendering = true;
 
 const GUIDELINE_OFFSET = 5;
 
@@ -20,6 +20,8 @@ const Home = () => {
     setDraggedEquipmentSrc,
     playerColor,
     setAddEquipment,
+    setExportFunctions,
+    getNotesDeltaFunc,
   } = useSvg();
   const containerRef = useRef(null);
   const stageRef = useRef(null);
@@ -27,10 +29,8 @@ const Home = () => {
 
   const [droppedEquipment, setDroppedEquipment] = useState([]);
   const [selectedId, setSelectedId] = useState(null);
-
   const [history, setHistory] = useState([[]]);
   const [historyStep, setHistoryStep] = useState(0);
-
   const [guides, setGuides] = useState([]);
 
   const textColors = useMemo(
@@ -44,6 +44,172 @@ const Home = () => {
     ],
     []
   );
+
+  const parseDeltaToPdf = (pdf, delta) => {
+    const leftMargin = 15;
+    const topMargin = 35;
+    let currentY = topMargin;
+    const lineSpacing = 7;
+    const listIndent = 7;
+    const pageHeight = pdf.internal.pageSize.getHeight();
+    const bottomMargin = 20;
+
+    const checkPageBreak = () => {
+      if (currentY > pageHeight - bottomMargin) {
+        pdf.addPage();
+        currentY = topMargin;
+      }
+    };
+    
+    const newLine = (size) => {
+        currentY += size + (lineSpacing/2) ;
+        checkPageBreak();
+    };
+
+    if (!delta || !delta.ops) return;
+
+    // --- Pre-processing Delta into lines ---
+    const lines = [];
+    let currentLine = { segments: [], attributes: {} };
+    delta.ops.forEach(op => {
+        if (typeof op.insert !== 'string') return;
+        const opLines = op.insert.split('\n');
+        opLines.forEach((textSegment, i) => {
+            if (textSegment) {
+                currentLine.segments.push({ text: textSegment, attributes: op.attributes || {} });
+            }
+            if (i < opLines.length - 1) {
+                currentLine.attributes = op.attributes || {};
+                lines.push(currentLine);
+                currentLine = { segments: [], attributes: {} };
+            }
+        });
+    });
+    if (currentLine.segments.length > 0) {
+        lines.push(currentLine);
+    }
+    // --- End Pre-processing ---
+
+    let listCounter = 0;
+    
+    lines.forEach(line => {
+        let startX = leftMargin;
+        let defaultFontSize = 12;
+
+        if (line.attributes.list) {
+            if (line.attributes.list === 'ordered') {
+                listCounter++;
+                pdf.text(`${listCounter}.`, startX, currentY);
+            } else {
+                pdf.text(`•`, startX, currentY);
+            }
+            startX += listIndent;
+        } else {
+            listCounter = 0; // Reset for non-list lines
+        }
+
+        let currentX = startX;
+
+        line.segments.forEach(segment => {
+            const attributes = segment.attributes;
+            let style = '';
+            if (attributes.bold) style += 'bold';
+            if (attributes.italic) style += 'italic';
+            pdf.setFont(undefined, style || 'normal');
+
+            const fontSize = attributes.size ? parseInt(attributes.size, 10) : 12;
+            pdf.setFontSize(fontSize);
+            if(fontSize > defaultFontSize) defaultFontSize = fontSize;
+
+            const textWidth = pdf.getStringUnitWidth(segment.text) * pdf.internal.getFontSize() / pdf.internal.scaleFactor;
+            const pageRightMargin = pdf.internal.pageSize.getWidth() - leftMargin;
+
+            if (currentX + textWidth > pageRightMargin) {
+                newLine(defaultFontSize);
+                currentX = startX;
+            }
+
+            pdf.text(segment.text, currentX, currentY);
+
+            if (attributes.underline) {
+                pdf.line(currentX, currentY + 1, currentX + textWidth, currentY + 1);
+            }
+
+            currentX += textWidth;
+        });
+        
+        newLine(defaultFontSize);
+    });
+  };
+
+  const handleExportPDF = useCallback(async () => {
+    if (!stageRef.current || !window.jspdf || !getNotesDeltaFunc) {
+      console.error("PDF export dependencies are not ready.");
+      return;
+    }
+
+    const { jsPDF } = window.jspdf;
+    const stageImage = stageRef.current.toDataURL({
+      mimeType: "image/png",
+      pixelRatio: 2,
+    });
+    const notesDelta = getNotesDeltaFunc();
+
+    const pdf = new jsPDF({ orientation: "landscape" });
+    const pdfWidth = pdf.internal.pageSize.getWidth();
+    const pdfHeight = pdf.internal.pageSize.getHeight();
+    const imgAspectRatio = width / height;
+    const pdfAspectRatio = pdfWidth / pdfHeight;
+
+    let imgWidth, imgHeight;
+    if (imgAspectRatio > pdfAspectRatio) {
+      imgWidth = pdfWidth;
+      imgHeight = pdfWidth / imgAspectRatio;
+    } else {
+      imgHeight = pdfHeight;
+      imgWidth = pdfHeight * imgAspectRatio;
+    }
+
+    const xOffset = (pdfWidth - imgWidth) / 2;
+    const yOffset = (pdfHeight - imgHeight) / 2;
+    pdf.addImage(stageImage, "PNG", xOffset, yOffset, imgWidth, imgHeight);
+
+    if (
+      notesDelta &&
+      notesDelta.ops.length > 0 &&
+      (notesDelta.ops.length > 1 || notesDelta.ops[0].insert.trim() !== "")
+    ) {
+      pdf.addPage();
+      pdf.setFontSize(20);
+      pdf.text("Coaching Points / VAR", 15, 20);
+      parseDeltaToPdf(pdf, notesDelta);
+    }
+
+    pdf.save("training-session.pdf");
+  }, [stageRef, width, height, getNotesDeltaFunc]);
+
+  const handleExportImage = useCallback(
+    (format) => {
+      if (!stageRef.current) return;
+      const mimeType = format === "jpg" ? "image/jpeg" : "image/png";
+      const uri = stageRef.current.toDataURL({ mimeType, pixelRatio: 2 });
+      const link = document.createElement("a");
+      link.download = `canvas.${format}`;
+      link.href = uri;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    },
+    [stageRef]
+  );
+
+  useEffect(() => {
+    setExportFunctions({
+      png: () => handleExportImage("png"),
+      jpg: () => handleExportImage("jpg"),
+      pdf: handleExportPDF,
+    });
+  }, [setExportFunctions, handleExportImage, handleExportPDF]);
 
   const handleTextColorChange = (colorIndex) => {
     const selectedItem = droppedEquipment.find(
@@ -251,8 +417,6 @@ const Home = () => {
       );
     }
   };
-
-  // snapping logic
   const getLineGuideStops = (skipShape) => {
     const vertical = [0, width / 2, width];
     const horizontal = [0, height / 2, height];
@@ -374,9 +538,7 @@ const Home = () => {
       const items = [...prev];
       const item = items.find((i) => i.id === id);
       const index = items.indexOf(item);
-      // remove from the list
       items.splice(index, 1);
-      // add to the top
       items.push(item);
       return items;
     });
