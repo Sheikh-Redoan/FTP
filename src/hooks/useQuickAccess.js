@@ -25,14 +25,14 @@ export const useQuickAccess = () => {
   const addQuickAccessItem = (item) => {
     setQuickAccessItems(prevItems => {
       const existingItemIndex = prevItems.findIndex(i => i.name === item.name);
-      let newItems = [...prevItems];
-
+      
+      // If the item already exists, return the previous items without changing their order.
       if (existingItemIndex > -1) {
-        const [existing] = newItems.splice(existingItemIndex, 1);
-        newItems.unshift(existing);
-      } else {
-        newItems.unshift(item);
+        return prevItems;
       }
+
+      // If the item is new, add it to the front.
+      let newItems = [item, ...prevItems];
 
       if (newItems.length > MAX_QUICK_ACCESS_ITEMS) {
         newItems = newItems.slice(0, MAX_QUICK_ACCESS_ITEMS);

@@ -170,7 +170,10 @@ const Sidebar = () => {
   const handleDragStart = useCallback(
     (dragData) => {
       setDraggedEquipmentSrc(dragData);
-      addQuickAccessItem(dragData);
+      // Do not add players to the quick access menu
+      if (dragData.type !== 'player') {
+        addQuickAccessItem(dragData);
+      }
     },
     [setDraggedEquipmentSrc, addQuickAccessItem]
   );

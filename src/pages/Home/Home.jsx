@@ -101,13 +101,7 @@ const Home = () => {
 
   const handleTransformEnd = (newAttrs) => {
     const items = droppedEquipment.map((item) =>
-      item.id === newAttrs.id
-        ? {
-            ...newAttrs,
-            rotation: newAttrs.rotation || item.rotation,
-            locked: newAttrs.locked || item.locked,
-          }
-        : item
+      item.id === newAttrs.id ? newAttrs : item
     );
     setDroppedEquipment(items);
   };
