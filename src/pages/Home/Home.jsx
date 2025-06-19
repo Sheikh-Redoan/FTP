@@ -14,7 +14,7 @@ const Home = () => {
     draggedEquipmentSrc,
     setDraggedEquipmentSrc,
     playerColor,
-    setAddEquipment, // Get the setter function from context
+    setAddEquipment,
   } = useSvg();
   const containerRef = useRef(null);
   const stageRef = useRef(null);
@@ -26,32 +26,32 @@ const Home = () => {
   const [history, setHistory] = useState([[]]);
   const [historyStep, setHistoryStep] = useState(0);
 
-  // Function to add any equipment (including lines) to the stage
-  const addEquipmentToStage = useCallback((svgContent, type) => {
-    const dataUrl = createSvgDataUrl(svgContent);
-    const newId = Date.now().toString();
+  const addEquipmentToStage = useCallback(
+    (svgContent, type) => {
+      const dataUrl = createSvgDataUrl(svgContent);
+      const newId = Date.now().toString();
 
-    const newEquipment = {
-      id: newId,
-      dataUrl,
-      x: width / 2 - 50, // Center the new item
-      y: height / 2 - 50,
-      width: 100,
-      height: 100,
-      rotation: 0,
-      locked: false,
-      type: type, // 'line', 'shape', etc.
-    };
+      const newEquipment = {
+        id: newId,
+        dataUrl,
+        x: width / 2 - 50,
+        y: height / 2 - 50,
+        width: 100,
+        height: 100,
+        rotation: 0,
+        locked: false,
+        type: type,
+      };
 
-    setDroppedEquipment((prev) => [...prev, newEquipment]);
-    setSelectedId(newId);
-  }, [width, height]);
+      setDroppedEquipment((prev) => [...prev, newEquipment]);
+      setSelectedId(newId);
+    },
+    [width, height]
+  );
 
-  // Provide the implementation of addEquipmentToStage to the context
   useEffect(() => {
     setAddEquipment(() => addEquipmentToStage);
   }, [setAddEquipment, addEquipmentToStage]);
-
 
   useEffect(() => {
     if (
@@ -92,14 +92,12 @@ const Home = () => {
 
   const checkDeselect = (e) => {
     const clickedOnEmpty = e.target === e.target.getStage();
-    const clickedOnTransformer =
-      e.target.getParent && e.target.getParent().className === "Transformer";
-    if (clickedOnEmpty || clickedOnTransformer) {
+    if (clickedOnEmpty) {
       setSelectedId(null);
     }
   };
 
-  const handleTransformEnd = (newAttrs) => {
+  const handleItemChange = (newAttrs) => {
     const items = droppedEquipment.map((item) =>
       item.id === newAttrs.id ? newAttrs : item
     );
@@ -215,13 +213,12 @@ const Home = () => {
               equipment={item}
               isSelected={item.id === selectedId}
               onSelect={() => handleSelectEquipment(item.id)}
-              onTransform={handleTransformEnd}
+              onTransform={handleItemChange}
             />
           ))}
         </Layer>
       </Stage>
 
-      {/* MODIFIED: Always render the toolbar */}
       <KonvaToolbar
         selectedEquipment={selectedEquipment}
         onUndo={handleUndo}
