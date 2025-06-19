@@ -1,13 +1,15 @@
-// src/pages/Home/Home.jsx
 import { useRef, useState, useEffect, useCallback } from "react";
 import { Stage, Layer } from "react-konva";
+import Konva from 'konva'; // Import Konva
 import { useSvg } from "../../context/SvgContext";
 import { useDimensions } from "../../hooks/useDimensions";
 import KonvaEquipmentImage from "../../components/common/KonvaEquipmentImage";
 import KonvaPitchImage from "../../components/common/KonvaPitchImage";
 import KonvaToolbar from "../../components/common/KonvaToolbar";
 import { createSvgDataUrl } from "../../utils/svgUtils";
-import EditableText from "../../components/common/EditableText"; // Import the new component
+import EditableText from "../../components/common/EditableText";
+
+Konva._fixTextRendering = true; // Add this line to fix potential rendering issues
 
 const Home = () => {
   const {
@@ -27,7 +29,6 @@ const Home = () => {
   const [history, setHistory] = useState([[]]);
   const [historyStep, setHistoryStep] = useState(0);
 
-  // This function is for SVG-based equipment
   const addEquipmentToStage = useCallback(
     (svgContent, type) => {
       const dataUrl = createSvgDataUrl(svgContent);
@@ -51,8 +52,6 @@ const Home = () => {
     [width, height]
   );
 
-  // We are re-purposing the `addEquipment` from the context to add our text.
-  // A more robust solution might involve a dedicated `addText` function in the context.
   useEffect(() => {
     setAddEquipment(() => (item, type) => {
       if (type === 'text') {
@@ -237,6 +236,7 @@ const Home = () => {
                   isSelected={item.id === selectedId}
                   onSelect={() => handleSelectEquipment(item.id)}
                   onChange={handleItemChange}
+                  onTransform={handleItemChange}
                 />
               );
             }

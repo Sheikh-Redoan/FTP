@@ -1,125 +1,87 @@
-import React, { useEffect, useRef } from 'react';
-import { Text, Transformer } from 'react-konva';
+import React, { useEffect, useRef, useState, useCallback } from "react";
+import { Text, Transformer } from "react-konva";
+import { Html } from "react-konva-utils";
 
 const EditableText = ({
   shapeProps,
   isSelected,
   onSelect,
   onChange,
+  onTransform,
 }) => {
-  const textRef = useRef(null);
+  const shapeRef = useRef(null);
   const trRef = useRef(null);
+  const [isEditing, setIsEditing] = useState(false);
+  const textareaRef = useRef(null);
 
   useEffect(() => {
-    if (isSelected && trRef.current) {
-      trRef.current.nodes([textRef.current]);
+    if (isSelected && trRef.current && !isEditing) {
+      trRef.current.nodes([shapeRef.current]);
       trRef.current.getLayer().batchDraw();
     }
-  }, [isSelected]);
+  }, [isSelected, isEditing]);
 
-  const handleDblClick = () => {
-    const textNode = textRef.current;
-    if (!textNode) return;
-    
-    textNode.hide();
+  const onDoubleClick = useCallback(() => {
+    setIsEditing(true);
+    if (shapeRef.current) {
+      shapeRef.current.hide();
+    }
     if (trRef.current) {
-        trRef.current.hide();
+      trRef.current.hide();
     }
-    
-    const stage = textNode.getStage();
-    const textPosition = textNode.absolutePosition();
-    const stageBox = stage.container().getBoundingClientRect();
+  }, []);
 
-    const areaPosition = {
-      x: stageBox.left + textPosition.x,
-      y: stageBox.top + textPosition.y,
-    };
-
-    const textarea = document.createElement('textarea');
-    document.body.appendChild(textarea);
-
-    textarea.value = textNode.text();
-    textarea.style.position = 'absolute';
-    textarea.style.top = `${areaPosition.y}px`;
-    textarea.style.left = `${areaPosition.x}px`;
-    textarea.style.width = `${textNode.width() - textNode.padding() * 2}px`;
-    textarea.style.height = `${textNode.height() - textNode.padding() * 2 + 5}px`;
-    textarea.style.fontSize = `${textNode.fontSize()}px`;
-    textarea.style.border = '1px solid #ccc';
-    textarea.style.padding = '0px';
-    textarea.style.margin = '0px';
-    textarea.style.overflow = 'hidden';
-    textarea.style.background = 'white';
-    textarea.style.outline = 'none';
-    textarea.style.resize = 'none';
-    textarea.style.lineHeight = String(textNode.lineHeight());
-    textarea.style.fontFamily = textNode.fontFamily();
-    textarea.style.transformOrigin = 'left top';
-    textarea.style.textAlign = textNode.align();
-    textarea.style.color = textNode.fill();
-    const rotation = textNode.rotation();
-    let transform = '';
-    if (rotation) {
-      transform += `rotateZ(${rotation}deg)`;
+  const handleTextareaBlur = useCallback(() => {
+    setIsEditing(false);
+    if (shapeRef.current) {
+      shapeRef.current.show();
     }
-    textarea.style.transform = transform;
-    textarea.style.height = 'auto';
-    textarea.style.height = `${textarea.scrollHeight + 3}px`;
+    if (trRef.current) {
+      trRef.current.show();
+    }
+  }, []);
 
-    textarea.focus();
-
-    const removeTextarea = () => {
-      if (textarea.parentNode) {
-        textarea.parentNode.removeChild(textarea);
+  const handleTextareaKeyDown = useCallback(
+    (e) => {
+      if ((e.key === "Enter" && !e.shiftKey) || e.key === "Escape") {
+        e.preventDefault();
+        handleTextareaBlur();
       }
-      window.removeEventListener('click', handleOutsideClick);
-      textNode.show();
-      if (trRef.current) {
-        trRef.current.show();
-        trRef.current.forceUpdate();
-      }
-    };
-
-    const handleTextareaKeyDown = (e) => {
-      if (e.key === 'Enter' && !e.shiftKey) {
-        onChange({ ...shapeProps, text: textarea.value });
-        removeTextarea();
-      }
-      if (e.key === 'Escape') {
-        removeTextarea();
-      }
-    };
-
-    const handleOutsideClick = (e) => {
-      if (e.target !== textarea) {
-        onChange({ ...shapeProps, text: textarea.value });
-        removeTextarea();
-      }
-    };
-
-    textarea.addEventListener('keydown', handleTextareaKeyDown);
-    setTimeout(() => {
-      window.addEventListener('click', handleOutsideClick);
+    },
+    [handleTextareaBlur]
+  );
+  
+  const handleTextareaChange = (e) => {
+    onChange({
+      ...shapeProps,
+      text: e.target.value,
     });
   };
+  
+  useEffect(() => {
+    if (isEditing && textareaRef.current) {
+      textareaRef.current.focus();
+    }
+  }, [isEditing]);
 
   return (
-    <React.Fragment>
+    <>
       <Text
+        ref={shapeRef}
+        {...shapeProps}
+        draggable={!isEditing && !shapeProps.locked}
         onClick={onSelect}
         onTap={onSelect}
-        onDblClick={handleDblClick}
-        onDblTap={handleDblClick}
-        ref={textRef}
-        {...shapeProps}
-        draggable={!shapeProps.locked}
-        onTransform={(e) => {
-            const node = textRef.current;
+        onDblClick={onDoubleClick}
+        onDblTap={onDoubleClick}
+        onTransformEnd={(e) => {
+          const node = shapeRef.current;
+          if (node) {
             const scaleX = node.scaleX();
             const scaleY = node.scaleY();
             node.scaleX(1);
             node.scaleY(1);
-            onChange({
+            onTransform({
               ...shapeProps,
               x: node.x(),
               y: node.y(),
@@ -127,9 +89,11 @@ const EditableText = ({
               height: Math.max(5, node.height() * scaleY),
               rotation: node.rotation(),
             });
-          }}
+          }
+        }}
+        visible={!isEditing}
       />
-      {isSelected && (
+      {isSelected && !isEditing && !shapeProps.locked && (
         <Transformer
           ref={trRef}
           boundBoxFunc={(oldBox, newBox) => {
@@ -140,7 +104,44 @@ const EditableText = ({
           }}
         />
       )}
-    </React.Fragment>
+      {isEditing && shapeRef.current && (
+        <Html
+          divProps={{
+            style: {
+              position: "absolute",
+              top: `${shapeRef.current.y()}px`,
+              left: `${shapeRef.current.x()}px`,
+              transformOrigin: "left top",
+              transform: `rotate(${shapeProps.rotation || 0}deg) scale(${shapeRef.current.getAbsoluteScale().x})`,
+            },
+          }}
+        >
+          <textarea
+            ref={textareaRef}
+            defaultValue={shapeProps.text}
+            onChange={handleTextareaChange}
+            onBlur={handleTextareaBlur}
+            onKeyDown={handleTextareaKeyDown}
+            style={{
+              width: `${shapeProps.width}px`,
+              height: `${shapeProps.height}px`,
+              fontSize: `${shapeProps.fontSize}px`,
+              border: "1px solid #6B7280",
+              padding: `${shapeProps.padding}px`,
+              margin: "0px",
+              overflow: "hidden",
+              background: "white",
+              outline: "none",
+              resize: "none",
+              lineHeight: shapeProps.lineHeight,
+              fontFamily: shapeProps.fontFamily,
+              textAlign: shapeProps.align,
+              color: shapeProps.fill,
+            }}
+          />
+        </Html>
+      )}
+    </>
   );
 };
 
