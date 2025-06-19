@@ -1,4 +1,4 @@
-import { useRef, useState, useEffect, useCallback } from "react";
+import { useRef, useState, useEffect, useCallback, useMemo } from "react";
 import { Stage, Layer } from "react-konva";
 import Konva from 'konva'; // Import Konva
 import { useSvg } from "../../context/SvgContext";
@@ -28,6 +28,29 @@ const Home = () => {
 
   const [history, setHistory] = useState([[]]);
   const [historyStep, setHistoryStep] = useState(0);
+
+  const textColors = useMemo(
+    () => [
+      { bg: "#000000", line: "#000000" },
+      { bg: "#FFFFFF", line: "#FFFFFF" },
+      { bg: "#FDE100", line: "#FDE100" },
+      { bg: "#DC052D", line: "#DC052D" },
+      { bg: "#22274A", line: "#22274A" },
+      { bg: "#6B7280", line: "#6B7280" },
+    ],
+    []
+  );
+
+  const handleTextColorChange = (colorIndex) => {
+    const selectedItem = droppedEquipment.find(item => item.id === selectedId);
+    if (!selectedItem || selectedItem.type !== 'text') return;
+
+    const newColor = textColors[colorIndex].line;
+    const items = droppedEquipment.map((item) =>
+      item.id === selectedId ? { ...item, fill: newColor } : item
+    );
+    setDroppedEquipment(items);
+  };
 
   const addEquipmentToStage = useCallback(
     (svgContent, type) => {
@@ -263,6 +286,8 @@ const Home = () => {
         onRotate={handleRotate}
         canUndo={historyStep > 0}
         canRedo={historyStep < history.length - 1}
+        onTextColorChange={handleTextColorChange}
+        textColors={textColors}
       />
 
       {!pitch && droppedEquipment.length === 0 && (

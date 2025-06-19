@@ -50,17 +50,28 @@ const EditableText = ({
     },
     [handleTextareaBlur]
   );
-  
+
   const handleTextareaChange = (e) => {
+    const textarea = e.target;
+    // Set height to auto to get the correct scrollHeight, then set the new height
+    textarea.style.height = "auto";
+    const newHeight = textarea.scrollHeight;
+    textarea.style.height = `${newHeight}px`;
+
     onChange({
       ...shapeProps,
-      text: e.target.value,
+      text: textarea.value,
+      height: newHeight,
     });
   };
-  
+
   useEffect(() => {
     if (isEditing && textareaRef.current) {
-      textareaRef.current.focus();
+      const textarea = textareaRef.current;
+      textarea.focus();
+      // Adjust height on first render
+      textarea.style.height = "auto";
+      textarea.style.height = `${textarea.scrollHeight}px`;
     }
   }, [isEditing]);
 
@@ -118,25 +129,24 @@ const EditableText = ({
         >
           <textarea
             ref={textareaRef}
-            defaultValue={shapeProps.text}
+            value={shapeProps.text}
             onChange={handleTextareaChange}
             onBlur={handleTextareaBlur}
             onKeyDown={handleTextareaKeyDown}
             style={{
               width: `${shapeProps.width}px`,
-              height: `${shapeProps.height}px`,
-              fontSize: `${shapeProps.fontSize}px`,
-              border: "1px solid #6B7280",
+              border: "none",
               padding: `${shapeProps.padding}px`,
               margin: "0px",
               overflow: "hidden",
-              background: "white",
+              background: "none",
               outline: "none",
               resize: "none",
               lineHeight: shapeProps.lineHeight,
               fontFamily: shapeProps.fontFamily,
               textAlign: shapeProps.align,
               color: shapeProps.fill,
+              fontSize: `${shapeProps.fontSize}px`,
             }}
           />
         </Html>

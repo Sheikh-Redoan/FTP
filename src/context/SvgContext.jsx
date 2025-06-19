@@ -1,4 +1,3 @@
-// src/context/SvgContext.jsx
 import { createContext, useContext, useState } from "react";
 import { useQuickAccess } from "../hooks/useQuickAccess";
 
@@ -17,9 +16,6 @@ export const SvgProvider = ({ children }) => {
   const [lineColor, setLineColor] = useState("#FDE100");
   const [addEquipment, setAddEquipment] = useState(() => () => {
     console.error("addEquipment function not yet implemented");
-  });
-  const [addText, setAddText] = useState(() => () => {
-    console.error("addText function not yet implemented");
   });
   const [quickAccessItems, addQuickAccessItem] = useQuickAccess();
 
@@ -48,8 +44,6 @@ export const SvgProvider = ({ children }) => {
         setLineColor,
         addEquipment,
         setAddEquipment,
-        addText,
-        setAddText,
         quickAccessItems,
         addQuickAccessItem,
       }}

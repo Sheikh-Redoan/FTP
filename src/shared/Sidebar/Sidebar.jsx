@@ -13,7 +13,6 @@ import {
 import QuickAccessMenu from "../../components/ui/QuickAccessMenu";
 import PlayersMenu from "../../components/ui/PlayersMenu";
 import LinesMenu from "../../components/ui/LinesMenu";
-import TextNrMenu from "../../components/ui/TextNrMenu";
 import ShapeMenu from "../../components/ui/ShapeMenu";
 import { ReactSVG } from "react-svg";
 
@@ -45,7 +44,6 @@ const Sidebar = () => {
     setLineColor,
     lineColor,
     addEquipment,
-    addText, // Get the new function from context
     addQuickAccessItem,
   } = useSvg();
 
@@ -104,8 +102,27 @@ const Sidebar = () => {
     []
   );
 
-  const handleMenuClick = (menu) =>
-    setActiveMenu(activeMenu === menu ? null : menu);
+  const handleMenuClick = (menu) => {
+    if (menu === "textNr") {
+      const { bg } = equipmentColorCombinations[activeEquipmentColorIndex];
+      const newTextProps = {
+        type: "text",
+        text: "Double click to edit",
+        fontSize: 20,
+        fill: bg,
+        width: 200,
+        height: 25,
+        padding: 5,
+        align: "left",
+        fontFamily: "sans-serif",
+        lineHeight: 1.2,
+      };
+      addEquipment(newTextProps, "text");
+      setActiveMenu(null); // Close any open menu
+    } else {
+      setActiveMenu(activeMenu === menu ? null : menu);
+    }
+  };
 
   const handlePitchSelect = async (svg) => {
     setSelectedSvg({ component: svg.component, id: svg.id });
@@ -197,23 +214,6 @@ const Sidebar = () => {
     });
   };
 
-  const handleAddText = () => {
-    const { bg } = equipmentColorCombinations[activeEquipmentColorIndex];
-    const newTextProps = {
-      type: "text",
-      text: "Double click to edit",
-      fontSize: 20,
-      fill: bg,
-      width: 200,
-      height: 25,
-      padding: 5,
-      align: "left",
-      fontFamily: "sans-serif",
-      lineHeight: 1.2,
-    };
-    addText(newTextProps);
-  };
-
   const menuItems = [
     {
       name: "pitch",
@@ -295,15 +295,6 @@ const Sidebar = () => {
             activeColorIndex={activeShapeColorIndex}
             onColorSelect={handleShapeColorSelect}
             onDragStart={handleDragStart}
-          />
-        );
-      case "textNr":
-        return (
-          <TextNrMenu
-            colors={equipmentColorCombinations}
-            activeColorIndex={activeEquipmentColorIndex}
-            onColorSelect={handleEquipmentColorSelect}
-            onAddText={handleAddText}
           />
         );
       default:
