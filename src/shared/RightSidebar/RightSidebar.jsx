@@ -1,9 +1,11 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { FaChevronDown, FaBold, FaUnderline, FaItalic } from "react-icons/fa";
 import { VscThreeBars } from "react-icons/vsc";
+import { FaListUl } from "react-icons/fa6";
 import { HiArrowPath } from "react-icons/hi2";
 import { BsFiletypePdf } from "react-icons/bs";
 import { PiShareFat } from "react-icons/pi";
+import { ImFontSize } from "react-icons/im";
 
 const ToolbarButton = ({ onClick, active, children }) => (
   <button
@@ -16,9 +18,128 @@ const ToolbarButton = ({ onClick, active, children }) => (
   </button>
 );
 
+// Helper to load scripts
+const loadScript = (src) => {
+  return new Promise((resolve, reject) => {
+    if (document.querySelector(`script[src="${src}"]`)) {
+      resolve();
+      return;
+    }
+    const script = document.createElement("script");
+    script.src = src;
+    script.onload = resolve;
+    script.onerror = reject;
+    document.head.appendChild(script);
+  });
+};
+
+const loadCSS = (href) => {
+  if (document.querySelector(`link[href="${href}"]`)) {
+    return;
+  }
+  const link = document.createElement("link");
+  link.rel = "stylesheet";
+  link.href = href;
+  document.head.appendChild(link);
+};
+
 const RightSidebar = () => {
-  const [coachingPoints, setCoachingPoints] = useState("");
-  const [activeTool, setActiveTool] = useState("bold");
+  const [activeTool, setActiveTool] = useState(null);
+  const editorRef = useRef(null);
+  const quillRef = useRef(null);
+  const [isFontSizeDropdownOpen, setIsFontSizeDropdownOpen] = useState(false);
+  const [isListStyleDropdownOpen, setIsListStyleDropdownOpen] = useState(false);
+
+  const fontSizes = ["10px", "12px", "14px", "18px", "24px", "32px"];
+  const listStyles = ["disc", "decimal"];
+
+  useEffect(() => {
+    const initializeQuill = async () => {
+      await Promise.all([
+        loadScript("https://cdn.quilljs.com/1.3.6/quill.js"),
+        loadScript("https://html2canvas.hertzen.com/dist/html2canvas.min.js"),
+      ]);
+      loadCSS("https://cdn.quilljs.com/1.3.6/quill.snow.css");
+
+      if (editorRef.current && !quillRef.current && window.Quill) {
+        // Whitelist font sizes
+        const Size = window.Quill.import("attributors/style/size");
+        Size.whitelist = fontSizes;
+        window.Quill.register(Size, true);
+
+        const quill = new window.Quill(editorRef.current, {
+          modules: {
+            toolbar: false, // disable default toolbar
+          },
+          placeholder: "Type here coaching points / VAR...",
+          theme: "snow",
+        });
+        quillRef.current = quill;
+
+        const quillToolbar = editorRef.current.previousSibling;
+        if (quillToolbar && quillToolbar.classList.contains("ql-toolbar")) {
+          quillToolbar.style.display = "none";
+        }
+      }
+    };
+
+    initializeQuill();
+  }, []);
+
+  const handleFormat = (format) => {
+    if (!quillRef.current) return;
+
+    const currentFormat = quillRef.current.getFormat();
+    const newValue = !currentFormat[format];
+    
+    if (newValue) setActiveTool(format);
+    else setActiveTool(null);
+
+    quillRef.current.format(format, newValue);
+  };
+  
+  const handleListFormat = (style) => {
+      if (!quillRef.current) return;
+  
+      if (['disc', 'circle', 'square'].includes(style)) {
+          quillRef.current.format('list', 'bullet');
+      } else if (['decimal', 'lower-roman'].includes(style)) {
+          quillRef.current.format('list', 'ordered');
+      }
+  
+      const selection = quillRef.current.getSelection();
+      if (selection) {
+          const [line] = quillRef.current.getLine(selection.index);
+          if (line && line.parent && line.parent.domNode.tagName === 'LI') {
+              const listContainer = line.parent.parent.domNode;
+              if(listContainer) {
+                listContainer.style.listStyleType = style;
+              }
+          }
+      }
+  
+      setIsListStyleDropdownOpen(false);
+      setActiveTool('list');
+  };
+
+  const handleFontSize = (size) => {
+    if (!quillRef.current) return;
+    quillRef.current.format("size", size);
+    setIsFontSizeDropdownOpen(false);
+  };
+
+  const getRichTextImage = () => {
+    if (window.html2canvas && editorRef.current) {
+      const editorContent = editorRef.current.querySelector(".ql-editor");
+      return window.html2canvas(editorContent, {
+        backgroundColor: "rgba(0,0,0,0)",
+      }).then((canvas) => {
+        const imgData = canvas.toDataURL("image/png");
+        return imgData;
+      });
+    }
+    return Promise.resolve(null);
+  };
 
   return (
     <div className="w-[570px] min-h-screen p-6 bg-white">
@@ -35,7 +156,10 @@ const RightSidebar = () => {
           </div>
         </div>
         <div className="flex flex-col gap-4">
-          <button className="flex flex-col justify-center items-center p-1 w-[130px] h-[100px] shadow rounded-lg hover:bg-gray-100">
+          <button
+            className="flex flex-col justify-center items-center p-1 w-[130px] h-[100px] shadow rounded-lg hover:bg-gray-100"
+            onClick={getRichTextImage}
+          >
             <BsFiletypePdf className="text-3xl mb-1" />
             <span className="text-lg font-medium">Save as PDF</span>
           </button>
@@ -47,27 +171,75 @@ const RightSidebar = () => {
       </div>
 
       {/* Coaching Notes Section */}
-      <div className="h-[424px] rounded-2xl border border-indigo-300 p-6">
-        <div className="flex items-center gap-4 p-2 rounded-lg border border-indigo-300 mb-4">
-          <ToolbarButton onClick={() => setActiveTool("bold")} active={activeTool === "bold"}>
+      <div className="h-[424px] rounded-2xl border border-indigo-300 p-6 flex flex-col">
+        <div className="flex items-center gap-4 p-2 rounded-lg border border-indigo-300 mb-4 relative">
+          <ToolbarButton
+            onClick={() => handleFormat("bold")}
+            active={activeTool === "bold"}
+          >
             <FaBold className="text-xl" />
           </ToolbarButton>
-          <ToolbarButton onClick={() => setActiveTool("italic")} active={activeTool === "italic"}>
+          <ToolbarButton
+            onClick={() => handleFormat("italic")}
+            active={activeTool === "italic"}
+          >
             <FaItalic className="text-xl" />
           </ToolbarButton>
-          <ToolbarButton onClick={() => setActiveTool("underline")} active={activeTool === "underline"}>
+          <ToolbarButton
+            onClick={() => handleFormat("underline")}
+            active={activeTool === "underline"}
+          >
             <FaUnderline className="text-xl" />
           </ToolbarButton>
-          <ToolbarButton onClick={() => setActiveTool("list")} active={activeTool === "list"}>
-            <VscThreeBars className="text-xl" />
-          </ToolbarButton>
+
+          {/* Font Size Button & Dropdown */}
+          <div className="relative">
+            <ToolbarButton
+              onClick={() => setIsFontSizeDropdownOpen(!isFontSizeDropdownOpen)}
+            >
+              <ImFontSize className="text-xl" />
+            </ToolbarButton>
+            {isFontSizeDropdownOpen && (
+              <div className="absolute top-full mt-2 w-24 bg-white border-blue-100 rounded shadow-lg z-10">
+                {fontSizes.map((size) => (
+                  <button
+                    key={size}
+                    onClick={() => handleFontSize(size)}
+                    className="block w-full text-left px-4 py-2 hover:bg-gray-100"
+                  >
+                    {size}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* List Style Button & Dropdown */}
+          <div className="relative">
+            <ToolbarButton
+              onClick={() => setIsListStyleDropdownOpen(!isListStyleDropdownOpen)}
+              active={activeTool === "list"}
+            >
+              <FaListUl className="text-xl" />
+            </ToolbarButton>
+            {isListStyleDropdownOpen && (
+              <div className="absolute top-full mt-2 w-32 bg-white border-blue-100 rounded shadow-lg z-10">
+                {listStyles.map((style) => (
+                  <button
+                    key={style}
+                    onClick={() => handleListFormat(style)}
+                    className="block w-full text-left px-4 py-2 hover:bg-gray-100 capitalize"
+                  >
+                    {style.replace("-", " ")}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
-        <textarea
-          className="w-full h-full p-4 text-lg font-medium focus:outline-none resize-none"
-          placeholder="Type here coaching points / VAR..."
-          value={coachingPoints}
-          onChange={(e) => setCoachingPoints(e.target.value)}
-        />
+        <div className="flex-grow overflow-y-scroll" style={{ position: "relative" }}>
+          <div ref={editorRef} style={{ height: "100%", border: "none" }}></div>
+        </div>
       </div>
     </div>
   );
