@@ -56,7 +56,6 @@ const EditableText = ({
 
   const handleTextareaChange = (e) => {
     const textarea = e.target;
-    // Set height to auto to get the correct scrollHeight, then set the new height
     textarea.style.height = "auto";
     const newHeight = textarea.scrollHeight;
     textarea.style.height = `${newHeight}px`;
@@ -72,7 +71,6 @@ const EditableText = ({
     if (isEditing && textareaRef.current) {
       const textarea = textareaRef.current;
       textarea.focus();
-      // Adjust height on first render
       textarea.style.height = "auto";
       textarea.style.height = `${textarea.scrollHeight}px`;
     }
@@ -93,22 +91,20 @@ const EditableText = ({
         onDragMove={onDragMove}
         onDragEnd={onDragEnd}
         onTransformEnd={(e) => {
-          const node = shapeRef.current;
-          if (node) {
-            const scaleX = node.scaleX();
-            const scaleY = node.scaleY();
-            node.scaleX(1);
-            node.scaleY(1);
-            onTransform({
-              ...shapeProps,
-              x: node.x(),
-              y: node.y(),
-              width: Math.max(5, node.width() * scaleX),
-              height: Math.max(5, node.height() * scaleY),
-              rotation: node.rotation(),
-            });
-          }
-        }}
+            const node = shapeRef.current;
+            if (node) {
+              const scaleX = node.scaleX();
+              const scaleY = node.scaleY();
+              onTransform({
+                ...shapeProps,
+                x: node.x(),
+                y: node.y(),
+                scaleX: scaleX,
+                scaleY: scaleY,
+                rotation: node.rotation(),
+              });
+            }
+          }}
         visible={!isEditing}
       />
       {isSelected && !isEditing && !shapeProps.locked && (

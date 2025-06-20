@@ -43,29 +43,17 @@ const KonvaEquipmentImage = ({
     return ["top-left", "top-right", "bottom-left", "bottom-right"];
   };
 
-  const handleTransform = () => {
-    const node = shapeRef.current;
-    if (trRef.current) {
-      trRef.current.forceUpdate();
-    }
-  };
-
   const handleTransformEnd = () => {
     const node = shapeRef.current;
     if (!node) return;
-
-    const scaleX = node.scaleX();
-    const scaleY = node.scaleY();
 
     const newAttrs = {
       ...equipment,
       x: node.x(),
       y: node.y(),
-      width: Math.max(5, node.width() * scaleX),
-      height: Math.max(5, node.height() * scaleY),
+      scaleX: node.scaleX(),
+      scaleY: node.scaleY(),
       rotation: node.rotation(),
-      scaleX: 1,
-      scaleY: 1,
     };
     onTransform(newAttrs);
   };
@@ -83,7 +71,6 @@ const KonvaEquipmentImage = ({
         onDragStart={onDragStart}
         onDragMove={onDragMove}
         onDragEnd={onDragEnd}
-        onTransform={handleTransform}
         onTransformEnd={handleTransformEnd}
       />
       {isSelected && !equipment.locked && (
@@ -92,18 +79,9 @@ const KonvaEquipmentImage = ({
           enabledAnchors={getEnabledAnchors()}
           keepRatio={equipment.type !== "line"}
           boundBoxFunc={(oldBox, newBox) => {
-            // Prevent shape from becoming too small
             if (newBox.width < 5 || newBox.height < 5) {
               return oldBox;
             }
-            
-            // *** FIX STARTS HERE ***
-            // For lines, maintain the original height to prevent vertical distortion
-            if (equipment.type === 'line') {
-              newBox.height = oldBox.height;
-            }
-            // *** FIX ENDS HERE ***
-
             return newBox;
           }}
         />

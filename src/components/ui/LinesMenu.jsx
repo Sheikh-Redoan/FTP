@@ -2,8 +2,9 @@
 import { ReactSVG } from "react-svg";
 import ColorPicker from "./ColorPicker";
 import { useSvg } from "../../context/SvgContext";
+import { getColoredSvgString, getSvgDimensions } from "../../utils/svgUtils";
 
-// Assuming line SVGs are in this path
+
 import Fieldmarker from "../../assets/Lines/Fieldmarker.svg";
 import FieldmarkerDotted from "../../assets/Lines/Fieldmarkerdotted.svg";
 import FieldmarkerCurved from "../../assets/Lines/Fieldmarkercurved.svg";
@@ -16,7 +17,7 @@ import Circle from "../../assets/Lines/Circle.svg";
 import Triangle from "../../assets/Lines/Triangle.svg";
 
 const LinesMenu = ({ colors, activeColorIndex, onColorSelect, onLineAdd }) => {
-  const { lineColor } = useSvg();
+  const { lineColor, addEquipment, addQuickAccessItem } = useSvg();
 
   const lineItems = [
     { id: 1, name: "Fieldmarker", svg: Fieldmarker, type: 'line' },
@@ -30,6 +31,22 @@ const LinesMenu = ({ colors, activeColorIndex, onColorSelect, onLineAdd }) => {
     { id: 9, name: "Circle", svg: Circle, type: 'circle' },
     { id: 10, name: "Triangle", svg: Triangle, type: 'triangle' },
   ];
+
+  const handleAddLine = async (item) => {
+    const coloredSvg = await getColoredSvgString(
+      item.svg,
+      "transparent",
+      lineColor
+    );
+    const { width, height } = getSvgDimensions(coloredSvg);
+    addEquipment(coloredSvg, item.type, { width, height });
+    addQuickAccessItem({
+      src: item.svg,
+      name: item.name,
+      type: item.type,
+      content: coloredSvg,
+    });
+  };
 
   const beforeInjection = (svg) => {
     const elements = svg.querySelectorAll(
@@ -53,7 +70,7 @@ const LinesMenu = ({ colors, activeColorIndex, onColorSelect, onLineAdd }) => {
           <div
             key={item.id}
             className="flex flex-col items-center gap-1 w-full p-2 border rounded-lg hover:bg-gray-100 cursor-pointer"
-            onClick={() => onLineAdd(item)}
+            onClick={() => handleAddLine(item)}
             title={item.name}
           >
             <ReactSVG

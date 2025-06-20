@@ -7,20 +7,17 @@ export async function getModifiedSvgString(svgUrl, _bgColor, lineColor) {
     const svgDoc = parser.parseFromString(svgText, "image/svg+xml");
     const svgElement = svgDoc.documentElement;
 
-    // Find the first <rect> element (the background) and make it transparent.
     const backgroundRect = svgElement.querySelector("rect");
     if (backgroundRect) {
       backgroundRect.setAttribute("fill", "transparent");
     }
 
-    // Find all line-like elements and set their stroke color.
     const lineElements = svgElement.querySelectorAll(
       "path, line, polyline, circle"
     );
     lineElements.forEach((element) => {
       if (lineColor) {
         element.setAttribute("stroke", lineColor);
-        // Ensure paths that are lines are not filled by the browser's default.
         if (element.getAttribute("fill") !== "none") {
           element.setAttribute("fill", "transparent");
         }
@@ -35,12 +32,11 @@ export async function getModifiedSvgString(svgUrl, _bgColor, lineColor) {
   }
 }
 
-// MODIFIED: This function now makes all shapes solid-colored.
 export const getShapeSvgString = (type, bgColor, lineColor) => {
   let svgContent = "";
   const size = 100;
   const strokeWidth = 5;
-  const color = bgColor; // Use the background color for both fill and stroke
+  const color = bgColor;
 
   const shapePaths = {
     rectangle: `<rect x="${strokeWidth / 2}" y="${
@@ -57,18 +53,15 @@ export const getShapeSvgString = (type, bgColor, lineColor) => {
     triangle: `<polygon points="50,5 95,95 5,95" fill="${color}" stroke="${color}" stroke-width="${strokeWidth}"/>`,
   };
 
-  // Consolidate shape types
   const shapeType = type.replace(/filled/i, "").toLowerCase();
   
   svgContent =
     shapePaths[shapeType] ||
-    `<rect width="${size}" height="${size}" fill="red"/>`; // Fallback for unknown shapes
+    `<rect width="${size}" height="${size}" fill="red"/>`;
 
   return `<svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}" xmlns="http://www.w3.org/2000/svg">${svgContent}</svg>`;
 };
 
-
-// NEW: Function to colorize equipment SVGs
 export async function getColoredSvgString(svgUrl, fillColor, strokeColor) {
   try {
     const response = await fetch(svgUrl);
@@ -98,6 +91,14 @@ export async function getColoredSvgString(svgUrl, fillColor, strokeColor) {
   }
 }
 
+export const getSvgDimensions = (svgContent) => {
+    const parser = new DOMParser();
+    const svgDoc = parser.parseFromString(svgContent, "image/svg+xml");
+    const svgElement = svgDoc.documentElement;
+    const width = svgElement.getAttribute("width");
+    const height = svgElement.getAttribute("height");
+    return { width: parseInt(width, 10) || 100, height: parseInt(height, 10) || 100 };
+};
 
 export const createSvgDataUrl = (svgContent) => {
   return `data:image/svg+xml;utf8,${encodeURIComponent(svgContent)}`;

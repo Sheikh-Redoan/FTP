@@ -6,7 +6,7 @@ import { useDimensions } from "../../hooks/useDimensions";
 import { useHistory } from "../../hooks/useHistory";
 import { getLineGuideStops, getObjectSnappingEdges, getGuides } from "../../utils/snapping";
 import { createSvgDataUrl } from "../../utils/svgUtils";
-import { exportToPdf, exportToImage } from "../../utils/exportUtils"; // Correctly import from the new util file
+import { exportToPdf, exportToImage } from "../../utils/exportUtils";
 
 import KonvaEquipmentImage from "../../components/common/KonvaEquipmentImage";
 import KonvaPitchImage from "../../components/common/KonvaPitchImage";
@@ -41,7 +41,6 @@ const Home = () => {
         { bg: "#6B7280", line: "#6B7280" },
     ], []);
 
-    // --- Export Handlers ---
     const handleExportPDF = useCallback(async () => {
         if (!stageRef.current || !getNotesDeltaFunc) {
             console.error("PDF export dependencies are not ready.");
@@ -63,16 +62,14 @@ const Home = () => {
         });
     }, [setExportFunctions, handleExportImage, handleExportPDF]);
     
-    // --- Item Manipulation Handlers ---
     const handleItemChange = (newAttrs) => {
         const items = droppedEquipment.map((item) => {
-            // Merge new attributes with existing ones
             if (item.id === newAttrs.id) {
                 return { ...item, ...newAttrs };
             }
             return item;
         });
-        setDroppedEquipment(items, true); // Overwrite history state for continuous actions like dragging
+        setDroppedEquipment(items, true);
     };
 
     const handleDrop = (e) => {
@@ -87,15 +84,15 @@ const Home = () => {
         const newEquipment = {
             id: newId, dataUrl, x: position.x, y: position.y,
             width: 100, height: 100, rotation: 0, locked: false,
+            scaleX: 1, scaleY: 1,
             type: draggedEquipmentSrc.type, text: draggedEquipmentSrc.text, name: "object",
         };
 
-        setDroppedEquipment((prev) => [...prev, newEquipment]); // Creates new history entry
+        setDroppedEquipment((prev) => [...prev, newEquipment]);
         setDraggedEquipmentSrc(null);
         setSelectedId(newId);
     };
 
-    // --- Drag Handlers with Snapping ---
     const handleDragStart = (e) => {
         const id = e.target.id();
         setDroppedEquipment((prev) => {
@@ -127,7 +124,6 @@ const Home = () => {
 
     const handleDragEnd = (e) => {
         setGuides([]);
-        // Create a new history state after dragging finishes
         setDroppedEquipment((prev) => {
             return prev.map(item =>
                 item.id === e.target.id() ? { ...item, x: e.target.x(), y: e.target.y() } : item
@@ -135,7 +131,6 @@ const Home = () => {
         });
     };
 
-    // --- Toolbar Actions ---
     const selectedEquipment = useMemo(() => droppedEquipment.find((item) => item.id === selectedId), [droppedEquipment, selectedId]);
 
     const handleToolbarAction = (newAttrs) => {
@@ -163,9 +158,8 @@ const Home = () => {
         }
     };
     
-    // --- Context Function for Adding Equipment from Sidebar ---
     useEffect(() => {
-        const addEquipmentToStage = (item, type) => {
+        const addEquipmentToStage = (item, type, dimensions) => {
             const newId = Date.now().toString();
             if (type === "text") {
                 const newText = { id: newId, x: width / 2 - 100, y: height / 2 - 50, rotation: 0, locked: false, name: "object", ...item };
@@ -173,7 +167,20 @@ const Home = () => {
                 setSelectedId(newId);
             } else {
                 const dataUrl = createSvgDataUrl(item);
-                const newEquipment = { id: newId, dataUrl, x: width / 2 - 50, y: height / 2 - 50, width: 100, height: 100, rotation: 0, locked: false, type: type, name: "object" };
+                const newEquipment = {
+                  id: newId,
+                  dataUrl,
+                  x: width / 2 - 50,
+                  y: height / 2 - 50,
+                  width: dimensions ? dimensions.width : 100,
+                  height: dimensions ? dimensions.height : 100,
+                  rotation: 0,
+                  locked: false,
+                  scaleX: 1,
+                  scaleY: 1,
+                  type: type,
+                  name: "object",
+                };
                 setDroppedEquipment(prev => [...prev, newEquipment]);
                 setSelectedId(newId);
             }
@@ -203,13 +210,13 @@ const Home = () => {
                             key: item.id,
                             isSelected: item.id === selectedId,
                             onSelect: () => setSelectedId(item.id),
-                            onTransform: (newAttrs) => setDroppedEquipment(prev => prev.map(eq => eq.id === newAttrs.id ? newAttrs : eq)),
+                            onTransform: (newAttrs) => handleItemChange(newAttrs),
                             onDragStart: handleDragStart,
                             onDragMove: handleDragMove,
                             onDragEnd: handleDragEnd,
                         };
                         return item.type === "text" ? (
-                            <EditableText {...commonProps} shapeProps={item} onChange={(newAttrs) => handleToolbarAction(newAttrs)} />
+                            <EditableText {...commonProps} shapeProps={item} onChange={(newAttrs) => handleItemChange(newAttrs)} />
                         ) : (
                             <KonvaEquipmentImage {...commonProps} equipment={item} />
                         );

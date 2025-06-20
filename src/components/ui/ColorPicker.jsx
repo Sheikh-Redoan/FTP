@@ -19,5 +19,4 @@ const ColorPicker = ({ colors, activeIndex, onSelect, containerClassName }) => (
     ))}
   </div>
 );
-
 export default ColorPicker;
