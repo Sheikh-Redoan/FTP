@@ -1,3 +1,5 @@
+// src/components/common/KonvaEquipmentImage.jsx
+
 import { useEffect, useRef } from "react";
 import { Image, Transformer } from "react-konva";
 import { useImage } from "react-konva-utils";
@@ -22,33 +24,15 @@ const KonvaEquipmentImage = ({
     }
   }, [isSelected, equipment.locked]);
 
-  const getEnabledAnchors = () => {
-    const { type } = equipment;
-    if (type === "line") {
-      return ["middle-left", "middle-right"];
-    }
-    if (["rectangle", "square", "circle", "triangle"].includes(type)) {
-      return [
-        "top-left",
-        "top-center",
-        "top-right",
-        "middle-right",
-        "bottom-right",
-        "bottom-center",
-        "bottom-left",
-        "middle-left",
-      ];
-    }
-    return ["top-left", "top-right", "bottom-left", "bottom-right"];
-  };
+  // The getEnabledAnchors function is removed to allow all resize handles.
 
   const handleTransformEnd = () => {
     const node = shapeRef.current;
     if (!node) return;
-    
-    // For lines, we don't want to change the height when resizing.
+
+    // No longer treating lines specially, allowing them to resize like any other shape
     const newWidth = node.width() * node.scaleX();
-    const newHeight = equipment.type === 'line' ? equipment.height : node.height() * node.scaleY();
+    const newHeight = node.height() * node.scaleY();
 
     node.scaleX(1);
     node.scaleY(1);
@@ -60,7 +44,6 @@ const KonvaEquipmentImage = ({
       width: newWidth,
       height: newHeight,
       rotation: node.rotation(),
-      // Ensure scale is not stored in state
       scaleX: 1,
       scaleY: 1,
     });
@@ -84,9 +67,8 @@ const KonvaEquipmentImage = ({
       {isSelected && !equipment.locked && (
         <Transformer
           ref={trRef}
-          enabledAnchors={getEnabledAnchors()}
-          // For lines, we don't keep the ratio to allow horizontal stretching
-          keepRatio={equipment.type !== "line"}
+          // The enabledAnchors prop is removed to show all handles
+          keepRatio={true} // Keep aspect ratio for all items for uniform scaling
           boundBoxFunc={(oldBox, newBox) => {
             if (newBox.width < 5 || newBox.height < 5) {
               return oldBox;

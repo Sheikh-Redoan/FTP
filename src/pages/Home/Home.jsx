@@ -4,8 +4,15 @@ import Konva from "konva";
 import { useSvg } from "../../context/SvgContext";
 import { useDimensions } from "../../hooks/useDimensions";
 import { useHistory } from "../../hooks/useHistory";
-import { getLineGuideStops, getObjectSnappingEdges, getGuides } from "../../utils/snapping";
-import { createSvgDataUrl } from "../../utils/svgUtils";
+import {
+  getLineGuideStops,
+  getObjectSnappingEdges,
+  getGuides,
+} from "../../utils/snapping";
+import {
+  createSvgDataUrl,
+  getSvgDimensions, // <-- Import getSvgDimensions
+} from "../../utils/svgUtils";
 import { exportToPdf, exportToImage } from "../../utils/exportUtils";
 
 import KonvaEquipmentImage from "../../components/common/KonvaEquipmentImage";
@@ -72,26 +79,42 @@ const Home = () => {
         setDroppedEquipment(items, true);
     };
 
-    const handleDrop = (e) => {
-        e.preventDefault();
-        if (!draggedEquipmentSrc) return;
+// src/pages/Home/Home.jsx
 
-        stageRef.current.setPointersPositions(e);
-        const position = stageRef.current.getPointerPosition();
-        const dataUrl = createSvgDataUrl(draggedEquipmentSrc.content);
-        const newId = Date.now().toString();
+const handleDrop = (e) => {
+  e.preventDefault();
+  if (!draggedEquipmentSrc) return;
 
-        const newEquipment = {
-            id: newId, dataUrl, x: position.x, y: position.y,
-            width: 100, height: 100, rotation: 0, locked: false,
-            scaleX: 1, scaleY: 1,
-            type: draggedEquipmentSrc.type, text: draggedEquipmentSrc.text, name: "object",
-        };
+  stageRef.current.setPointersPositions(e);
+  const position = stageRef.current.getPointerPosition();
 
-        setDroppedEquipment((prev) => [...prev, newEquipment]);
-        setDraggedEquipmentSrc(null);
-        setSelectedId(newId);
-    };
+  // Get the actual dimensions of the SVG
+  const { width: svgWidth, height: svgHeight } = getSvgDimensions(
+    draggedEquipmentSrc.content
+  );
+  const dataUrl = createSvgDataUrl(draggedEquipmentSrc.content);
+  const newId = Date.now().toString();
+
+  const newEquipment = {
+    id: newId,
+    dataUrl,
+    x: position.x,
+    y: position.y,
+    width: svgWidth, // Use the actual width
+    height: svgHeight, // Use the actual height
+    rotation: 0,
+    locked: false,
+    scaleX: 1,
+    scaleY: 1,
+    type: draggedEquipmentSrc.type,
+    text: draggedEquipmentSrc.text,
+    name: "object",
+  };
+
+  setDroppedEquipment((prev) => [...prev, newEquipment]);
+  setDraggedEquipmentSrc(null);
+  setSelectedId(newId);
+};
 
     const handleDragStart = (e) => {
         const id = e.target.id();

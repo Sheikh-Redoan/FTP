@@ -1,8 +1,26 @@
 // src/components/common/DragItem.jsx
 import { ReactSVG } from "react-svg";
 
-const DragItem = ({ src, name, onDragStart, beforeInjection, displaySvgContent, IconComponent, type = 'equipment' }) => {
-  const dummySvgSrc = IconComponent ? `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"></svg>` : src;
+// Helper to create a data URL from an SVG string
+const createDataUrl = (svgContent) =>
+  `data:image/svg+xml;utf8,${encodeURIComponent(svgContent)}`;
+
+const DragItem = ({
+  src,
+  name,
+  onDragStart,
+  beforeInjection,
+  displaySvgContent,
+  IconComponent,
+  type = "equipment",
+}) => {
+  // If we have specific SVG content (from Quick Access), create a data URL for it.
+  // Otherwise, fall back to the original SVG source file path.
+  const svgSrc = displaySvgContent
+    ? createDataUrl(displaySvgContent)
+    : IconComponent
+    ? `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"></svg>`
+    : src;
 
   return (
     <div
@@ -11,21 +29,25 @@ const DragItem = ({ src, name, onDragStart, beforeInjection, displaySvgContent, 
         const dragData = {
           src,
           name,
-          type, // Use the passed type or default
+          type,
           content: displaySvgContent,
           IconComponent,
         };
         e.dataTransfer.setData("text/plain", name);
-        // MODIFIED: Pass a single structured object
         onDragStart(dragData);
       }}
-      className="flex flex-col items-center gap-1 w-full"
+      className="flex flex-col items-center gap-1 w-full" 
     >
       <div className="flex justify-center items-center p-1 w-full h-[100px] border rounded-lg hover:bg-gray-100 cursor-pointer">
         {IconComponent ? (
           <IconComponent className="text-4xl text-gray-700" />
         ) : (
-          <ReactSVG src={dummySvgSrc} beforeInjection={beforeInjection} className="w-auto h-auto" />
+          // When using a data URL, we don't need the beforeInjection hook.
+          <ReactSVG
+            src={svgSrc}
+            beforeInjection={displaySvgContent ? undefined : beforeInjection}
+            className="svg_size_fixer"
+          />
         )}
       </div>
       <span className="text-sm text-center w-full">{name}</span>

@@ -49,7 +49,8 @@ const Sidebar = () => {
 
   const [activeMenu, setActiveMenu] = useState(null);
   const [activePitchColorIndex, setActivePitchColorIndex] = useState(0);
-  const [activeEquipmentColorIndex, setActiveEquipmentColorIndex] = useState(0);
+  const [activeEquipmentColorIndex, setActiveEquipmentColorIndex] =
+    useState(0);
   const [activePlayerColorIndex, setActivePlayerColorIndex] = useState(0);
   const [activeLineColorIndex, setActiveLineColorIndex] = useState(0);
   const [activeShapeColorIndex, setActiveShapeColorIndex] = useState(0);
@@ -189,14 +190,25 @@ const Sidebar = () => {
     setEquipmentLineColor(line);
   };
 
-  const handleDragStart = useCallback(
+  // Drag handler for NEW items that should be added to Quick Access
+  const handleDragStartAndAddToQuickAccess = useCallback(
     (dragData) => {
       setDraggedEquipmentSrc(dragData);
+      // Players are not added to quick access
       if (dragData.type !== "player") {
         addQuickAccessItem(dragData);
       }
     },
     [setDraggedEquipmentSrc, addQuickAccessItem]
+  );
+
+  // Drag handler for items dragged FROM Quick Access
+  const handleQuickAccessDragStart = useCallback(
+    (dragData) => {
+      setDraggedEquipmentSrc(dragData);
+      // Do NOT add the item to the quick access list again
+    },
+    [setDraggedEquipmentSrc]
   );
 
   const handleAddLine = async (item) => {
@@ -260,14 +272,15 @@ const Sidebar = () => {
           />
         );
       case "quickAccess":
-        return <QuickAccessMenu onDragStart={handleDragStart} />;
+        // Use the new handler for items dragged from Quick Access
+        return <QuickAccessMenu onDragStart={handleQuickAccessDragStart} />;
       case "players":
         return (
           <PlayersMenu
             colors={playerColorCombinations}
             activeColorIndex={activePlayerColorIndex}
             onColorSelect={handlePlayerColorSelect}
-            onDragStart={handleDragStart}
+            onDragStart={handleDragStartAndAddToQuickAccess}
           />
         );
       case "lines":
@@ -285,7 +298,7 @@ const Sidebar = () => {
             colors={equipmentColorCombinations}
             activeColorIndex={activeEquipmentColorIndex}
             onColorSelect={handleEquipmentColorSelect}
-            onDragStart={handleDragStart}
+            onDragStart={handleDragStartAndAddToQuickAccess}
           />
         );
       case "shapes":
@@ -294,7 +307,7 @@ const Sidebar = () => {
             colors={equipmentColorCombinations}
             activeColorIndex={activeShapeColorIndex}
             onColorSelect={handleShapeColorSelect}
-            onDragStart={handleDragStart}
+            onDragStart={handleDragStartAndAddToQuickAccess}
           />
         );
       default:

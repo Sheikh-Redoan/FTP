@@ -1,7 +1,6 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
 import ColorPicker from "./ColorPicker";
 import DragItem from "../common/DragItem";
-// MODIFIED: Import the correct function for coloring equipment
 import { getColoredSvgString } from "../../utils/svgUtils";
 
 // Import Equipment SVGs
@@ -33,7 +32,7 @@ const EquipmentMenu = ({
       { id: 100, component: Player, name: "Player" },
       { id: 101, component: Football, name: "Football" },
       { id: 102, component: OpponentWithPerspective, name: "Opponent" },
-      { id: 103, component: PlayerWithPerspective, name: "Player" },
+      { id: 103, component: PlayerWithPerspective, name: "Player With Perspective" },
       { id: 104, component: Player2, name: "Player 2" },
       { id: 105, component: Player3, name: "Player 3" },
       { id: 106, component: Cone, name: "Cone" },
@@ -51,10 +50,14 @@ const EquipmentMenu = ({
   useEffect(() => {
     const loadSvgContents = async () => {
       const newContents = {};
-      const { bg, line } = colors[activeColorIndex];
+      const { line } = colors[activeColorIndex]; // Get only the line color
       for (const eq of equipmentAssets) {
-        // MODIFIED: Use the new function to ensure equipment is colored correctly
-        newContents[eq.id] = await getColoredSvgString(eq.component, bg, line);
+        // Use 'transparent' for the fill color
+        newContents[eq.id] = await getColoredSvgString(
+          eq.component,
+          "transparent",
+          line
+        );
       }
       setSvgContents(newContents);
     };
@@ -63,13 +66,13 @@ const EquipmentMenu = ({
 
   const beforeEquipmentSvgInjection = useCallback(
     (svg) => {
-      const { bg, line } = colors[activeColorIndex];
+      const { line } = colors[activeColorIndex]; // Get only the line color
       const elements = svg.querySelectorAll(
         "path, line, polyline, polygon, rect, circle"
       );
       elements.forEach((el) => {
         el.setAttribute("stroke", line);
-        el.setAttribute("fill", bg);
+        el.setAttribute("fill", "transparent"); // Set fill to transparent
       });
     },
     [activeColorIndex, colors]

@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect } from "react";
 
-const QUICK_ACCESS_KEY = 'quickAccessItems';
+const QUICK_ACCESS_KEY = "quickAccessItems";
 const MAX_QUICK_ACCESS_ITEMS = 10;
 
 export const useQuickAccess = () => {
@@ -16,24 +16,29 @@ export const useQuickAccess = () => {
 
   useEffect(() => {
     try {
-      window.localStorage.setItem(QUICK_ACCESS_KEY, JSON.stringify(quickAccessItems));
-    } catch (error) {
+      window.localStorage.setItem(
+        QUICK_ACCESS_KEY,
+        JSON.stringify(quickAccessItems)  // Fixed extra parenthesis here
+      );
+    } catch (error) {  // Added missing curly brace
       console.error(error);
     }
   }, [quickAccessItems]);
 
   const addQuickAccessItem = (item) => {
-    setQuickAccessItems(prevItems => {
-      const existingItemIndex = prevItems.findIndex(i => i.name === item.name);
-      
-      // If the item already exists, return the previous items without changing their order.
+    setQuickAccessItems((prevItems) => {
+      const existingItemIndex = prevItems.findIndex(
+        (i) => i.name === item.name && i.content === item.content
+      );
+
       if (existingItemIndex > -1) {
-        return prevItems;
+        const newItems = [...prevItems];
+        const [existingItem] = newItems.splice(existingItemIndex, 1);
+        return [existingItem, ...newItems];
       }
 
-      // If the item is new, add it to the front.
       let newItems = [item, ...prevItems];
-
+      
       if (newItems.length > MAX_QUICK_ACCESS_ITEMS) {
         newItems = newItems.slice(0, MAX_QUICK_ACCESS_ITEMS);
       }

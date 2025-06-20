@@ -23,3 +23,14 @@
     height: 100%;
     object-fit: contain;
 }
+
+.svg_size_fixer{
+    width: 100% !important;
+    height: 100% !important;
+}
+
+.svg_size_fixer div{
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: contain !important;
+}
