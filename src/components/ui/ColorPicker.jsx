@@ -1,10 +1,15 @@
 const ColorPicker = ({ colors, activeIndex, onSelect, containerClassName }) => (
-  <div className={containerClassName || "flex justify-start items-start gap-5 flex-wrap mb-8"}>
+  <div
+    className={
+      containerClassName ||
+      "flex justify-start items-start gap-3 flex-wrap mb-8 w-max"
+    }
+  >
     {colors.map((color, index) => (
       <button
         key={index}
         type="button"
-        className={`w-8 h-8 rounded-full cursor-pointer border-2 shadow-lg ${
+        className={`w-7 h-7 rounded-full cursor-pointer border-2 shadow-lg ${
           activeIndex === index ? "border-black" : "border-transparent"
         }`}
         style={{ backgroundColor: color.bg }}
