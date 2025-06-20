@@ -71,6 +71,18 @@ export async function getColoredSvgString(svgUrl, fillColor, strokeColor) {
     const svgDoc = parser.parseFromString(svgText, "image/svg+xml");
     const svgElement = svgDoc.documentElement;
 
+    const width = svgElement.getAttribute('width');
+    const height = svgElement.getAttribute('height');
+
+    // Set viewBox if it doesn't exist, using width/height
+    if (!svgElement.getAttribute('viewBox') && width && height) {
+      svgElement.setAttribute('viewBox', `0 0 ${width} ${height}`);
+    }
+    
+    // Set width and height to 100% to make the SVG fluid
+    svgElement.setAttribute('width', '100%');
+    svgElement.setAttribute('height', '100%');
+
     const allElements = svgElement.querySelectorAll(
       "path, line, polyline, polygon, rect, circle"
     );
@@ -95,6 +107,11 @@ export const getSvgDimensions = (svgContent) => {
     const parser = new DOMParser();
     const svgDoc = parser.parseFromString(svgContent, "image/svg+xml");
     const svgElement = svgDoc.documentElement;
+    const viewBox = svgElement.getAttribute("viewBox");
+    if (viewBox) {
+        const parts = viewBox.split(/[\s,]+/);
+        return { width: parseInt(parts[2], 10) || 100, height: parseInt(parts[3], 10) || 100 };
+    }
     const width = svgElement.getAttribute("width");
     const height = svgElement.getAttribute("height");
     return { width: parseInt(width, 10) || 100, height: parseInt(height, 10) || 100 };

@@ -1,4 +1,3 @@
-// src/components/common/KonvaEquipmentImage.jsx
 import { useEffect, useRef } from "react";
 import { Image, Transformer } from "react-konva";
 import { useImage } from "react-konva-utils";
@@ -46,16 +45,24 @@ const KonvaEquipmentImage = ({
   const handleTransformEnd = () => {
     const node = shapeRef.current;
     if (!node) return;
+    
+    // Update dimensions by applying the scale and then reset scale
+    const newWidth = node.width() * node.scaleX();
+    const newHeight = node.height() * node.scaleY();
+    node.scaleX(1);
+    node.scaleY(1);
 
-    const newAttrs = {
+    onTransform({
       ...equipment,
       x: node.x(),
       y: node.y(),
-      scaleX: node.scaleX(),
-      scaleY: node.scaleY(),
+      width: newWidth,
+      height: newHeight,
       rotation: node.rotation(),
-    };
-    onTransform(newAttrs);
+      // Ensure scale is not stored in state
+      scaleX: 1,
+      scaleY: 1,
+    });
   };
 
   return (
@@ -77,6 +84,7 @@ const KonvaEquipmentImage = ({
         <Transformer
           ref={trRef}
           enabledAnchors={getEnabledAnchors()}
+          // For lines, we don't keep the ratio to allow horizontal stretching
           keepRatio={equipment.type !== "line"}
           boundBoxFunc={(oldBox, newBox) => {
             if (newBox.width < 5 || newBox.height < 5) {
@@ -90,4 +98,4 @@ const KonvaEquipmentImage = ({
   );
 };
 
-export default KonvaEquipmentImage;
+export default KonvaEquipmentImage; 

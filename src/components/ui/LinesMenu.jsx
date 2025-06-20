@@ -20,8 +20,11 @@ const LinesMenu = ({ colors, activeColorIndex, onColorSelect, onLineAdd }) => {
   const { lineColor, addEquipment, addQuickAccessItem } = useSvg();
 
   const lineItems = [
-    { id: 1, name: "Fieldmarker", svg: Fieldmarker, type: 'line' },
-    { id: 2, name: "Fieldmarker dotted", svg: FieldmarkerDotted, type: 'line' },
+    // SOLVED: Changed type to 'equipment' for full, proportional resizing
+    { id: 1, name: "Fieldmarker", svg: Fieldmarker, type: 'equipment' },
+    { id: 2, name: "Fieldmarker dotted", svg: FieldmarkerDotted, type: 'equipment' },
+    
+    // Other items remain as they were
     { id: 3, name: "Fieldmarker curved", svg: FieldmarkerCurved, type: 'line' },
     { id: 4, name: "Passing or finishing", svg: Passing, type: 'line' },
     { id: 5, name: "Run", svg: Run, type: 'line' },

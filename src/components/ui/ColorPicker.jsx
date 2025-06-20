@@ -2,7 +2,7 @@ const ColorPicker = ({ colors, activeIndex, onSelect, containerClassName }) => (
   <div
     className={
       containerClassName ||
-      "flex justify-start items-start gap-3 flex-wrap mb-8 w-max"
+      "flex justify-center items-start gap-4 flex-wrap mb-8"
     }
   >
     {colors.map((color, index) => (
