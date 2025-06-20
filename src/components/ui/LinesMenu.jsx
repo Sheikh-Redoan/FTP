@@ -1,4 +1,5 @@
 // src/components/ui/LinesMenu.jsx
+
 import { ReactSVG } from "react-svg";
 import ColorPicker from "./ColorPicker";
 import { useSvg } from "../../context/SvgContext";
@@ -20,9 +21,8 @@ const LinesMenu = ({ colors, activeColorIndex, onColorSelect, onLineAdd }) => {
   const { lineColor, addEquipment, addQuickAccessItem } = useSvg();
 
   const lineItems = [
-    // SOLVED: Changed type to 'equipment' for full, proportional resizing
-    { id: 1, name: "Fieldmarker", svg: Fieldmarker, type: 'equipment' },
-    { id: 2, name: "Fieldmarker dotted", svg: FieldmarkerDotted, type: 'equipment' },
+    { id: 1, name: "Fieldmarker", svg: Fieldmarker, type: 'line' },
+    { id: 2, name: "Fieldmarker dotted", svg: FieldmarkerDotted, type: 'line' },
     
     // Other items remain as they were
     { id: 3, name: "Fieldmarker curved", svg: FieldmarkerCurved, type: 'line' },

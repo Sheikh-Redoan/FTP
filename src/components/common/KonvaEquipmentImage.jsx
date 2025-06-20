@@ -46,9 +46,10 @@ const KonvaEquipmentImage = ({
     const node = shapeRef.current;
     if (!node) return;
     
-    // Update dimensions by applying the scale and then reset scale
+    // For lines, we don't want to change the height when resizing.
     const newWidth = node.width() * node.scaleX();
-    const newHeight = node.height() * node.scaleY();
+    const newHeight = equipment.type === 'line' ? equipment.height : node.height() * node.scaleY();
+
     node.scaleX(1);
     node.scaleY(1);
 
@@ -98,4 +99,4 @@ const KonvaEquipmentImage = ({
   );
 };
 
-export default KonvaEquipmentImage; 
+export default KonvaEquipmentImage;
