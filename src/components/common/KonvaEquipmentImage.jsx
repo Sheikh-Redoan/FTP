@@ -92,9 +92,18 @@ const KonvaEquipmentImage = ({
           enabledAnchors={getEnabledAnchors()}
           keepRatio={equipment.type !== "line"}
           boundBoxFunc={(oldBox, newBox) => {
+            // Prevent shape from becoming too small
             if (newBox.width < 5 || newBox.height < 5) {
               return oldBox;
             }
+            
+            // *** FIX STARTS HERE ***
+            // For lines, maintain the original height to prevent vertical distortion
+            if (equipment.type === 'line') {
+              newBox.height = oldBox.height;
+            }
+            // *** FIX ENDS HERE ***
+
             return newBox;
           }}
         />
