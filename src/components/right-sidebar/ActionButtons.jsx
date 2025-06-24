@@ -13,13 +13,13 @@ const ActionButtons = ({ exportFunctions }) => {
                 <div className="relative">
                     <button
                         onClick={() => setIsSaveAsDropdownOpen(!isSaveAsDropdownOpen)}
-                        className="w-60 h-12 px-6 py-2.5 rounded-full border border-blue-900 flex items-center gap-2 hover:bg-blue-50"
+                        className="w-60 h-12 px-6 py-2.5 rounded-full border border-blue-900 flex items-center gap-2 hover:bg-blue-50 cursor-pointer max-[1330px]:w-40 max-[1330px]:h-10"
                     >
                         <HiArrowPath className="w-5 h-5" />
                         <span className="text-lg font-medium">Save as</span>
                     </button>
                     {isSaveAsDropdownOpen && (
-                        <div className="absolute top-full mt-2 w-60 bg-white border rounded shadow-lg z-10">
+                        <div className="absolute top-full mt-2 w-60 bg-white border rounded shadow-lg z-10 max-[1330px]:w-40">
                             <button
                                 onClick={() => {
                                     exportFunctions.png();
@@ -50,7 +50,7 @@ const ActionButtons = ({ exportFunctions }) => {
                         </div>
                     )}
                 </div>
-                <div className="w-56 h-16 bg-slate-200 rounded-2xl border border-blue-900 flex items-center justify-between px-4">
+                <div className="w-56 h-16 bg-slate-200 rounded-2xl border border-blue-900 flex items-center justify-between px-4 max-[1330px]:w-40 max-[1330px]:h-10">
                     <span className="text-lg font-medium">Drill</span>
                     <FaChevronDown />
                 </div>

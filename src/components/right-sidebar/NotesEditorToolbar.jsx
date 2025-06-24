@@ -5,7 +5,7 @@ import { ImFontSize } from 'react-icons/im';
 const ToolbarButton = ({ onClick, active, children }) => (
   <button
     onClick={onClick}
-    className={`w-14 h-14 rounded-lg flex items-center justify-center border ${
+    className={`w-14 h-14 rounded-lg flex items-center justify-center border max-[1330px]:w-10 max-[1330px]:h-10 ${
       active ? "bg-blue-100 border-2 border-blue-900" : "border-blue-900"
     }`}
   >
@@ -44,19 +44,19 @@ const NotesEditorToolbar = ({ quillRef }) => {
   };
 
   return (
-    <div className="flex items-center gap-4 p-2 rounded-lg border border-indigo-300 mb-4 relative">
+    <div className="flex items-center gap-4 p-2 rounded-lg border border-indigo-300 mb-4 relative max-[1330px]:gap-2 max-[1330px]:p-1 max-[1330px]:justify-around">
       <ToolbarButton onClick={() => handleFormat("bold")} active={activeTool === "bold"}>
-        <FaBold className="text-xl" />
+        <FaBold className="text-xl max-[1330]:text-[8px]" />
       </ToolbarButton>
       <ToolbarButton onClick={() => handleFormat("italic")} active={activeTool === "italic"}>
-        <FaItalic className="text-xl" />
+        <FaItalic className="text-xl max-[1330]:text-[8px]" />
       </ToolbarButton>
       <ToolbarButton onClick={() => handleFormat("underline")} active={activeTool === "underline"}>
-        <FaUnderline className="text-xl" />
+        <FaUnderline className="text-xl max-[1330]:text-[8px]" />
       </ToolbarButton>
       <div className="relative">
         <ToolbarButton onClick={() => setIsFontSizeDropdownOpen(!isFontSizeDropdownOpen)}>
-          <ImFontSize className="text-xl" />
+          <ImFontSize className="text-xl max-[1330]:text-[8px]" />
         </ToolbarButton>
         {isFontSizeDropdownOpen && (
           <div className="absolute top-full mt-2 w-24 bg-white border-blue-100 rounded shadow-lg z-10">
@@ -74,10 +74,10 @@ const NotesEditorToolbar = ({ quillRef }) => {
       </div>
       <div className="relative">
         <ToolbarButton onClick={() => setIsListStyleDropdownOpen(!isListStyleDropdownOpen)} active={activeTool === "list"}>
-          <FaListUl className="text-xl" />
+          <FaListUl className="text-xl max-[1330]:text-[8px]" />
         </ToolbarButton>
         {isListStyleDropdownOpen && (
-          <div className="absolute top-full mt-2 w-32 bg-white border-blue-100 rounded shadow-lg z-10">
+          <div className="absolute top-full mt-2 w-32 bg-white border-blue-100 rounded shadow-lg z-10 ">
             {listStyles.map((style) => (
               <button
                 key={style}
