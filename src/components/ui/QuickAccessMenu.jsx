@@ -9,7 +9,7 @@ const QuickAccessMenu = ({ onDragStart }) => {
   return (
     <div>
       <h3 className="text-lg font-bold mb-4 ">Quick Access</h3>
-      <div className="flex flex-col items-center gap-2 quick">
+      <div className="flex flex-col items-center gap-2 quick max-[800px]:flex-row max-[800px]:overflow-x-scroll">
         {quickAccessItems.length > 0 ? (
           quickAccessItems.map((item, index) => (
             <DragItem

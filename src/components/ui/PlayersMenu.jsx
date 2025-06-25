@@ -14,24 +14,27 @@ const PlayersMenu = ({
   const letters = ["A", "B", "C", "D"];
 
   return (
-    <div>
-      <h3 className="text-lg font-bold mb-4">Players</h3>
-      <ColorPicker
-        colors={colors}
-        activeIndex={activeColorIndex}
-        onSelect={onColorSelect}
-      />
+    <div className="p-2 max-[800px]:flex max-[800px]:justify-between max-[800px]:items-center max-[800px]:gap-7">
+      <div>
+        <h3 className="text-lg font-bold mb-4 max-[800px]:hidden">Players</h3>
+        <ColorPicker
+          colors={colors}
+          activeIndex={activeColorIndex}
+          onSelect={onColorSelect}
+          containerClassName={"flex justify-center items-start gap-4 flex-wrap mb-8 max-[800px]:flex max-[800px]:flex-wrap max-[800px]:overflow-y-scroll max-[800px]:gap-3 max-[800px]:max-h-[100px] max-[800px]:py-[10px]"}
+        />
+      </div>
       <div
-        className={`flex gap-2 ${
+        className={`flex ${
           isMobile ? "flex-nowrap overflow-x-auto" : "flex-wrap justify-center"
-        }`}
+        } gap-2 max-[800px]:flex-row max-[800px]:overflow-x-scroll item_div max-[800px]:h-max max-[800px]:flex-nowrap max-[800px]:justify-start `}
       >
         {[...players, ...letters].map((p) => (
           <div
             key={p}
             className={`flex items-center justify-center ${
               isMobile ? "w-8 h-8" : "w-10 h-10"
-            } rounded-full cursor-pointer flex-shrink-0`}
+            } rounded-full cursor-pointer flex-shrink-0 max-[800px]:!w-[50px] max-[800px]:!h-[50px]`}
             style={{
               backgroundColor: playerColor,
               color: colors[activeColorIndex].line,

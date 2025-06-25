@@ -48,3 +48,24 @@
         visibility: hidden;
     }
  }
+
+@media (min-width: 100px) and (max-width: 800px) { 
+    .quick div{
+        width: 70px !important;
+        height: 70px !important;
+        display: flex !important;
+        padding: 0 4px 0 !important;
+    }
+    .quick div span{
+        display: none;
+        visibility: hidden;
+    }
+ }
+
+ @media (min-width: 100px) and (max-width: 800px) { 
+    .item_div div {
+        width: 70px !important;
+        height: 70px !important;
+        font-size: 24px !important;
+    }
+}
