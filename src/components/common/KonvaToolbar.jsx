@@ -81,7 +81,7 @@ const KonvaToolbar = ({
       </ToolbarButton>
       <ToolbarButton
         onClick={onRotate}
-        disabled={!isSelected || isLocked}
+        disabled={isLocked}
         label="Rotate"
       >
         <MdOutlineRotateRight className="text-xl text-blue-500 group-hover:text-white" />

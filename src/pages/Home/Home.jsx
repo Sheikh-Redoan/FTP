@@ -11,7 +11,7 @@ import {
 } from "../../utils/snapping";
 import {
   createSvgDataUrl,
-  getSvgDimensions, // <-- Import getSvgDimensions
+  getSvgDimensions,
 } from "../../utils/svgUtils";
 import { exportToPdf, exportToImage } from "../../utils/exportUtils";
 
@@ -21,6 +21,20 @@ import KonvaToolbar from "../../components/common/KonvaToolbar";
 import EditableText from "../../components/common/EditableText";
 
 Konva._fixTextRendering = true;
+
+// Helper function to get distance between two points for pinch-zoom
+function getDistance(p1, p2) {
+  return Math.sqrt(Math.pow(p2.x - p1.x, 2) + Math.pow(p2.y - p1.y, 2));
+}
+
+// Helper function to get the center of two points for pinch-zoom
+function getCenter(p1, p2) {
+  return {
+    x: (p1.x + p2.x) / 2,
+    y: (p1.y + p2.y) / 2,
+  };
+}
+
 
 const Home = () => {
     const {
@@ -38,6 +52,15 @@ const Home = () => {
     const [droppedEquipment, setDroppedEquipment, undo, redo, canUndo, canRedo] = useHistory([]);
     const [selectedId, setSelectedId] = useState(null);
     const [guides, setGuides] = useState([]);
+    const [stageRotation, setStageRotation] = useState(0);
+
+    const [stage, setStage] = useState({
+        scale: 1,
+        x: 0,
+        y: 0,
+    });
+    const [lastDist, setLastDist] = useState(0);
+
 
     const textColors = useMemo(() => [
         { bg: "#000000", line: "#000000" },
@@ -79,8 +102,6 @@ const Home = () => {
         setDroppedEquipment(items, true);
     };
 
-// src/pages/Home/Home.jsx
-
 const handleDrop = (e) => {
   e.preventDefault();
   if (!draggedEquipmentSrc) return;
@@ -88,7 +109,6 @@ const handleDrop = (e) => {
   stageRef.current.setPointersPositions(e);
   const position = stageRef.current.getPointerPosition();
 
-  // Get the actual dimensions of the SVG
   const { width: svgWidth, height: svgHeight } = getSvgDimensions(
     draggedEquipmentSrc.content
   );
@@ -100,8 +120,8 @@ const handleDrop = (e) => {
     dataUrl,
     x: position.x,
     y: position.y,
-    width: svgWidth, // Use the actual width
-    height: svgHeight, // Use the actual height
+    width: svgWidth, 
+    height: svgHeight,
     rotation: 0,
     locked: false,
     scaleX: 1,
@@ -180,6 +200,85 @@ const handleDrop = (e) => {
             setSelectedId(null);
         }
     };
+
+    const handleRotate = () => {
+        if (selectedEquipment && !selectedEquipment.locked) {
+            handleToolbarAction({ rotation: (selectedEquipment.rotation + 45) % 360 });
+        } else if (!selectedEquipment) {
+            setStageRotation((prevRotation) => (prevRotation + 45) % 360);
+        }
+    };
+
+    const handleWheel = (e) => {
+        e.evt.preventDefault();
+        if (e.evt.ctrlKey) {
+            const scaleBy = 1.05;
+            const stageInstance = e.target.getStage();
+            const oldScale = stageInstance.scaleX();
+            const pointer = stageInstance.getPointerPosition();
+
+            const mousePointTo = {
+                x: (pointer.x - stageInstance.x()) / oldScale,
+                y: (pointer.y - stageInstance.y()) / oldScale,
+            };
+
+            const newScale = e.evt.deltaY > 0 ? oldScale / scaleBy : oldScale * scaleBy;
+
+            setStage({
+                scale: newScale,
+                x: pointer.x - mousePointTo.x * newScale,
+                y: pointer.y - mousePointTo.y * newScale,
+            });
+        }
+    };
+    
+    const handleTouchMove = (e) => {
+        const touch1 = e.evt.touches[0];
+        const touch2 = e.evt.touches[1];
+        const stageInstance = e.target.getStage();
+
+        if (touch1 && touch2) {
+            e.evt.preventDefault();
+            const dist = getDistance(
+                { x: touch1.clientX, y: touch1.clientY },
+                { x: touch2.clientX, y: touch2.clientY }
+            );
+
+            if (!lastDist) {
+                setLastDist(dist);
+                return;
+            }
+
+            const oldScale = stageInstance.scaleX();
+            const newScale = oldScale * (dist / lastDist);
+
+            const center = getCenter(
+                { x: touch1.clientX, y: touch1.clientY },
+                { x: touch2.clientX, y: touch2.clientY }
+            );
+
+            const pointer = {
+                x: center.x - stageInstance.container().getBoundingClientRect().left,
+                y: center.y - stageInstance.container().getBoundingClientRect().top
+            };
+
+            const mousePointTo = {
+                x: (pointer.x - stageInstance.x()) / oldScale,
+                y: (pointer.y - stageInstance.y()) / oldScale,
+            };
+
+            setStage({
+                scale: newScale,
+                x: pointer.x - mousePointTo.x * newScale,
+                y: pointer.y - mousePointTo.y * newScale,
+            });
+            setLastDist(dist);
+        }
+    };
+
+    const handleTouchEnd = () => {
+        setLastDist(0);
+    };
     
     useEffect(() => {
         const addEquipmentToStage = (item, type, dimensions) => {
@@ -226,7 +325,27 @@ const handleDrop = (e) => {
                   height={height}
                   ref={stageRef}
                   onMouseDown={(e) => e.target === e.target.getStage() && setSelectedId(null)}
-                  onTouchStart={(e) => e.target === e.target.getStage() && setSelectedId(null)}
+                  onTouchStart={(e) => {
+                      if (e.target === e.target.getStage()) {
+                          setSelectedId(null)
+                      }
+                  }}
+                  rotation={stageRotation}
+                  scaleX={stage.scale}
+                  scaleY={stage.scale}
+                  x={stage.x}
+                  y={stage.y}
+                  onWheel={handleWheel}
+                  onTouchMove={handleTouchMove}
+                  onTouchEnd={handleTouchEnd}
+                  draggable
+                  onDragEnd={(e) => {
+                    if (e.target === e.target.getStage()) {
+                        setStage({ ...stage, x: e.target.x(), y: e.target.y() });
+                    }
+                  }}
+                  offsetX={stageRotation ? width / 2 : 0}
+                  offsetY={stageRotation ? height / 2 : 0}
               >
                 <Layer>
                     {pitch && <KonvaPitchImage pitch={pitch} width={width} height={height} />}
@@ -270,7 +389,7 @@ const handleDrop = (e) => {
                 onDuplicate={handleDuplicate}
                 onDelete={handleDelete}
                 onLockUnlock={() => handleToolbarAction({ locked: !selectedEquipment.locked })}
-                onRotate={() => handleToolbarAction({ rotation: (selectedEquipment.rotation + 45) % 360 })}
+                onRotate={handleRotate}
                 canUndo={canUndo}
                 canRedo={canRedo}
                 onTextColorChange={(colorIndex) => handleToolbarAction({ fill: textColors[colorIndex].line })}
