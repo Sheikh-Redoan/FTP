@@ -1,3 +1,4 @@
+// src/components/ui/PitchMenu.jsx
 import { ReactSVG } from "react-svg";
 import ColorPicker from "./ColorPicker";
 // Import pitch SVGs
@@ -17,6 +18,7 @@ const PitchMenu = ({
   onColorSelect,
   onPitchSelect,
   svgBgColor,
+  isMobile,
 }) => {
   const pitchSvgComponents = [
     { id: 1, component: Frame },
@@ -44,12 +46,21 @@ const PitchMenu = ({
         colors={colors}
         activeIndex={activeColorIndex}
         onSelect={onColorSelect}
+        containerClassName={`flex ${
+          isMobile ? "justify-start" : "justify-center"
+        } items-center gap-4 flex-wrap mb-4`}
       />
-      <div className="flex flex-wrap justify-center gap-4">
+      <div
+        className={`flex ${
+          isMobile ? "flex-nowrap overflow-x-auto" : "flex-wrap justify-center"
+        } gap-4`}
+      >
         {pitchSvgComponents.map((svg) => (
           <div
             key={svg.id}
-            className="flex flex-wrap justify-center items-center p-[2px] w-[100px] h-[100px] border rounded-lg hover:bg-gray-100 cursor-pointer svg_size"
+            className={`flex justify-center items-center p-[2px] ${
+              isMobile ? "w-[80px] h-[80px]" : "w-[100px] h-[100px]"
+            } border rounded-lg hover:bg-gray-100 cursor-pointer svg_size flex-shrink-0`}
             style={{ backgroundColor: svgBgColor }}
             onClick={() => onPitchSelect(svg)}
           >

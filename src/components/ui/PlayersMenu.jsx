@@ -7,6 +7,7 @@ const PlayersMenu = ({
   activeColorIndex,
   onColorSelect,
   onDragStart,
+  isMobile,
 }) => {
   const { playerColor } = useSvg();
   const players = Array.from({ length: 14 }, (_, i) => i + 1);
@@ -20,11 +21,17 @@ const PlayersMenu = ({
         activeIndex={activeColorIndex}
         onSelect={onColorSelect}
       />
-      <div className="flex gap-2 flex-wrap justify-center">
+      <div
+        className={`flex gap-2 ${
+          isMobile ? "flex-nowrap overflow-x-auto" : "flex-wrap justify-center"
+        }`}
+      >
         {[...players, ...letters].map((p) => (
           <div
             key={p}
-            className="flex items-center justify-center w-10 h-10 rounded-full cursor-pointer"
+            className={`flex items-center justify-center ${
+              isMobile ? "w-8 h-8" : "w-10 h-10"
+            } rounded-full cursor-pointer flex-shrink-0`}
             style={{
               backgroundColor: playerColor,
               color: colors[activeColorIndex].line,
@@ -35,7 +42,9 @@ const PlayersMenu = ({
               const svgContent = `<svg width="100" height="100" xmlns="http://www.w3.org/2000/svg"><circle cx="50" cy="50" r="40" fill="${playerColor}" stroke="${colors[activeColorIndex].line}" stroke-width="2"/><text x="50" y="55" text-anchor="middle" fill="${colors[activeColorIndex].line}" font-size="30">${p}</text></svg>`;
               e.dataTransfer.setData("text/plain", text);
               const dragData = {
-                src: `data:image/svg+xml;utf8,${encodeURIComponent(svgContent)}`,
+                src: `data:image/svg+xml;utf8,${encodeURIComponent(
+                  svgContent
+                )}`,
                 name: text,
                 type: "player",
                 text: p,

@@ -1,0 +1,125 @@
+/* src/shared/Sidebar/MobileFooter.module.css */
+.mobileFooter {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 5rem;
+  color: #fff;
+  font-size: 1rem;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+  padding: 0;
+  background: #22274a;
+  overflow: hidden;
+  box-shadow: 0 -6.7px 5.3px rgba(0, 0, 0, 0.12),
+    0 -22.3px 17.9px rgba(0, 0, 0, 0.08), 0 -100px 80px rgba(0, 0, 0, 0.04);
+  z-index: 1000;
+}
+
+.mobileFooter a {
+  position: relative;
+  overflow: hidden;
+  width: calc(100% / 6); /* Adjusted for 6 items */
+  height: 100%;
+  display: inline-block;
+  float: left;
+  padding: 0;
+  color: currentColor;
+  line-height: 12;
+  font-size: 0.725em;
+  text-align: center;
+  text-decoration: none;
+  text-indent: -9999rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  will-change: background, line-height;
+  transition: background 0.15s ease-in-out, line-height 0.2s ease 0.2s;
+}
+
+.mobileFooter a:hover,
+.mobileFooter a:focus {
+  background-color: rgba(128, 128, 128, 0.3);
+}
+
+.mobileFooter a:hover svg,
+.mobileFooter a:focus svg {
+  transform: scale(1.25);
+  opacity: 0.6;
+}
+
+.mobileFooter a:focus,
+.mobileFooter a:active {
+  outline: none;
+}
+
+.mobileFooter a:focus svg,
+.mobileFooter a:active svg {
+  opacity: 0.8;
+}
+
+.mobileFooter a:active svg {
+  opacity: 1;
+}
+
+.mobileFooter a svg {
+  position: absolute;
+  fill: currentColor;
+  top: calc(30% + 2.5px);
+  left: 30%;
+  width: 40%;
+  height: 40%;
+  transform: scale(1);
+  transform-origin: center;
+  will-change: opacity, transform, top;
+  transition: opacity 0.2s ease, transform 0.2s ease, top 0.2s ease;
+  opacity: 0.4;
+  pointer-events: none;
+}
+
+.mobileFooter a.active {
+  background-color: rgba(128, 128, 128, 0.15);
+  text-indent: 0;
+  line-height: 10;
+  transition-delay: 0s, 0s, 0s;
+}
+
+.mobileFooter a.active svg {
+  top: calc(17.5% + 2.5px);
+  transform-origin: center bottom;
+  opacity: 1;
+}
+
+.mobileFooter a.active:hover,
+.mobileFooter a.active:focus,
+.mobileFooter a.active:active {
+  transform: scale(1);
+}
+
+.mobileFooter a.traversing svg {
+  transition-delay: 0s, 0s, 0s;
+  animation: 0.15s traversing ease-out both;
+}
+
+.line {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: auto;
+  height: 5px;
+  text-indent: -9999rem;
+  transform: translateX(-50%);
+  border-radius: 2.5px;
+  background: currentColor;
+  transition: left 0.5s ease-out;
+  z-index: 10;
+}
+
+@keyframes traversing {
+  0% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0.4;
+  }
+}

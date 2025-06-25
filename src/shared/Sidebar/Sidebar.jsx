@@ -15,6 +15,9 @@ import PlayersMenu from "../../components/ui/PlayersMenu";
 import LinesMenu from "../../components/ui/LinesMenu";
 import ShapeMenu from "../../components/ui/ShapeMenu";
 import { ReactSVG } from "react-svg";
+import MobileFooter from "./MobileFooter";
+import MobileMenu from "./MobileMenu";
+import { useWindowSize } from "../../hooks/useWindowSize";
 
 // Importing the SVG icons for the menu buttons
 import Pitch from "../../assets/SidebarIcons/Pitch.svg";
@@ -54,6 +57,8 @@ const Sidebar = () => {
   const [activePlayerColorIndex, setActivePlayerColorIndex] = useState(0);
   const [activeLineColorIndex, setActiveLineColorIndex] = useState(0);
   const [activeShapeColorIndex, setActiveShapeColorIndex] = useState(0);
+
+  const { width } = useWindowSize();
 
   const pitchColorCombinations = useMemo(
     () => [
@@ -190,11 +195,9 @@ const Sidebar = () => {
     setEquipmentLineColor(line);
   };
 
-  // Drag handler for NEW items that should be added to Quick Access
   const handleDragStartAndAddToQuickAccess = useCallback(
     (dragData) => {
       setDraggedEquipmentSrc(dragData);
-      // Players are not added to quick access
       if (dragData.type !== "player") {
         addQuickAccessItem(dragData);
       }
@@ -202,11 +205,9 @@ const Sidebar = () => {
     [setDraggedEquipmentSrc, addQuickAccessItem]
   );
 
-  // Drag handler for items dragged FROM Quick Access
   const handleQuickAccessDragStart = useCallback(
     (dragData) => {
       setDraggedEquipmentSrc(dragData);
-      // Do NOT add the item to the quick access list again
     },
     [setDraggedEquipmentSrc]
   );
@@ -272,7 +273,6 @@ const Sidebar = () => {
           />
         );
       case "quickAccess":
-        // Use the new handler for items dragged from Quick Access
         return <QuickAccessMenu onDragStart={handleQuickAccessDragStart} />;
       case "players":
         return (
@@ -314,6 +314,20 @@ const Sidebar = () => {
         return null;
     }
   };
+
+  if (width < 800) {
+    return (
+      <>
+        <MobileFooter menuItems={menuItems} onMenuClick={handleMenuClick} />
+        <MobileMenu
+          activeMenu={activeMenu}
+          onClose={() => setActiveMenu(null)}
+        >
+          {renderMenu()}
+        </MobileMenu>
+      </>
+    );
+  }
 
   return (
     <div className="h-screen w-max p-14 relative">

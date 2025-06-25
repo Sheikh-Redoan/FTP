@@ -34,3 +34,17 @@
     height: 100% !important;
     object-fit: contain !important;
 }
+
+
+@media (min-width: 100px) and (max-width: 800px) { 
+    .item_div div{
+        width: 70px !important;
+        height: 70px !important;
+        display: flex !important;
+        padding: 0 4px 0 !important;
+    }
+    .item_div div span{
+        display: none;
+        visibility: hidden;
+    }
+ }

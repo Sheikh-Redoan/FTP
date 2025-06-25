@@ -1,3 +1,4 @@
+// src/components/ui/EquipmentMenu.jsx
 import { useState, useEffect, useCallback, useMemo } from "react";
 import ColorPicker from "./ColorPicker";
 import DragItem from "../common/DragItem";
@@ -24,6 +25,7 @@ const EquipmentMenu = ({
   activeColorIndex,
   onColorSelect,
   onDragStart,
+  isMobile,
 }) => {
   const [svgContents, setSvgContents] = useState({});
 
@@ -32,7 +34,11 @@ const EquipmentMenu = ({
       { id: 100, component: Player, name: "Player" },
       { id: 101, component: Football, name: "Football" },
       { id: 102, component: OpponentWithPerspective, name: "Opponent" },
-      { id: 103, component: PlayerWithPerspective, name: "Player With Perspective" },
+      {
+        id: 103,
+        component: PlayerWithPerspective,
+        name: "Player With Perspective",
+      },
       { id: 104, component: Player2, name: "Player 2" },
       { id: 105, component: Player3, name: "Player 3" },
       { id: 106, component: Cone, name: "Cone" },
@@ -84,8 +90,13 @@ const EquipmentMenu = ({
         colors={colors}
         activeIndex={activeColorIndex}
         onSelect={onColorSelect}
+        containerClassName ={"flex justify-center items-start gap-4 flex-wrap mb-8 max-[800px]:flex max-[800px]:flex-wrap max-[800px]:overflow-y-scroll max-[800px]:gap-3 max-[800px]:max-h-[100px] max-[800px]:py-[10px]"}
       />
-      <div className="flex flex-col items-center gap-2">
+      <div
+        className={`flex ${
+          isMobile ? "flex-nowrap overflow-x-auto" : "flex-col"
+        } items-center gap-2 max-[800px]:flex-row max-[800px]:overflow-x-scroll  item_div max-[800px]:h-max`}
+      >
         {equipmentAssets.map((eq) => (
           <DragItem
             key={eq.id}
@@ -94,6 +105,7 @@ const EquipmentMenu = ({
             onDragStart={onDragStart}
             beforeInjection={beforeEquipmentSvgInjection}
             displaySvgContent={svgContents[eq.id]}
+            isMobile={isMobile}
           />
         ))}
       </div>

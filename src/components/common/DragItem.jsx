@@ -13,6 +13,7 @@ const DragItem = ({
   displaySvgContent,
   IconComponent,
   type = "equipment",
+  isMobile,
 }) => {
   // If we have specific SVG content (from Quick Access), create a data URL for it.
   // Otherwise, fall back to the original SVG source file path.
@@ -36,9 +37,15 @@ const DragItem = ({
         e.dataTransfer.setData("text/plain", name);
         onDragStart(dragData);
       }}
-      className="flex flex-col items-center gap-1 w-full" 
+      className={`flex flex-col items-center gap-1 ${
+        isMobile ? "w-20" : "w-full"
+      } flex-shrink-0`}
     >
-      <div className="flex justify-center items-center p-1 w-full h-[100px] border rounded-lg hover:bg-gray-100 cursor-pointer">
+      <div
+        className={`flex justify-center items-center p-1 w-full ${
+          isMobile ? "h-20" : "h-[100px]"
+        } border rounded-lg hover:bg-gray-100 cursor-pointer`}
+      >
         {IconComponent ? (
           <IconComponent className="text-4xl text-gray-700" />
         ) : (
