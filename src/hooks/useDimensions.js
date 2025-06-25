@@ -4,18 +4,28 @@ export const useDimensions = (ref) => {
   const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
 
   useEffect(() => {
-    const updateDimensions = () => {
-      if (ref.current) {
-        setDimensions({
-          width: ref.current.offsetWidth,
-          height: ref.current.offsetHeight,
-        });
-      }
-    };
+    if (ref.current) {
+      // Use ResizeObserver to detect size changes of the container
+      const observer = new ResizeObserver((entries) => {
+        if (entries[0]) {
+          const { width, height } = entries[0].contentRect;
+          // Update dimensions state only when they have actually changed
+          setDimensions((prevDimensions) => {
+            if (prevDimensions.width !== width || prevDimensions.height !== height) {
+              return { width, height };
+            }
+            return prevDimensions;
+          });
+        }
+      });
 
-    updateDimensions();
-    window.addEventListener("resize", updateDimensions);
-    return () => window.removeEventListener("resize", updateDimensions);
+      observer.observe(ref.current);
+
+      // Cleanup by disconnecting the observer when the component unmounts
+      return () => {
+        observer.disconnect();
+      };
+    }
   }, [ref]);
 
   return dimensions;

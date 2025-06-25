@@ -212,20 +212,22 @@ const handleDrop = (e) => {
     }, [setAddEquipment, width, height, setDroppedEquipment]);
 
     return (
-        <div
-            className="w-full h-[80vh] flex justify-center items-center bg-white relative"
-            onDragOver={(e) => e.preventDefault()}
-            onDrop={handleDrop}
+          <div
+            className="w-full h-[80vh]"
             ref={containerRef}
         >
-            <Stage
-                width={width}
-                height={height}
-                ref={stageRef}
-                onMouseDown={(e) => e.target === e.target.getStage() && setSelectedId(null)}
-                onTouchStart={(e) => e.target === e.target.getStage() && setSelectedId(null)}
-                className="absolute top-0 left-0"
+            <div 
+              className="absolute inset-0" 
+              onDragOver={(e) => e.preventDefault()}
+              onDrop={handleDrop}
             >
+              <Stage
+                  width={width}
+                  height={height}
+                  ref={stageRef}
+                  onMouseDown={(e) => e.target === e.target.getStage() && setSelectedId(null)}
+                  onTouchStart={(e) => e.target === e.target.getStage() && setSelectedId(null)}
+              >
                 <Layer>
                     {pitch && <KonvaPitchImage pitch={pitch} width={width} height={height} />}
                     {droppedEquipment.map((item) => {
@@ -259,6 +261,7 @@ const handleDrop = (e) => {
                     ))}
                 </Layer>
             </Stage>
+            </div>
 
             <KonvaToolbar
                 selectedEquipment={selectedEquipment}
@@ -275,13 +278,16 @@ const handleDrop = (e) => {
                 onTextResize={(e) => handleToolbarAction({ fontSize: parseInt(e.target.value, 10) })}
             />
 
-            {!pitch && droppedEquipment.length === 0 && (
-                <h1 className="text-3xl font-bold text-gray-400">
-                    Select a pitch or drag equipment here
-                </h1>
+             {!pitch && droppedEquipment.length === 0 && (
+                <div className="absolute inset-0 flex justify-center items-center pointer-events-none">
+                    <h1 className="text-3xl font-bold text-gray-400">
+                        Select a pitch or drag equipment here
+                    </h1>
+                </div>
             )}
         </div>
     );
 };
+
 
 export default Home;
