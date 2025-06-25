@@ -85,7 +85,7 @@ const EquipmentMenu = ({
   );
 
   return (
-    <div className="p-2  flex justify-between items-center gap-7">
+    <div className="p-2  max-[800px]:flex max-[800px]:justify-between max-[800px]:items-center max-[800px]:gap-7">
       <ColorPicker
         colors={colors}
         activeIndex={activeColorIndex}

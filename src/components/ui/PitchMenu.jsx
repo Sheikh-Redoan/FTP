@@ -41,19 +41,17 @@ const PitchMenu = ({
   };
 
   return (
-    <div className="p-2">
+    <div className="p-2 max-[800px]:flex max-[800px]:justify-between max-[800px]:items-center max-[800px]:gap-7">
       <ColorPicker
         colors={colors}
         activeIndex={activeColorIndex}
         onSelect={onColorSelect}
-        containerClassName={`flex ${
-          isMobile ? "justify-start" : "justify-center"
-        } items-center gap-4 flex-wrap mb-4`}
+        containerClassName ={"flex justify-center items-start gap-4 flex-wrap mb-8 max-[800px]:flex max-[800px]:flex-wrap max-[800px]:overflow-y-scroll max-[800px]:gap-3 max-[800px]:max-h-[100px] max-[800px]:py-[10px]"}
       />
       <div
         className={`flex ${
           isMobile ? "flex-nowrap overflow-x-auto" : "flex-wrap justify-center"
-        } gap-4`}
+        } gap-4 max-[800px]:flex max-[800px]:flex-nowrap max-[800px]:overflow-x-scroll max-[800px]:w-max max-[800px]:justify-start max-[800px]:items-center `}
       >
         {pitchSvgComponents.map((svg) => (
           <div
