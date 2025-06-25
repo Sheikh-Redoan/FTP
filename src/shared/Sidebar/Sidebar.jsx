@@ -124,7 +124,7 @@ const Sidebar = () => {
         lineHeight: 1.2,
       };
       addEquipment(newTextProps, "text");
-      setActiveMenu(null); // Close any open menu
+      setActiveMenu(null); 
     } else {
       setActiveMenu(activeMenu === menu ? null : menu);
     }

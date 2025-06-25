@@ -56,9 +56,8 @@ const EquipmentMenu = ({
   useEffect(() => {
     const loadSvgContents = async () => {
       const newContents = {};
-      const { line } = colors[activeColorIndex]; // Get only the line color
+      const { line } = colors[activeColorIndex];
       for (const eq of equipmentAssets) {
-        // Use 'transparent' for the fill color
         newContents[eq.id] = await getColoredSvgString(
           eq.component,
           "transparent",
@@ -72,13 +71,13 @@ const EquipmentMenu = ({
 
   const beforeEquipmentSvgInjection = useCallback(
     (svg) => {
-      const { line } = colors[activeColorIndex]; // Get only the line color
+      const { line } = colors[activeColorIndex]; 
       const elements = svg.querySelectorAll(
         "path, line, polyline, polygon, rect, circle"
       );
       elements.forEach((el) => {
         el.setAttribute("stroke", line);
-        el.setAttribute("fill", "transparent"); // Set fill to transparent
+        el.setAttribute("fill", "transparent"); 
       });
     },
     [activeColorIndex, colors]

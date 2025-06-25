@@ -15,8 +15,6 @@ const DragItem = ({
   type = "equipment",
   isMobile,
 }) => {
-  // If we have specific SVG content (from Quick Access), create a data URL for it.
-  // Otherwise, fall back to the original SVG source file path.
   const svgSrc = displaySvgContent
     ? createDataUrl(displaySvgContent)
     : IconComponent
@@ -49,7 +47,6 @@ const DragItem = ({
         {IconComponent ? (
           <IconComponent className="text-4xl text-gray-700" />
         ) : (
-          // When using a data URL, we don't need the beforeInjection hook.
           <ReactSVG
             src={svgSrc}
             beforeInjection={displaySvgContent ? undefined : beforeInjection}

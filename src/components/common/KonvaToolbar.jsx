@@ -39,7 +39,6 @@ const KonvaToolbar = ({
   const isLocked = isSelected && selectedEquipment.locked;
   const isText = isSelected && selectedEquipment.type === "text";
 
-  // Toolbar is now always visible, with buttons disabled based on selection state.
   return (
     <div
       className={`absolute bottom-[-50px] left-1/2 -translate-x-1/2 w-max rounded-lg flex items-center gap-2 z-50 p-2 max-[800px]:flex-col max-[800px]:left-[10%] max-[800px]:p-5 max-[800px]:w-[80px] glasseffect-toolbar min-[800px]:bottom-0 ${

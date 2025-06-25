@@ -24,7 +24,7 @@ const LinesMenu = ({ colors, activeColorIndex, onColorSelect, onLineAdd }) => {
     { id: 1, name: "Fieldmarker", svg: Fieldmarker, type: 'line' },
     { id: 2, name: "Fieldmarker dotted", svg: FieldmarkerDotted, type: 'line' },
     
-    // Other items remain as they were
+    
     { id: 3, name: "Fieldmarker curved", svg: FieldmarkerCurved, type: 'line' },
     { id: 4, name: "Passing or finishing", svg: Passing, type: 'line' },
     { id: 5, name: "Run", svg: Run, type: 'line' },
