@@ -86,7 +86,7 @@ const MobileFooter = ({ menuItems, onMenuClick }) => {
   }, [menuItems, onMenuClick]);
 
   return (
-    <nav className={styles.mobileFooter} role="menulist" ref={navRef}>
+    <nav className={`${styles.mobileFooter} !bg-white !text-black`} role="menulist" ref={navRef}>
       {menuItems.map((item, index) => (
         <a
           href="#!"

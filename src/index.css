@@ -1,71 +1,113 @@
 @import "tailwindcss";
 
-.svg_size .svg_div div{
-    width: 100% ;
-    height: 100%;
+* {
+  -ms-overflow-style: none !important; /* Internet Explorer 10+ */
+  scrollbar-width: none !important; /* Firefox, Safari 18.2+, Chromium 121+ */
+}
+*::-webkit-scrollbar {
+  display: none !important; /* Older Safari and Chromium */
 }
 
-.svg_size .svg_div div svg{
-    width: 100% ;
-    height: 100%;
-    object-fit: cover;
-    stroke-width: 10px;
+.svg_size .svg_div div {
+  width: 100%;
+  height: 100%;
 }
 
-.line-menu-icon div svg{
-    width: 100%;
-    height: 100%;
-    object-fit: contain;
+.svg_size .svg_div div svg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  stroke-width: 10px;
 }
 
-.quick div div div div svg{
-    width: 100%;
-    height: 100%;
-    object-fit: contain;
+.line-menu-icon div svg {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
 }
 
-.svg_size_fixer{
-    width: 100% !important;
-    height: 100% !important;
+.quick div div div div svg {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
 }
 
-.svg_size_fixer div{
-    width: 100% !important;
-    height: 100% !important;
-    object-fit: contain !important;
+.svg_size_fixer {
+  width: 100% !important;
+  height: 100% !important;
 }
 
+.svg_size_fixer div {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: contain !important;
+}
 
-@media (min-width: 100px) and (max-width: 800px) { 
-    .item_div div{
-        width: 70px !important;
-        height: 70px !important;
-        display: flex !important;
-        padding: 0 4px 0 !important;
-    }
-    .item_div div span{
-        display: none;
-        visibility: hidden;
-    }
- }
+@media (min-width: 100px) and (max-width: 800px) {
+  .item_div div {
+    width: 70px !important;
+    height: 70px !important;
+    display: flex !important;
+    padding: 0 4px 0 !important;
+  }
+  .item_div div span {
+    display: none;
+    visibility: hidden;
+  }
+}
 
-@media (min-width: 100px) and (max-width: 800px) { 
-    .quick div{
-        width: 70px !important;
-        height: 70px !important;
-        display: flex !important;
-        padding: 0 4px 0 !important;
-    }
-    .quick div span{
-        display: none;
-        visibility: hidden;
-    }
- }
+@media (min-width: 100px) and (max-width: 800px) {
+  .quick div {
+    width: 70px !important;
+    height: 70px !important;
+    display: flex !important;
+    padding: 0 4px 0 !important;
+  }
+  .quick div span {
+    display: none;
+    visibility: hidden;
+  }
+}
 
- @media (min-width: 100px) and (max-width: 800px) { 
-    .item_div div {
-        width: 70px !important;
-        height: 70px !important;
-        font-size: 24px !important;
-    }
+@media (min-width: 100px) and (max-width: 800px) {
+  .item_div div {
+    width: 70px !important;
+    height: 70px !important;
+    font-size: 24px !important;
+  }
+}
+
+@media (min-width: 100px) and (max-width: 800px) {
+  .line-menu-icon div svg {
+    scale: 1;
+  }
+  .span-text-line {
+    font-size: 12px;
+  }
+
+  .glasseffect {
+    background: rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+    border-radius: 20px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1),
+      inset 0 1px 0 rgba(255, 255, 255, 0.5),
+      inset 0 -1px 0 rgba(255, 255, 255, 0.1),
+      inset 0 0 0px 0px rgba(255, 255, 255, 0);
+  }
+  .glasseffect-toolbar {
+    background: rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+    border-radius: 20px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1),
+      inset 0 1px 0 rgba(255, 255, 255, 0.5),
+      inset 0 -1px 0 rgba(255, 255, 255, 0.1),
+      inset 0 0 0px 0px rgba(255, 255, 255, 0);
+  }
+  .list-item {
+    width: 40px;
+    height: 80px;
+    display: list-item;
+  }
 }

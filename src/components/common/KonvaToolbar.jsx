@@ -41,7 +41,7 @@ const KonvaToolbar = ({
 
   // Toolbar is now always visible, with buttons disabled based on selection state.
   return (
-    <div className="absolute bottom-[-50px] left-1/2 -translate-x-1/2 w-max rounded-lg flex items-center gap-2 z-50p-2">
+    <div className="absolute bottom-[-50px] left-1/2 -translate-x-1/2 w-max rounded-lg flex items-center gap-2 z-50p-2 max-[800px]:bottom-[5%] max-[800px]:flex-col max-[800px]:left-[10%] max-[800px]:h-[560px] max-[800px]:p-5 max-[800px]:w-[80px] glasseffect-toolbar">
       <ToolbarButton onClick={onUndo} disabled={!canUndo} label="Undo">
         <IoReturnUpBackOutline className="text-xl text-blue-500 group-hover:text-white" />
       </ToolbarButton>
@@ -84,7 +84,7 @@ const KonvaToolbar = ({
       {/* Color picker and resize slider for text */}
       {isText && (
         <>
-          <div className="h-8 w-px bg-gray-400 mx-1" />
+          <div className="h-8 w-px bg-gray-400 mx-1 max-[800px]:hidden" />
           {textColors && (
             <ColorPicker
               colors={textColors}
@@ -92,12 +92,12 @@ const KonvaToolbar = ({
                 (c) => c.line === selectedEquipment.fill
               )}
               onSelect={onTextColorChange}
-              containerClassName="flex items-center gap-1 p-2 rounded-lg"
+              containerClassName="flex items-center gap-1 p-2 rounded-lg max-[800px]:flex-col max-[800px]:h-[50px] max-[800px]:overflow-y-scroll max-[800px]:justify-center list-item"
             />
           )}
-          <div className="h-8 w-px bg-gray-400 mx-1" />
-          <div className="flex items-center gap-2 p-2 rounded-lg">
-            <span className="text-xs text-gray-700">Size</span>
+          <div className="h-8 w-px bg-gray-400 mx-1 max-[800px]:hidden" />
+          <div className="flex items-center gap-2 p-2 rounded-lg max-[800px]:rotate-270 max-[800px]:translate-y-[50px]">
+            <span className="text-xs text-gray-700 max-[800px]:rotate-90">Size</span>
             <input
               type="range"
               min="10"

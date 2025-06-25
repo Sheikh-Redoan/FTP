@@ -76,7 +76,7 @@ const RightSidebar = () => {
     <>
       {/* Toggle Button - Only visible on small screens */}
       <button 
-        className={`sidebar-toggle fixed z-40 top-4 right-4 p-3 rounded-full bg-blue-600 text-white shadow-lg transition-all duration-300 hover:bg-blue-700 ${
+        className={`sidebar-toggle fixed z-40 top-4 right-4 p-3 rounded-full bg-blue-600 text-white shadow-lg transition-all duration-300 hover:bg-blue-700 max-[800px]:top-10 ${
           window.innerWidth >= 1330 ? "hidden" : ""
         }`}
         onClick={() => setIsSidebarOpen(!isSidebarOpen)}

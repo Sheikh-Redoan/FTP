@@ -61,27 +61,28 @@ const LinesMenu = ({ colors, activeColorIndex, onColorSelect, onLineAdd }) => {
   };
 
   return (
-    <div>
-      <h3 className="text-lg font-bold mb-4">Lines</h3>
+    <div className="max-[800px]:flex">
+      <h3 className="text-lg font-bold mb-4 max-[800px]:hidden">Lines</h3>
       <ColorPicker
         colors={colors}
         activeIndex={activeColorIndex}
         onSelect={onColorSelect}
+        containerClassName ={"flex justify-center items-start gap-4 flex-wrap mb-8 max-[800px]:flex max-[800px]:flex-wrap max-[800px]:overflow-y-scroll max-[800px]:gap-3 max-[800px]:max-h-[100px] max-[800px]:py-[10px]"}
       />
-      <div className="flex flex-col items-center gap-2">
+      <div className="flex flex-col items-center gap-2 max-[800px]:flex-row max-[800px]:overflow-x-scroll">
         {lineItems.map((item) => (
           <div
             key={item.id}
-            className="flex flex-col items-center gap-1 w-full p-2 border rounded-lg hover:bg-gray-100 cursor-pointer"
+            className="flex flex-col items-center gap-1 w-full p-2 border rounded-lg hover:bg-gray-100 cursor-pointer max-[800px]:!w-[100px] max-[800px]:!h-[100px] max-[800px]:justify-evenly  max-[800px]:items-center max-[800px]:gap-3 max-[800px]:pt-1 max-[800px]:pb-1 max-[800px]:box-border"
             onClick={() => handleAddLine(item)}
             title={item.name}
           >
             <ReactSVG
               src={item.svg}
               beforeInjection={beforeInjection}
-              className="w-full h-auto line-menu-icon"
+              className="w-full h-auto line-menu-icon max-[800px]:w-[60px]"
             />
-            <span className="text-sm text-center w-full">{item.name}</span>
+            <span className="text-sm text-center w-full span-text-line">{item.name}</span>
           </div>
         ))}
       </div>
