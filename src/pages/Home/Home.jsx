@@ -212,7 +212,7 @@ const handleDrop = (e) => {
     const handleWheel = (e) => {
         e.evt.preventDefault();
         if (e.evt.ctrlKey) {
-            const scaleBy = 1.05;
+            const scaleBy = 1.2;
             const stageInstance = e.target.getStage();
             const oldScale = stageInstance.scaleX();
             const pointer = stageInstance.getPointerPosition();
@@ -398,8 +398,8 @@ const handleDrop = (e) => {
             />
 
              {!pitch && droppedEquipment.length === 0 && (
-                <div className="absolute inset-0 flex justify-center items-center pointer-events-none">
-                    <h1 className="text-3xl font-bold text-gray-400">
+                <div className="absolute inset-0 flex justify-center items-center pointer-events-none w-full">
+                    <h1 className="text-3xl font-bold text-gray-400 text-center max-[800px]:mx-[20px]">
                         Select a pitch or drag equipment here
                     </h1>
                 </div>
