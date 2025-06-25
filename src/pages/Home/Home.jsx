@@ -120,8 +120,10 @@ const handleDrop = (e) => {
     dataUrl,
     x: position.x,
     y: position.y,
-    width: svgWidth, 
+    width: svgWidth,
     height: svgHeight,
+    offsetX: svgWidth / 2, // Add this for centered rotation
+    offsetY: svgHeight / 2, // Add this for centered rotation
     rotation: 0,
     locked: false,
     scaleX: 1,
@@ -135,6 +137,7 @@ const handleDrop = (e) => {
   setDraggedEquipmentSrc(null);
   setSelectedId(newId);
 };
+
 
     const handleDragStart = (e) => {
         const id = e.target.id();
@@ -201,13 +204,21 @@ const handleDrop = (e) => {
         }
     };
 
-    const handleRotate = () => {
-        if (selectedEquipment && !selectedEquipment.locked) {
-            handleToolbarAction({ rotation: (selectedEquipment.rotation + 45) % 360 });
-        } else if (!selectedEquipment) {
-            setStageRotation((prevRotation) => (prevRotation + 45) % 360);
-        }
-    };
+const handleRotate = () => {
+    if (selectedEquipment && !selectedEquipment.locked) {
+        handleToolbarAction({ rotation: (selectedEquipment.rotation + 45) % 360 });
+    } else if (!selectedEquipment) {
+        const stage = stageRef.current;
+        const currentRotation = stage.rotation();
+        const newRotation = (currentRotation + 45) % 360;
+        stage.rotation(newRotation);
+
+        const stageWidth = stage.width();
+        const stageHeight = stage.height();
+        stage.offsetX(stageWidth / 2);
+        stage.offsetY(stageHeight / 2);
+    }
+};
 
     const handleWheel = (e) => {
         e.evt.preventDefault();
@@ -280,35 +291,47 @@ const handleDrop = (e) => {
         setLastDist(0);
     };
     
-    useEffect(() => {
-        const addEquipmentToStage = (item, type, dimensions) => {
-            const newId = Date.now().toString();
-            if (type === "text") {
-                const newText = { id: newId, x: width / 2 - 100, y: height / 2 - 50, rotation: 0, locked: false, name: "object", ...item };
-                setDroppedEquipment(prev => [...prev, newText]);
-                setSelectedId(newId);
-            } else {
-                const dataUrl = createSvgDataUrl(item);
-                const newEquipment = {
-                  id: newId,
-                  dataUrl,
-                  x: width / 2 - 50,
-                  y: height / 2 - 50,
-                  width: dimensions ? dimensions.width : 100,
-                  height: dimensions ? dimensions.height : 100,
-                  rotation: 0,
-                  locked: false,
-                  scaleX: 1,
-                  scaleY: 1,
-                  type: type,
-                  name: "object",
-                };
-                setDroppedEquipment(prev => [...prev, newEquipment]);
-                setSelectedId(newId);
-            }
-        };
-        setAddEquipment(() => addEquipmentToStage);
-    }, [setAddEquipment, width, height, setDroppedEquipment]);
+useEffect(() => {
+    const addEquipmentToStage = (item, type, dimensions) => {
+        const newId = Date.now().toString();
+        if (type === "text") {
+            const newText = {
+                id: newId,
+                x: width / 2,
+                y: height / 2,
+                rotation: 0,
+                locked: false,
+                name: "object",
+                ...item,
+                offsetX: item.width / 2, // for centered rotation
+                offsetY: item.height / 2, // for centered rotation
+            };
+            setDroppedEquipment(prev => [...prev, newText]);
+            setSelectedId(newId);
+        } else {
+            const dataUrl = createSvgDataUrl(item);
+            const newEquipment = {
+              id: newId,
+              dataUrl,
+              x: width / 2,
+              y: height / 2,
+              width: dimensions ? dimensions.width : 100,
+              height: dimensions ? dimensions.height : 100,
+              offsetX: dimensions ? dimensions.width / 2 : 50, // for centered rotation
+              offsetY: dimensions ? dimensions.height / 2 : 50, // for centered rotation
+              rotation: 0,
+              locked: false,
+              scaleX: 1,
+              scaleY: 1,
+              type: type,
+              name: "object",
+            };
+            setDroppedEquipment(prev => [...prev, newEquipment]);
+            setSelectedId(newId);
+        }
+    };
+    setAddEquipment(() => addEquipmentToStage);
+}, [setAddEquipment, width, height, setDroppedEquipment]);
 
     return (
           <div

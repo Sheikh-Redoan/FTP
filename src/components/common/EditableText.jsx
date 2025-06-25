@@ -7,7 +7,6 @@ const EditableText = ({
   isSelected,
   onSelect,
   onChange,
-  onTransform,
   onDragStart,
   onDragMove,
   onDragEnd,
@@ -91,20 +90,30 @@ const EditableText = ({
         onDragMove={onDragMove}
         onDragEnd={onDragEnd}
         onTransformEnd={(e) => {
-            const node = shapeRef.current;
-            if (node) {
-              const scaleX = node.scaleX();
-              const scaleY = node.scaleY();
-              onTransform({
-                ...shapeProps,
-                x: node.x(),
-                y: node.y(),
-                scaleX: scaleX,
-                scaleY: scaleY,
-                rotation: node.rotation(),
-              });
-            }
-          }}
+          const node = shapeRef.current;
+          if (node) {
+            const scaleX = node.scaleX();
+            const scaleY = node.scaleY();
+            node.scaleX(1);
+            node.scaleY(1);
+
+            const newWidth = Math.max(5, node.width() * scaleX);
+            const newHeight = Math.max(5, node.height() * scaleY);
+
+            onChange({
+              ...shapeProps,
+              x: node.x(),
+              y: node.y(),
+              width: newWidth,
+              height: newHeight,
+              offsetX: newWidth / 2, // for centered rotation
+              offsetY: newHeight / 2, // for centered rotation
+              rotation: node.rotation(),
+              scaleX: 1,
+              scaleY: 1,
+            });
+          }
+        }}
         visible={!isEditing}
       />
       {isSelected && !isEditing && !shapeProps.locked && (

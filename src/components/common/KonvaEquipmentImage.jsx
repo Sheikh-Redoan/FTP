@@ -26,11 +26,10 @@ const KonvaEquipmentImage = ({
 
   // The getEnabledAnchors function is removed to allow all resize handles.
 
-  const handleTransformEnd = () => {
+const handleTransformEnd = () => {
     const node = shapeRef.current;
     if (!node) return;
 
-    // No longer treating lines specially, allowing them to resize like any other shape
     const newWidth = node.width() * node.scaleX();
     const newHeight = node.height() * node.scaleY();
 
@@ -43,6 +42,8 @@ const KonvaEquipmentImage = ({
       y: node.y(),
       width: newWidth,
       height: newHeight,
+      offsetX: newWidth / 2, // Recalculate offset for centered rotation
+      offsetY: newHeight / 2, // Recalculate offset for centered rotation
       rotation: node.rotation(),
       scaleX: 1,
       scaleY: 1,
