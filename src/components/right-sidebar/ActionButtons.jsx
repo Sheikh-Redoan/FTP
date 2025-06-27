@@ -3,9 +3,12 @@ import { FaChevronDown } from "react-icons/fa";
 import { HiArrowPath } from "react-icons/hi2";
 import { BsFiletypePdf } from "react-icons/bs";
 import { PiShareFat } from "react-icons/pi";
+import { useSvg } from '../../context/SvgContext'; // Import useSvg
 
 const ActionButtons = ({ exportFunctions }) => {
     const [isSaveAsDropdownOpen, setIsSaveAsDropdownOpen] = useState(false);
+    const [isDrillDropdownOpen, setIsDrillDropdownOpen] = useState(false);
+    const { drills, addDrill, switchDrill, activeDrillIndex } = useSvg();
 
     return (
         <div className="flex justify-between items-start mb-10">
@@ -50,9 +53,39 @@ const ActionButtons = ({ exportFunctions }) => {
                         </div>
                     )}
                 </div>
-                <div className="w-56 h-16 bg-slate-200 rounded-2xl border border-blue-900 flex items-center justify-between px-4 max-[1330px]:w-40 max-[1330px]:h-10">
-                    <span className="text-lg font-medium">Drill</span>
-                    <FaChevronDown />
+                <div className="relative">
+                    <button
+                        onClick={() => setIsDrillDropdownOpen(!isDrillDropdownOpen)}
+                        className="w-56 h-16 bg-slate-200 rounded-2xl border border-blue-900 flex items-center justify-between px-4 max-[1330px]:w-40 max-[1330px]:h-10"
+                    >
+                        <span className="text-lg font-medium">{drills[activeDrillIndex].name}</span>
+                        <FaChevronDown />
+                    </button>
+                    {isDrillDropdownOpen && (
+                        <div className="absolute top-full mt-2 w-56 bg-white border rounded shadow-lg z-10 max-[1330px]:w-40">
+                            {drills.map((drill, index) => (
+                                <button
+                                    key={index}
+                                    onClick={() => {
+                                        switchDrill(index);
+                                        setIsDrillDropdownOpen(false);
+                                    }}
+                                    className="block w-full text-left px-4 py-2 hover:bg-gray-100"
+                                >
+                                    {drill.name}
+                                </button>
+                            ))}
+                            <button
+                                onClick={() => {
+                                    addDrill();
+                                    setIsDrillDropdownOpen(false);
+                                }}
+                                className="block w-full text-left px-4 py-2 hover:bg-gray-100 font-bold"
+                            >
+                                Add Drill
+                            </button>
+                        </div>
+                    )}
                 </div>
             </div>
             <div className="flex flex-col gap-4">

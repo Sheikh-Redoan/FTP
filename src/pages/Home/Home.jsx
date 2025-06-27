@@ -3,7 +3,6 @@ import { Stage, Layer, Line } from "react-konva";
 import Konva from "konva";
 import { useSvg } from "../../context/SvgContext";
 import { useDimensions } from "../../hooks/useDimensions";
-import { useHistory } from "../../hooks/useHistory";
 import {
   getLineGuideStops,
   getObjectSnappingEdges,
@@ -44,12 +43,17 @@ const Home = () => {
         setAddEquipment,
         setExportFunctions,
         getNotesDeltaFunc,
+        droppedEquipment,
+        setDroppedEquipment,
+        undo,
+        redo,
+        canUndo,
+        canRedo
     } = useSvg();
     const containerRef = useRef(null);
     const stageRef = useRef(null);
     const { width, height } = useDimensions(containerRef);
 
-    const [droppedEquipment, setDroppedEquipment, undo, redo, canUndo, canRedo] = useHistory([]);
     const [selectedId, setSelectedId] = useState(null);
     const [guides, setGuides] = useState([]);
     const [stageRotation, setStageRotation] = useState(0);
