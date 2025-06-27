@@ -14,21 +14,28 @@ export const useDrillManager = () => {
         setDrills(prevDrills => {
             const newDrills = [...prevDrills];
             const activeDrill = newDrills[activeDrillIndex];
-            const { history, historyIndex } = activeDrill;
 
+            // Create a new drill object to avoid mutation
+            const newActiveDrill = { ...activeDrill };
+
+            const { history, historyIndex } = newActiveDrill;
             const currentDroppedEquipment = history[historyIndex];
             const newDroppedEquipment = typeof action === 'function' ? action(currentDroppedEquipment) : action;
 
             if (overwrite) {
                 const newHistory = [...history];
                 newHistory[historyIndex] = newDroppedEquipment;
-                activeDrill.history = newHistory;
+                newActiveDrill.history = newHistory;
             } else {
                 const newHistory = history.slice(0, historyIndex + 1);
                 newHistory.push(newDroppedEquipment);
-                activeDrill.history = newHistory;
-                activeDrill.historyIndex = newHistory.length - 1;
+                newActiveDrill.history = newHistory;
+                newActiveDrill.historyIndex = newHistory.length - 1;
             }
+
+            // Replace the old drill object with the new one
+            newDrills[activeDrillIndex] = newActiveDrill;
+
             return newDrills;
         });
     }, [activeDrillIndex]);
@@ -38,7 +45,8 @@ export const useDrillManager = () => {
             const newDrills = [...prevDrills];
             const activeDrill = newDrills[activeDrillIndex];
             if (activeDrill.historyIndex > 0) {
-                activeDrill.historyIndex--;
+                const newActiveDrill = { ...activeDrill, historyIndex: activeDrill.historyIndex - 1 };
+                newDrills[activeDrillIndex] = newActiveDrill;
             }
             return newDrills;
         });
@@ -49,7 +57,8 @@ export const useDrillManager = () => {
             const newDrills = [...prevDrills];
             const activeDrill = newDrills[activeDrillIndex];
             if (activeDrill.historyIndex < activeDrill.history.length - 1) {
-                activeDrill.historyIndex++;
+                const newActiveDrill = { ...activeDrill, historyIndex: activeDrill.historyIndex + 1 };
+                newDrills[activeDrillIndex] = newActiveDrill;
             }
             return newDrills;
         });
