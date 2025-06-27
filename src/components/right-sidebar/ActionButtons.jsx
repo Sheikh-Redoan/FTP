@@ -3,6 +3,8 @@ import { FaChevronDown } from "react-icons/fa";
 import { HiArrowPath } from "react-icons/hi2";
 import { BsFiletypePdf } from "react-icons/bs";
 import { PiShareFat } from "react-icons/pi";
+import { FiPlus } from "react-icons/fi";
+import { SiGamescience } from "react-icons/si";
 import { useSvg } from '../../context/SvgContext'; // Import useSvg
 
 const ActionButtons = ({ exportFunctions }) => {
@@ -70,9 +72,9 @@ const ActionButtons = ({ exportFunctions }) => {
                                         switchDrill(index);
                                         setIsDrillDropdownOpen(false);
                                     }}
-                                    className="block w-full text-left px-4 py-2 hover:bg-gray-100"
+                                    className="w-full text-left px-4 py-2 hover:bg-gray-100 flex justify-Start items-center gap-2"
                                 >
-                                    {drill.name}
+                                    <SiGamescience /> {drill.name}
                                 </button>
                             ))}
                             <button
@@ -80,9 +82,9 @@ const ActionButtons = ({ exportFunctions }) => {
                                     addDrill();
                                     setIsDrillDropdownOpen(false);
                                 }}
-                                className="block w-full text-left px-4 py-2 hover:bg-gray-100 font-bold"
+                                className="w-full text-left px-4 py-2 hover:bg-gray-100 font-bold flex justify-Start items-center gap-2"
                             >
-                                Add Drill
+                                <FiPlus /> Add Drill
                             </button>
                         </div>
                     )}

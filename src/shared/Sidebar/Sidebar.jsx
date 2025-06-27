@@ -43,7 +43,7 @@ const Sidebar = () => {
     setEquipmentLineColor,
     setPlayerColor,
     setDraggedEquipmentSrc,
-    setPitch,
+    setDrillPitch, // Use the new function
     setLineColor,
     lineColor,
     addEquipment,
@@ -139,7 +139,7 @@ const Sidebar = () => {
       svgLineColor
     );
     const dataUrl = createSvgDataUrl(modifiedSvgString);
-    setPitch({
+    setDrillPitch({ // Use setDrillPitch
       id: `pitch-${svg.id}`,
       dataUrl,
       x: 0,
@@ -160,7 +160,7 @@ const Sidebar = () => {
         line
       );
       const dataUrl = createSvgDataUrl(modifiedSvgString);
-      setPitch({
+      setDrillPitch({ // Use setDrillPitch
         id: `pitch-${selectedSvg.id}`,
         dataUrl,
         x: 0,
@@ -330,7 +330,7 @@ const Sidebar = () => {
   }
 
   return (
-    <div className="h-screen w-max p-14 relative">
+    <div className="h-screen w-max p-14 relative min-[800px]:overflow-y-scroll min-[800px]:h-[100%]">
       <div className="flex flex-col gap-5">
         {menuItems.map((item) => (
           <MenuButton

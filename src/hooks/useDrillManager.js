@@ -1,9 +1,12 @@
 import { useState, useCallback } from 'react';
 
+// Updated initial state to include pitch and notes
 const initialDrillState = {
     name: "Drill 1",
     history: [[]],
     historyIndex: 0,
+    pitch: null,
+    notes: { ops: [] }, // Default empty Quill delta
 };
 
 export const useDrillManager = () => {
@@ -13,29 +16,22 @@ export const useDrillManager = () => {
     const setDroppedEquipment = useCallback((action, overwrite = false) => {
         setDrills(prevDrills => {
             const newDrills = [...prevDrills];
-            const activeDrill = newDrills[activeDrillIndex];
-
-            // Create a new drill object to avoid mutation
-            const newActiveDrill = { ...activeDrill };
-
-            const { history, historyIndex } = newActiveDrill;
+            const activeDrill = { ...newDrills[activeDrillIndex] };
+            const { history, historyIndex } = activeDrill;
             const currentDroppedEquipment = history[historyIndex];
             const newDroppedEquipment = typeof action === 'function' ? action(currentDroppedEquipment) : action;
 
             if (overwrite) {
                 const newHistory = [...history];
                 newHistory[historyIndex] = newDroppedEquipment;
-                newActiveDrill.history = newHistory;
+                activeDrill.history = newHistory;
             } else {
                 const newHistory = history.slice(0, historyIndex + 1);
                 newHistory.push(newDroppedEquipment);
-                newActiveDrill.history = newHistory;
-                newActiveDrill.historyIndex = newHistory.length - 1;
+                activeDrill.history = newHistory;
+                activeDrill.historyIndex = newHistory.length - 1;
             }
-
-            // Replace the old drill object with the new one
-            newDrills[activeDrillIndex] = newActiveDrill;
-
+            newDrills[activeDrillIndex] = activeDrill;
             return newDrills;
         });
     }, [activeDrillIndex]);
@@ -64,9 +60,36 @@ export const useDrillManager = () => {
         });
     }, [activeDrillIndex]);
 
+    // Function to set the pitch for the active drill
+    const setDrillPitch = useCallback((pitch) => {
+        setDrills(prevDrills => {
+            const newDrills = [...prevDrills];
+            const newActiveDrill = { ...newDrills[activeDrillIndex], pitch: pitch };
+            newDrills[activeDrillIndex] = newActiveDrill;
+            return newDrills;
+        });
+    }, [activeDrillIndex]);
+
+    // Function to set the notes for the active drill
+    const setDrillNotes = useCallback((notes) => {
+        setDrills(prevDrills => {
+            const newDrills = [...prevDrills];
+            const newActiveDrill = { ...newDrills[activeDrillIndex], notes: notes };
+            newDrills[activeDrillIndex] = newActiveDrill;
+            return newDrills;
+        });
+    }, [activeDrillIndex]);
+
     const addDrill = () => {
         const newDrillName = `Drill ${drills.length + 1}`;
-        const newDrill = { name: newDrillName, history: [[]], historyIndex: 0 };
+        // Add new properties to a new drill
+        const newDrill = { 
+            name: newDrillName, 
+            history: [[]], 
+            historyIndex: 0,
+            pitch: null,
+            notes: { ops: [] }
+        };
         setDrills([...drills, newDrill]);
         setActiveDrillIndex(drills.length);
     };
@@ -80,12 +103,15 @@ export const useDrillManager = () => {
     return {
         drills,
         activeDrillIndex,
+        activeDrill, // Expose the entire active drill object
         addDrill,
         switchDrill,
         droppedEquipment: activeDrill ? activeDrill.history[activeDrill.historyIndex] : [],
         setDroppedEquipment,
         undo,
         redo,
+        setDrillPitch, // Expose the new function
+        setDrillNotes, // Expose the new function
         canUndo: activeDrill ? activeDrill.historyIndex > 0 : false,
         canRedo: activeDrill ? activeDrill.history.length - 1 > activeDrill.historyIndex : false,
     };

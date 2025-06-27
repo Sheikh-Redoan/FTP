@@ -21,7 +21,7 @@ const loadScript = (src) => {
 };
 
 const RightSidebar = () => {
-  const { exportFunctions, setGetNotesDeltaFunc } = useSvg();
+  const { exportFunctions, activeDrill, setDrillNotes } = useSvg();
   const [quillInstance, setQuillInstance] = useState(null);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const quillRef = useRef(null);
@@ -39,16 +39,38 @@ const RightSidebar = () => {
     };
     loadDependencies();
   }, []);
-
-  // Provide the function to get notes delta to the context once Quill is ready
+  
+  // Effect to LOAD notes into the editor when the drill changes
   useEffect(() => {
-    if (setGetNotesDeltaFunc && quillRef.current) {
-      const getNotesDelta = () => {
-        return quillRef.current ? quillRef.current.getContents() : null;
-      };
-      setGetNotesDeltaFunc(() => getNotesDelta);
-    }
-  }, [setGetNotesDeltaFunc, quillInstance]);
+      if (quillInstance && activeDrill) {
+          // Check if the content is different to avoid unnecessary updates
+          // and cursor jumping.
+          const editorContent = JSON.stringify(quillInstance.getContents());
+          const drillNotesContent = JSON.stringify(activeDrill.notes);
+
+          if (editorContent !== drillNotesContent) {
+              quillInstance.setContents(activeDrill.notes);
+          }
+      }
+  }, [activeDrill, quillInstance]);
+
+  // Effect to SAVE notes from the editor on text-change
+  useEffect(() => {
+      if (quillInstance) {
+          const handler = (delta, oldDelta, source) => {
+              if (source === 'user') {
+                  const contents = quillInstance.getContents();
+                  setDrillNotes(contents);
+              }
+          };
+          quillInstance.on('text-change', handler);
+
+          return () => {
+              quillInstance.off('text-change', handler);
+          };
+      }
+  }, [quillInstance, setDrillNotes]);
+
 
   // Close sidebar when clicking outside on mobile
   useEffect(() => {
@@ -106,3 +128,4 @@ const RightSidebar = () => {
 };
 
 export default RightSidebar;
+// 

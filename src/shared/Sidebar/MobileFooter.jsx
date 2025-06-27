@@ -1,89 +1,33 @@
-// src/shared/Sidebar/MobileFooter.jsx
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import styles from "./MobileFooter.module.css";
 
 const MobileFooter = ({ menuItems, onMenuClick }) => {
   const navRef = useRef(null);
+  const lineRef = useRef(null);
+  const [activeIndex, setActiveIndex] = useState(0);
 
+  // This effect runs whenever the activeIndex changes,
+  // positioning the line under the active menu item.
   useEffect(() => {
     const nav = navRef.current;
-    if (!nav) return;
+    const line = lineRef.current;
+    if (!nav || !line) return;
 
-    let a = 0;
-    let c = 0;
-    let i = 1;
-    const links = nav.getElementsByTagName("a");
-    let line = nav.querySelector(`.${styles.line}`);
+    // Find the currently active link based on the state
+    const activeLink = nav.querySelector(`a:nth-child(${activeIndex + 1})`);
 
-    if (!line) {
-      line = document.createElement("i");
-      line.setAttribute("aria-hidden", "true");
-      line.className = styles.line;
-      line.innerHTML = "current";
-      nav.appendChild(line);
-    }
-
-    line.id = "nav-current";
-    if (!line.innerHTML.length) line.innerHTML = "current";
-
-    const place = (l, link) => {
-      link.setAttribute("aria-describedby", l.id || "nav-current");
-      l.style.width = `${link.offsetWidth}px`;
-      l.style.left = `${link.offsetLeft + link.offsetWidth / 2}px`;
-    };
-
-    const clickHandler = (e, index) => {
-      e.preventDefault();
-      a = index;
-      const t = setInterval(() => {
-        if (links[c]) {
-          links[c].classList.remove(styles.traversing);
-          links[c].classList.remove(styles.active);
-        }
-        if (a > c) i = 1;
-        else if (a < c) i = -1;
-        c += i;
-        if (links[c]) {
-          links[c].classList.add(styles.traversing);
-        }
-        if (c !== -1 && links[c - i]) {
-          links[c - i].classList.remove(styles.active);
-        }
-        if (c === a) {
-          if (e.target) {
-            e.target.classList.remove(styles.traversing);
-            e.target.classList.add(styles.active);
-          }
-          i = 0;
-          clearInterval(t);
-        }
-      }, 100);
-      place(line, e.target);
-      onMenuClick(links[index].dataset.menu);
-    };
-
-    const linkListeners = [];
-    Array.from(links).forEach((link, index) => {
-      link.removeAttribute("aria-describedby");
-      if (link.classList.contains(styles.active)) {
-        place(line, link);
-      }
-      const listener = (e) => clickHandler(e, index);
-      link.addEventListener("click", listener);
-      linkListeners.push({ link, listener });
-    });
-
-    const activeLink = nav.querySelector(`.${styles.active}`);
     if (activeLink) {
-      place(line, activeLink);
+      line.style.width = `${activeLink.offsetWidth}px`;
+      line.style.left = `${activeLink.offsetLeft + activeLink.offsetWidth / 2}px`;
     }
+    // We add menuItems to the dependency array to recalculate if they ever change.
+  }, [activeIndex, menuItems]);
 
-    return () => {
-      linkListeners.forEach(({ link, listener }) => {
-        link.removeEventListener("click", listener);
-      });
-    };
-  }, [menuItems, onMenuClick]);
+  const handleMenuClick = (e, index, menuName) => {
+    e.preventDefault();
+    setActiveIndex(index);
+    onMenuClick(menuName);
+  };
 
   return (
     <nav className={`${styles.mobileFooter} !bg-white !text-black`} role="menulist" ref={navRef}>
@@ -91,15 +35,22 @@ const MobileFooter = ({ menuItems, onMenuClick }) => {
         <a
           href="#!"
           role="menuitem"
-          className={index === 0 ? styles.active : ""}
+          // The 'active' class is now controlled by React state
+          className={index === activeIndex ? styles.active : ""}
           key={item.name}
-          data-menu={item.name}
+          // The onClick handler is simplified
+          onClick={(e) => handleMenuClick(e, index, item.name)}
         >
           <item.icon className={styles.icon} />
           {item.label}
         </a>
       ))}
-      <i className={styles.line} id="nav-current">
+      <i
+        ref={lineRef} // We use a ref to get a direct reference to the line element
+        className={styles.line}
+        id="nav-current"
+        aria-hidden="true"
+      >
         current item
       </i>
     </nav>

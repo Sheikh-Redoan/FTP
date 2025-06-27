@@ -37,12 +37,11 @@ function getCenter(p1, p2) {
 
 const Home = () => {
     const {
-        pitch,
+        activeDrill, // Get the whole activeDrill object
         draggedEquipmentSrc,
         setDraggedEquipmentSrc,
         setAddEquipment,
         setExportFunctions,
-        getNotesDeltaFunc,
         droppedEquipment,
         setDroppedEquipment,
         undo,
@@ -53,6 +52,8 @@ const Home = () => {
     const containerRef = useRef(null);
     const stageRef = useRef(null);
     const { width, height } = useDimensions(containerRef);
+
+    const pitch = activeDrill?.pitch; // Get pitch from the active drill
 
     const [selectedId, setSelectedId] = useState(null);
     const [guides, setGuides] = useState([]);
@@ -75,14 +76,15 @@ const Home = () => {
         { bg: "#6B7280", line: "#6B7280" },
     ], []);
 
+    // Updated to get notes from the active drill
     const handleExportPDF = useCallback(async () => {
-        if (!stageRef.current || !getNotesDeltaFunc) {
+        if (!stageRef.current) {
             console.error("PDF export dependencies are not ready.");
             return;
         }
-        const notesDelta = getNotesDeltaFunc();
+        const notesDelta = activeDrill?.notes;
         exportToPdf(stageRef.current, notesDelta, width, height);
-    }, [getNotesDeltaFunc, width, height]);
+    }, [activeDrill, width, height]);
 
     const handleExportImage = useCallback((format) => {
         exportToImage(stageRef.current, format);

@@ -14,7 +14,6 @@ export const SvgProvider = ({ children }) => {
     const [equipmentLineColor, setEquipmentLineColor] = useState("#D4DA65");
     const [playerColor, setPlayerColor] = useState("#FDE100");
     const [draggedEquipmentSrc, setDraggedEquipmentSrc] = useState(null);
-    const [pitch, setPitch] = useState(null);
     const [lineColor, setLineColor] = useState("#FDE100");
     const [addEquipment, setAddEquipment] = useState(() => () => {
         console.error("addEquipment function not yet implemented");
@@ -27,13 +26,10 @@ export const SvgProvider = ({ children }) => {
         pdf: () => console.log("Export to PDF not implemented"),
     });
 
-    const [getNotesDeltaFunc, setGetNotesDeltaFunc] = useState(null);
-
-
     return (
         <SvgContext.Provider
             value={{
-                ...drillManager,
+                ...drillManager, // Pass all drillManager props
                 selectedSvg,
                 setSelectedSvg,
                 svgBgColor,
@@ -50,8 +46,6 @@ export const SvgProvider = ({ children }) => {
                 setPlayerColor,
                 draggedEquipmentSrc,
                 setDraggedEquipmentSrc,
-                pitch,
-                setPitch,
                 lineColor,
                 setLineColor,
                 addEquipment,
@@ -60,8 +54,6 @@ export const SvgProvider = ({ children }) => {
                 addQuickAccessItem,
                 exportFunctions,
                 setExportFunctions,
-                getNotesDeltaFunc,
-                setGetNotesDeltaFunc,
             }}
         >
             {children}
