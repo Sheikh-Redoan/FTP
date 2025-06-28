@@ -9,6 +9,7 @@ const DragItem = ({
   src,
   name,
   onDragStart,
+  onClick,
   beforeInjection,
   displaySvgContent,
   IconComponent,
@@ -20,18 +21,19 @@ const DragItem = ({
     : IconComponent
     ? `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"></svg>`
     : src;
+  const dragData = {
+    src,
+    name,
+    type,
+    content: displaySvgContent,
+    IconComponent,
+  };
 
   return (
     <div
+      onClick={() => onClick && onClick(dragData)}
       draggable
       onDragStart={(e) => {
-        const dragData = {
-          src,
-          name,
-          type,
-          content: displaySvgContent,
-          IconComponent,
-        };
         e.dataTransfer.setData("text/plain", name);
         onDragStart(dragData);
       }}

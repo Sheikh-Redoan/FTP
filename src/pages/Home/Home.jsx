@@ -97,7 +97,7 @@ const Home = () => {
             pdf: handleExportPDF,
         });
     }, [setExportFunctions, handleExportImage, handleExportPDF]);
-    
+
     const handleItemChange = (newAttrs) => {
         const items = droppedEquipment.map((item) => {
             if (item.id === newAttrs.id) {
@@ -108,41 +108,41 @@ const Home = () => {
         setDroppedEquipment(items, true);
     };
 
-const handleDrop = (e) => {
-  e.preventDefault();
-  if (!draggedEquipmentSrc) return;
+    const handleDrop = (e) => {
+      e.preventDefault();
+      if (!draggedEquipmentSrc) return;
 
-  stageRef.current.setPointersPositions(e);
-  const position = stageRef.current.getPointerPosition();
+      stageRef.current.setPointersPositions(e);
+      const position = stageRef.current.getPointerPosition();
 
-  const { width: svgWidth, height: svgHeight } = getSvgDimensions(
-    draggedEquipmentSrc.content
-  );
-  const dataUrl = createSvgDataUrl(draggedEquipmentSrc.content);
-  const newId = Date.now().toString();
+      const { width: svgWidth, height: svgHeight } = getSvgDimensions(
+        draggedEquipmentSrc.content
+      );
+      const dataUrl = createSvgDataUrl(draggedEquipmentSrc.content);
+      const newId = Date.now().toString();
 
-  const newEquipment = {
-    id: newId,
-    dataUrl,
-    x: position.x,
-    y: position.y,
-    width: svgWidth,
-    height: svgHeight,
-    offsetX: svgWidth / 2, // Add this for centered rotation
-    offsetY: svgHeight / 2, // Add this for centered rotation
-    rotation: 0,
-    locked: false,
-    scaleX: 1,
-    scaleY: 1,
-    type: draggedEquipmentSrc.type,
-    text: draggedEquipmentSrc.text,
-    name: "object",
-  };
+      const newEquipment = {
+        id: newId,
+        dataUrl,
+        x: position.x,
+        y: position.y,
+        width: svgWidth,
+        height: svgHeight,
+        offsetX: svgWidth / 2, // Add this for centered rotation
+        offsetY: svgHeight / 2, // Add this for centered rotation
+        rotation: 0,
+        locked: false,
+        scaleX: 1,
+        scaleY: 1,
+        type: draggedEquipmentSrc.type,
+        text: draggedEquipmentSrc.text,
+        name: "object",
+      };
 
-  setDroppedEquipment((prev) => [...prev, newEquipment]);
-  setDraggedEquipmentSrc(null);
-  setSelectedId(newId);
-};
+      setDroppedEquipment((prev) => [...prev, newEquipment]);
+      setDraggedEquipmentSrc(null);
+      setSelectedId(newId);
+    };
 
 
     const handleDragStart = (e) => {
@@ -187,8 +187,8 @@ const handleDrop = (e) => {
 
     const handleToolbarAction = (newAttrs) => {
         if (!selectedEquipment) return;
-        setDroppedEquipment(prev => 
-            prev.map(item => 
+        setDroppedEquipment(prev =>
+            prev.map(item =>
                 item.id === selectedId ? { ...item, ...newAttrs } : item
             )
         );
@@ -210,21 +210,21 @@ const handleDrop = (e) => {
         }
     };
 
-const handleRotate = () => {
-    if (selectedEquipment && !selectedEquipment.locked) {
-        handleToolbarAction({ rotation: (selectedEquipment.rotation + 45) % 360 });
-    } else if (!selectedEquipment) {
-        const stage = stageRef.current;
-        const currentRotation = stage.rotation();
-        const newRotation = (currentRotation + 45) % 360;
-        stage.rotation(newRotation);
+    const handleRotate = () => {
+        if (selectedEquipment && !selectedEquipment.locked) {
+            handleToolbarAction({ rotation: (selectedEquipment.rotation + 45) % 360 });
+        } else if (!selectedEquipment) {
+            const stage = stageRef.current;
+            const currentRotation = stage.rotation();
+            const newRotation = (currentRotation + 45) % 360;
+            stage.rotation(newRotation);
 
-        const stageWidth = stage.width();
-        const stageHeight = stage.height();
-        stage.offsetX(stageWidth / 2);
-        stage.offsetY(stageHeight / 2);
-    }
-};
+            const stageWidth = stage.width();
+            const stageHeight = stage.height();
+            stage.offsetX(stageWidth / 2);
+            stage.offsetY(stageHeight / 2);
+        }
+    };
 
     const handleWheel = (e) => {
         e.evt.preventDefault();
@@ -248,7 +248,7 @@ const handleRotate = () => {
             });
         }
     };
-    
+
     const handleTouchMove = (e) => {
         const touch1 = e.evt.touches[0];
         const touch2 = e.evt.touches[1];
@@ -296,56 +296,60 @@ const handleRotate = () => {
     const handleTouchEnd = () => {
         setLastDist(0);
     };
-    
-useEffect(() => {
-    const addEquipmentToStage = (item, type, dimensions) => {
-        const newId = Date.now().toString();
-        if (type === "text") {
-            const newText = {
-                id: newId,
-                x: width / 2,
-                y: height / 2,
-                rotation: 0,
-                locked: false,
-                name: "object",
-                ...item,
-                offsetX: item.width / 2, // for centered rotation
-                offsetY: item.height / 2, // for centered rotation
-            };
-            setDroppedEquipment(prev => [...prev, newText]);
-            setSelectedId(newId);
-        } else {
-            const dataUrl = createSvgDataUrl(item);
-            const newEquipment = {
-              id: newId,
-              dataUrl,
-              x: width / 2,
-              y: height / 2,
-              width: dimensions ? dimensions.width : 100,
-              height: dimensions ? dimensions.height : 100,
-              offsetX: dimensions ? dimensions.width / 2 : 50, // for centered rotation
-              offsetY: dimensions ? dimensions.height / 2 : 50, // for centered rotation
-              rotation: 0,
-              locked: false,
-              scaleX: 1,
-              scaleY: 1,
-              type: type,
-              name: "object",
-            };
-            setDroppedEquipment(prev => [...prev, newEquipment]);
-            setSelectedId(newId);
-        }
-    };
-    setAddEquipment(() => addEquipmentToStage);
-}, [setAddEquipment, width, height, setDroppedEquipment]);
+
+    useEffect(() => {
+        const addEquipmentToStage = (item, type, dimensions) => {
+            const newId = Date.now().toString();
+            if (type === "text") {
+                const newText = {
+                    id: newId,
+                    x: width / 2,
+                    y: height / 2,
+                    rotation: 0,
+                    locked: false,
+                    name: "object",
+                    ...item,
+                    offsetX: item.width / 2, // for centered rotation
+                    offsetY: item.height / 2, // for centered rotation
+                };
+                setDroppedEquipment(prev => [...prev, newText]);
+                setSelectedId(newId);
+            } else {
+                const dataUrl = type === 'player' ? item.src : createSvgDataUrl(item);
+                const itemWidth = type === 'player' ? 100 : (dimensions ? dimensions.width : 100);
+                const itemHeight = type === 'player' ? 100 : (dimensions ? dimensions.height : 100);
+
+                const newEquipment = {
+                  id: newId,
+                  dataUrl,
+                  x: width / 2,
+                  y: height / 2,
+                  width: itemWidth,
+                  height: itemHeight,
+                  offsetX: itemWidth / 2,
+                  offsetY: itemHeight / 2,
+                  rotation: 0,
+                  locked: false,
+                  scaleX: 1,
+                  scaleY: 1,
+                  type: type,
+                  name: "object",
+                  text: type === 'player' ? item.text : undefined
+                };
+                setDroppedEquipment(prev => [...prev, newEquipment]);
+                setSelectedId(newId);
+            }
+        };
+        setAddEquipment(() => addEquipmentToStage);
+    }, [setAddEquipment, width, height, setDroppedEquipment]);
 
     return (
           <div
             className="w-full h-[80vh]"
             ref={containerRef}
         >
-            <div 
-              className="absolute inset-0" 
+            <div
+              className="absolute inset-0"
               onDragOver={(e) => e.preventDefault()}
               onDrop={handleDrop}
             >

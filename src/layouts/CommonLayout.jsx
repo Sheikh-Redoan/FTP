@@ -6,9 +6,9 @@ import RightSidebar from "../shared/RightSidebar/RightSidebar";
 
 const CommonLayout = () => {
   return (
-    <div className="flex flex-col h-screen overflow-hidden">
+    <div className="flex flex-col h-screen">
       <Navbar />
-      <main className="flex flex-1 overflow-hidden">
+      <main className="flex flex-1">
         <Sidebar />
         <div className="flex-1 w-full h-full relative">
           <Outlet />

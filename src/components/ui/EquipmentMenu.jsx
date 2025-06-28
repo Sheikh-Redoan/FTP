@@ -25,6 +25,7 @@ const EquipmentMenu = ({
   activeColorIndex,
   onColorSelect,
   onDragStart,
+  onClick,
   isMobile,
 }) => {
   const [svgContents, setSvgContents] = useState({});
@@ -71,13 +72,13 @@ const EquipmentMenu = ({
 
   const beforeEquipmentSvgInjection = useCallback(
     (svg) => {
-      const { line } = colors[activeColorIndex]; 
+      const { line } = colors[activeColorIndex];
       const elements = svg.querySelectorAll(
         "path, line, polyline, polygon, rect, circle"
       );
       elements.forEach((el) => {
         el.setAttribute("stroke", line);
-        el.setAttribute("fill", "transparent"); 
+        el.setAttribute("fill", "transparent");
       });
     },
     [activeColorIndex, colors]
@@ -89,7 +90,7 @@ const EquipmentMenu = ({
         colors={colors}
         activeIndex={activeColorIndex}
         onSelect={onColorSelect}
-        containerClassName ={"flex justify-center items-start gap-4 flex-wrap mb-8 max-[800px]:flex max-[800px]:flex-wrap max-[800px]:overflow-y-scroll max-[800px]:gap-3 max-[800px]:max-h-[100px] max-[800px]:py-[10px]"}
+        containerClassName={"flex justify-center items-start gap-4 flex-wrap mb-8 max-[800px]:flex max-[800px]:flex-wrap max-[800px]:overflow-y-scroll max-[800px]:gap-3 max-[800px]:max-h-[100px] max-[800px]:py-[10px]"}
       />
       <div
         className={`flex ${
@@ -102,6 +103,7 @@ const EquipmentMenu = ({
             src={eq.component}
             name={eq.name}
             onDragStart={onDragStart}
+            onClick={onClick}
             beforeInjection={beforeEquipmentSvgInjection}
             displaySvgContent={svgContents[eq.id]}
             isMobile={isMobile}

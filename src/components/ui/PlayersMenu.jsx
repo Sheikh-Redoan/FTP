@@ -7,6 +7,7 @@ const PlayersMenu = ({
   activeColorIndex,
   onColorSelect,
   onDragStart,
+  onClick,
   isMobile,
 }) => {
   const { playerColor } = useSvg();
@@ -29,36 +30,39 @@ const PlayersMenu = ({
           isMobile ? "flex-nowrap overflow-x-auto" : "flex-wrap justify-center"
         } gap-2 max-[800px]:flex-row max-[800px]:overflow-x-scroll item_div max-[800px]:h-max max-[800px]:flex-nowrap max-[800px]:justify-start `}
       >
-        {[...players, ...letters].map((p) => (
-          <div
-            key={p}
-            className={`flex items-center justify-center ${
-              isMobile ? "w-8 h-8" : "w-10 h-10"
-            } rounded-full cursor-pointer flex-shrink-0 max-[800px]:!w-[50px] max-[800px]:!h-[50px]`}
-            style={{
-              backgroundColor: playerColor,
-              color: colors[activeColorIndex].line,
-            }}
-            draggable
-            onDragStart={(e) => {
-              const text = `Player ${p}`;
-              const svgContent = `<svg width="100" height="100" xmlns="http://www.w3.org/2000/svg"><circle cx="50" cy="50" r="40" fill="${playerColor}" stroke="${colors[activeColorIndex].line}" stroke-width="2"/><text x="50" y="55" text-anchor="middle" fill="${colors[activeColorIndex].line}" font-size="30">${p}</text></svg>`;
-              e.dataTransfer.setData("text/plain", text);
-              const dragData = {
-                src: `data:image/svg+xml;utf8,${encodeURIComponent(
-                  svgContent
-                )}`,
-                name: text,
-                type: "player",
-                text: p,
-                content: svgContent,
-              };
-              onDragStart(dragData);
-            }}
-          >
-            {p}
-          </div>
-        ))}
+        {[...players, ...letters].map((p) => {
+          const text = `Player ${p}`;
+          const svgContent = `<svg width="100" height="100" xmlns="http://www.w3.org/2000/svg"><circle cx="50" cy="50" r="40" fill="${playerColor}" stroke="${colors[activeColorIndex].line}" stroke-width="2"/><text x="50" y="55" text-anchor="middle" fill="${colors[activeColorIndex].line}" font-size="30">${p}</text></svg>`;
+          const dragData = {
+            src: `data:image/svg+xml;utf8,${encodeURIComponent(
+              svgContent
+            )}`,
+            name: text,
+            type: "player",
+            text: p,
+            content: svgContent,
+          };
+          return (
+            <div
+              key={p}
+              className={`flex items-center justify-center ${
+                isMobile ? "w-8 h-8" : "w-10 h-10"
+              } rounded-full cursor-pointer flex-shrink-0 max-[800px]:!w-[50px] max-[800px]:!h-[50px]`}
+              style={{
+                backgroundColor: playerColor,
+                color: colors[activeColorIndex].line,
+              }}
+              onClick={() => onClick && onClick(dragData)}
+              draggable
+              onDragStart={(e) => {
+                e.dataTransfer.setData("text/plain", text);
+                onDragStart(dragData);
+              }}
+            >
+              {p}
+            </div>
+          );
+        })}
       </div>
     </div>
   );

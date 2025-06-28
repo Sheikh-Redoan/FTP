@@ -2,7 +2,7 @@
 import DragItem from "../common/DragItem";
 import { useSvg } from "../../context/SvgContext"; // Import useSvg hook
 
-const QuickAccessMenu = ({ onDragStart }) => {
+const QuickAccessMenu = ({ onDragStart, onClick, isMobile }) => {
   // Get quick access items from context
   const { quickAccessItems } = useSvg();
 
@@ -17,13 +17,17 @@ const QuickAccessMenu = ({ onDragStart }) => {
               src={item.src}
               name={item.name}
               onDragStart={onDragStart}
+              onClick={onClick}
               IconComponent={item.IconComponent}
               displaySvgContent={item.content}
               type={item.type}
+              isMobile={isMobile}
             />
           ))
         ) : (
-          <p className="text-gray-500 text-center">Your recently used items will appear here.</p>
+          <p className="text-gray-500 text-center">
+            Your recently used items will appear here.
+          </p>
         )}
       </div>
     </div>

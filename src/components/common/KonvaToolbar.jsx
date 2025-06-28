@@ -41,10 +41,10 @@ const KonvaToolbar = ({
 
   return (
     <div
-      className={`absolute bottom-[-50px] left-1/2 -translate-x-1/2 w-max rounded-lg flex items-center gap-2 z-50 p-2 max-[800px]:flex-col max-[800px]:left-[10%] max-[800px]:p-5 max-[800px]:w-[80px] glasseffect-toolbar min-[800px]:bottom-0 ${
+      className={`absolute !bottom-[8.76rem] left-1/2 -translate-x-1/2 w-max rounded-lg flex items-center gap-2 z-50 p-2 max-[800px]:flex-col max-[800px]:left-[10%] max-[800px]:p-5 max-[800px]:w-[80px] glasseffect-toolbar min-[800px]:bottom-0 ${
         isText
           ? "max-[800px]:h-[560px] max-[800px]:bottom-[20%]"
-          : "max-[800px]:h-max max-[800px]:bottom-[35%]"
+          : "max-[800px]:h-max max-[800px]:!bottom-[14.76rem]"
       }`}
     >
       <ToolbarButton onClick={onUndo} disabled={!canUndo} label="Undo">

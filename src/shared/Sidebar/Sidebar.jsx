@@ -9,6 +9,7 @@ import {
   getModifiedSvgString,
   createSvgDataUrl,
   getColoredSvgString,
+  getSvgDimensions,
 } from "../../utils/svgUtils";
 import QuickAccessMenu from "../../components/ui/QuickAccessMenu";
 import PlayersMenu from "../../components/ui/PlayersMenu";
@@ -43,7 +44,7 @@ const Sidebar = () => {
     setEquipmentLineColor,
     setPlayerColor,
     setDraggedEquipmentSrc,
-    setDrillPitch, // Use the new function
+    setDrillPitch,
     setLineColor,
     lineColor,
     addEquipment,
@@ -52,58 +53,58 @@ const Sidebar = () => {
 
   const [activeMenu, setActiveMenu] = useState(null);
   const [activePitchColorIndex, setActivePitchColorIndex] = useState(0);
-  const [activeEquipmentColorIndex, setActiveEquipmentColorIndex] =
-    useState(0);
+  const [activeEquipmentColorIndex, setActiveEquipmentColorIndex] = useState(0);
   const [activePlayerColorIndex, setActivePlayerColorIndex] = useState(0);
   const [activeLineColorIndex, setActiveLineColorIndex] = useState(0);
   const [activeShapeColorIndex, setActiveShapeColorIndex] = useState(0);
 
   const { width } = useWindowSize();
+  const isMobile = width < 800;
 
   const pitchColorCombinations = useMemo(
     () => [
-      { bg: "#00A859", line: "#FFFFFF" },
-      { bg: "#FFFFFF", line: "#0055A4" },
-      { bg: "#FFFFFF", line: "#000000" },
-      { bg: "#0055A4", line: "#FF0000" },
+        { bg: "#00A859", line: "#FFFFFF" },
+        { bg: "#FFFFFF", line: "#0055A4" },
+        { bg: "#FFFFFF", line: "#000000" },
+        { bg: "#0055A4", line: "#FF0000" },
     ],
     []
   );
 
   const equipmentColorCombinations = useMemo(
     () => [
-      { bg: "#D4DA65", line: "#D4DA65" },
-      { bg: "#22274A", line: "#22274A" },
-      { bg: "#DC052D", line: "#DC052D" },
-      { bg: "#6CABDD", line: "#6CABDD" },
-      { bg: "#FDE100", line: "#FDE100" },
+        { bg: "#D4DA65", line: "#D4DA65" },
+        { bg: "#22274A", line: "#22274A" },
+        { bg: "#DC052D", line: "#DC052D" },
+        { bg: "#6CABDD", line: "#6CABDD" },
+        { bg: "#FDE100", line: "#FDE100" },
     ],
     []
   );
 
   const lineColorCombinations = useMemo(
     () => [
-      { bg: "#FDE100", line: "#FDE100" },
-      { bg: "#F4F4F4", line: "#F4F4F4" },
-      { bg: "#DC052D", line: "#DC052D" },
-      { bg: "#6B7280", line: "#6B7280" },
-      { bg: "#444444", line: "#444444" },
-      { bg: "#22274A", line: "#22274A" },
+        { bg: "#FDE100", line: "#FDE100" },
+        { bg: "#F4F4F4", line: "#F4F4F4" },
+        { bg: "#DC052D", line: "#DC052D" },
+        { bg: "#6B7280", line: "#6B7280" },
+        { bg: "#444444", line: "#444444" },
+        { bg: "#22274A", line: "#22274A" },
     ],
     []
   );
 
   const playerColorCombinations = useMemo(
     () => [
-      { bg: "#FDE100", line: "#000000" },
-      { bg: "#DC052D", line: "#FFFFFF" },
-      { bg: "#D4DA65", line: "#000000" },
-      { bg: "#A093C2", line: "#FFFFFF" },
-      { bg: "#6CABDD", line: "#FFFFFF" },
-      { bg: "#22274A", line: "#FFFFFF" },
-      { bg: "#1D9053", line: "#FFFFFF" },
-      { bg: "#165349", line: "#FFFFFF" },
-      { bg: "#111425", line: "#FFFFFF" },
+        { bg: "#FDE100", line: "#000000" },
+        { bg: "#DC052D", line: "#FFFFFF" },
+        { bg: "#D4DA65", line: "#000000" },
+        { bg: "#A093C2", line: "#FFFFFF" },
+        { bg: "#6CABDD", line: "#FFFFFF" },
+        { bg: "#22274A", line: "#FFFFFF" },
+        { bg: "#1D9053", line: "#FFFFFF" },
+        { bg: "#165349", line: "#FFFFFF" },
+        { bg: "#111425", line: "#FFFFFF" },
     ],
     []
   );
@@ -124,7 +125,7 @@ const Sidebar = () => {
         lineHeight: 1.2,
       };
       addEquipment(newTextProps, "text");
-      setActiveMenu(null); 
+      setActiveMenu(null);
     } else {
       setActiveMenu(activeMenu === menu ? null : menu);
     }
@@ -132,14 +133,13 @@ const Sidebar = () => {
 
   const handlePitchSelect = async (svg) => {
     setSelectedSvg({ component: svg.component, id: svg.id });
-
     const modifiedSvgString = await getModifiedSvgString(
       svg.component,
       svgBgColor,
       svgLineColor
     );
     const dataUrl = createSvgDataUrl(modifiedSvgString);
-    setDrillPitch({ // Use setDrillPitch
+    setDrillPitch({
       id: `pitch-${svg.id}`,
       dataUrl,
       x: 0,
@@ -152,7 +152,6 @@ const Sidebar = () => {
     const { bg, line } = pitchColorCombinations[index];
     setSvgBgColor(bg);
     setSvgLineColor(line);
-
     if (selectedSvg) {
       const modifiedSvgString = await getModifiedSvgString(
         selectedSvg.component,
@@ -160,7 +159,7 @@ const Sidebar = () => {
         line
       );
       const dataUrl = createSvgDataUrl(modifiedSvgString);
-      setDrillPitch({ // Use setDrillPitch
+      setDrillPitch({
         id: `pitch-${selectedSvg.id}`,
         dataUrl,
         x: 0,
@@ -198,9 +197,7 @@ const Sidebar = () => {
   const handleDragStartAndAddToQuickAccess = useCallback(
     (dragData) => {
       setDraggedEquipmentSrc(dragData);
-      if (dragData.type !== "player") {
-        addQuickAccessItem(dragData);
-      }
+      addQuickAccessItem(dragData);
     },
     [setDraggedEquipmentSrc, addQuickAccessItem]
   );
@@ -212,13 +209,24 @@ const Sidebar = () => {
     [setDraggedEquipmentSrc]
   );
 
+  const handleItemClick = (item) => {
+    if (!isMobile) return;
+    if (item.type === "player") {
+      addEquipment(item, "player");
+    } else {
+      const { width, height } = getSvgDimensions(item.content);
+      addEquipment(item.content, item.type, { width, height });
+    }
+  };
+
   const handleAddLine = async (item) => {
     const coloredSvg = await getColoredSvgString(
       item.svg,
       "transparent",
       lineColor
     );
-    addEquipment(coloredSvg, item.type);
+    const { width, height } = getSvgDimensions(coloredSvg);
+    addEquipment(coloredSvg, item.type, { width, height });
     addQuickAccessItem({
       src: item.svg,
       name: item.name,
@@ -228,101 +236,38 @@ const Sidebar = () => {
   };
 
   const menuItems = [
-    {
-      name: "pitch",
-      icon: (props) => <SvgIcon src={Pitch} {...props} />,
-      label: "Pitch",
-    },
-    {
-      name: "quickAccess",
-      icon: (props) => <SvgIcon src={QuickAccessIcon} {...props} />,
-      label: "Quick Access",
-    },
-    {
-      name: "players",
-      icon: (props) => <SvgIcon src={PlayersIcon} {...props} />,
-      label: "Players",
-    },
-    {
-      name: "lines",
-      icon: (props) => <SvgIcon src={LinesIcon} {...props} />,
-      label: "Lines",
-    },
-    {
-      name: "equipment",
-      icon: (props) => <SvgIcon src={EquipmentIcon} {...props} />,
-      label: "Equipment",
-    },
-    {
-      name: "textNr",
-      icon: (props) => <SvgIcon src={TextNrIcon} {...props} />,
-      label: "Text & Nr.",
-    },
+    { name: "pitch", icon: (props) => <SvgIcon src={Pitch} {...props} />, label: "Pitch" },
+    { name: "quickAccess", icon: (props) => <SvgIcon src={QuickAccessIcon} {...props} />, label: "Quick Access" },
+    { name: "players", icon: (props) => <SvgIcon src={PlayersIcon} {...props} />, label: "Players" },
+    { name: "lines", icon: (props) => <SvgIcon src={LinesIcon} {...props} />, label: "Lines" },
+    { name: "equipment", icon: (props) => <SvgIcon src={EquipmentIcon} {...props} />, label: "Equipment" },
+    { name: "textNr", icon: (props) => <SvgIcon src={TextNrIcon} {...props} />, label: "Text & Nr." },
   ];
 
   const renderMenu = () => {
     switch (activeMenu) {
       case "pitch":
-        return (
-          <PitchMenu
-            colors={pitchColorCombinations}
-            activeColorIndex={activePitchColorIndex}
-            onColorSelect={handlePitchColorSelect}
-            onPitchSelect={handlePitchSelect}
-            svgBgColor={svgBgColor}
-          />
-        );
+        return <PitchMenu colors={pitchColorCombinations} activeColorIndex={activePitchColorIndex} onColorSelect={handlePitchColorSelect} onPitchSelect={handlePitchSelect} svgBgColor={svgBgColor} isMobile={isMobile} />;
       case "quickAccess":
-        return <QuickAccessMenu onDragStart={handleQuickAccessDragStart} />;
+        return <QuickAccessMenu onDragStart={handleQuickAccessDragStart} onClick={handleItemClick} isMobile={isMobile} />;
       case "players":
-        return (
-          <PlayersMenu
-            colors={playerColorCombinations}
-            activeColorIndex={activePlayerColorIndex}
-            onColorSelect={handlePlayerColorSelect}
-            onDragStart={handleDragStartAndAddToQuickAccess}
-          />
-        );
+        return <PlayersMenu colors={playerColorCombinations} activeColorIndex={activePlayerColorIndex} onColorSelect={handlePlayerColorSelect} onDragStart={handleDragStartAndAddToQuickAccess} onClick={handleItemClick} isMobile={isMobile} />;
       case "lines":
-        return (
-          <LinesMenu
-            colors={lineColorCombinations}
-            activeColorIndex={activeLineColorIndex}
-            onColorSelect={handleLineColorSelect}
-            onLineAdd={handleAddLine}
-          />
-        );
+        return <LinesMenu colors={lineColorCombinations} activeColorIndex={activeLineColorIndex} onColorSelect={handleLineColorSelect} onLineAdd={handleAddLine} isMobile={isMobile} />;
       case "equipment":
-        return (
-          <EquipmentMenu
-            colors={equipmentColorCombinations}
-            activeColorIndex={activeEquipmentColorIndex}
-            onColorSelect={handleEquipmentColorSelect}
-            onDragStart={handleDragStartAndAddToQuickAccess}
-          />
-        );
+        return <EquipmentMenu colors={equipmentColorCombinations} activeColorIndex={activeEquipmentColorIndex} onColorSelect={handleEquipmentColorSelect} onDragStart={handleDragStartAndAddToQuickAccess} onClick={handleItemClick} isMobile={isMobile} />;
       case "shapes":
-        return (
-          <ShapeMenu
-            colors={equipmentColorCombinations}
-            activeColorIndex={activeShapeColorIndex}
-            onColorSelect={handleShapeColorSelect}
-            onDragStart={handleDragStartAndAddToQuickAccess}
-          />
-        );
+        return <ShapeMenu colors={equipmentColorCombinations} activeColorIndex={activeShapeColorIndex} onColorSelect={handleShapeColorSelect} onDragStart={handleDragStartAndAddToQuickAccess} isMobile={isMobile} />;
       default:
         return null;
     }
   };
 
-  if (width < 800) {
+  if (isMobile) {
     return (
       <>
         <MobileFooter menuItems={menuItems} onMenuClick={handleMenuClick} />
-        <MobileMenu
-          activeMenu={activeMenu}
-          onClose={() => setActiveMenu(null)}
-        >
+        <MobileMenu activeMenu={activeMenu} onClose={() => setActiveMenu(null)}>
           {renderMenu()}
         </MobileMenu>
       </>
@@ -330,20 +275,22 @@ const Sidebar = () => {
   }
 
   return (
-    <div className="h-screen w-max p-14 relative min-[800px]:overflow-y-scroll min-[800px]:h-[100%]">
-      <div className="flex flex-col gap-5">
-        {menuItems.map((item) => (
-          <MenuButton
-            key={item.name}
-            icon={item.icon}
-            label={item.label}
-            onClick={() => handleMenuClick(item.name)}
-          />
-        ))}
+    <div className="h-full relative">
+      <div className="h-full w-max p-14 overflow-y-auto">
+        <div className="flex flex-col gap-5">
+          {menuItems.map((item) => (
+            <MenuButton
+              key={item.name}
+              icon={item.icon}
+              label={item.label}
+              onClick={() => handleMenuClick(item.name)}
+            />
+          ))}
+        </div>
       </div>
 
       {activeMenu && (
-        <div className="absolute top-0 right-[-150px] w-[180px] h-full bg-[#E6E6F4] rounded-lg shadow-lg p-3 overflow-y-auto z-50">
+        <div className="absolute top-0 left-full w-[180px] h-[90%] bg-[#E6E6F4] rounded-lg shadow-lg p-3 overflow-y-auto z-50">
           <button
             onClick={() => setActiveMenu(null)}
             className="absolute top-2 right-2 text-black"
