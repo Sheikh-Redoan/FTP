@@ -14,7 +14,6 @@ import {
 import QuickAccessMenu from "../../components/ui/QuickAccessMenu";
 import PlayersMenu from "../../components/ui/PlayersMenu";
 import LinesMenu from "../../components/ui/LinesMenu";
-import ShapeMenu from "../../components/ui/ShapeMenu";
 import { ReactSVG } from "react-svg";
 import MobileFooter from "./MobileFooter";
 import MobileMenu from "./MobileMenu";
@@ -27,6 +26,7 @@ import EquipmentIcon from "../../assets/SidebarIcons/Equipment.svg";
 import PlayersIcon from "../../assets/SidebarIcons/Players.svg";
 import LinesIcon from "../../assets/SidebarIcons/Lines.svg";
 import TextNrIcon from "../../assets/SidebarIcons/Text&Nr.svg";
+// Assuming you have a ShapeIcon, if not, you can reuse another one like EquipmentIcon
 
 const SvgIcon = ({ src, className }) => (
   <ReactSVG src={src} className={className} wrapper="div" />
@@ -63,48 +63,48 @@ const Sidebar = () => {
 
   const pitchColorCombinations = useMemo(
     () => [
-        { bg: "#00A859", line: "#FFFFFF" },
-        { bg: "#FFFFFF", line: "#0055A4" },
-        { bg: "#FFFFFF", line: "#000000" },
-        { bg: "#0055A4", line: "#FF0000" },
+      { bg: "#00A859", line: "#FFFFFF" },
+      { bg: "#FFFFFF", line: "#0055A4" },
+      { bg: "#FFFFFF", line: "#000000" },
+      { bg: "#0055A4", line: "#FF0000" },
     ],
     []
   );
 
   const equipmentColorCombinations = useMemo(
     () => [
-        { bg: "#D4DA65", line: "#D4DA65" },
-        { bg: "#22274A", line: "#22274A" },
-        { bg: "#DC052D", line: "#DC052D" },
-        { bg: "#6CABDD", line: "#6CABDD" },
-        { bg: "#FDE100", line: "#FDE100" },
+      { bg: "#D4DA65", line: "#D4DA65" },
+      { bg: "#22274A", line: "#22274A" },
+      { bg: "#DC052D", line: "#DC052D" },
+      { bg: "#6CABDD", line: "#6CABDD" },
+      { bg: "#FDE100", line: "#FDE100" },
     ],
     []
   );
 
   const lineColorCombinations = useMemo(
     () => [
-        { bg: "#FDE100", line: "#FDE100" },
-        { bg: "#F4F4F4", line: "#F4F4F4" },
-        { bg: "#DC052D", line: "#DC052D" },
-        { bg: "#6B7280", line: "#6B7280" },
-        { bg: "#444444", line: "#444444" },
-        { bg: "#22274A", line: "#22274A" },
+      { bg: "#FDE100", line: "#FDE100" },
+      { bg: "#F4F4F4", line: "#F4F4F4" },
+      { bg: "#DC052D", line: "#DC052D" },
+      { bg: "#6B7280", line: "#6B7280" },
+      { bg: "#444444", line: "#444444" },
+      { bg: "#22274A", line: "#22274A" },
     ],
     []
   );
 
   const playerColorCombinations = useMemo(
     () => [
-        { bg: "#FDE100", line: "#000000" },
-        { bg: "#DC052D", line: "#FFFFFF" },
-        { bg: "#D4DA65", line: "#000000" },
-        { bg: "#A093C2", line: "#FFFFFF" },
-        { bg: "#6CABDD", line: "#FFFFFF" },
-        { bg: "#22274A", line: "#FFFFFF" },
-        { bg: "#1D9053", line: "#FFFFFF" },
-        { bg: "#165349", line: "#FFFFFF" },
-        { bg: "#111425", line: "#FFFFFF" },
+      { bg: "#FDE100", line: "#000000" },
+      { bg: "#DC052D", line: "#FFFFFF" },
+      { bg: "#D4DA65", line: "#000000" },
+      { bg: "#A093C2", line: "#FFFFFF" },
+      { bg: "#6CABDD", line: "#FFFFFF" },
+      { bg: "#22274A", line: "#FFFFFF" },
+      { bg: "#1D9053", line: "#FFFFFF" },
+      { bg: "#165349", line: "#FFFFFF" },
+      { bg: "#111425", line: "#FFFFFF" },
     ],
     []
   );
@@ -241,7 +241,8 @@ const Sidebar = () => {
     { name: "players", icon: (props) => <SvgIcon src={PlayersIcon} {...props} />, label: "Players" },
     { name: "lines", icon: (props) => <SvgIcon src={LinesIcon} {...props} />, label: "Lines" },
     { name: "equipment", icon: (props) => <SvgIcon src={EquipmentIcon} {...props} />, label: "Equipment" },
-    { name: "textNr", icon: (props) => <SvgIcon src={TextNrIcon} {...props} />, label: "Text & Nr." },
+    // Added "shapes" to the menu
+   { name: "textNr", icon: (props) => <SvgIcon src={TextNrIcon} {...props} />, label: "Text & Nr." },
   ];
 
   const renderMenu = () => {
